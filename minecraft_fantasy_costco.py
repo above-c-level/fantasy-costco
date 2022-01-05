@@ -129,11 +129,9 @@ def add_mass():
 # position
 x_vals = []
 y_vals = []
-y2 = []
 for i in range(100):
     x_vals.append(i)
     y_vals.append(shown_price)
-    y2.append(hidden_price)
     ############################################################################
     # ! IN THE ACTUAL PLUGIN, WE'LL ALLOW FOR TRADING UP TO A FULL STACK AT ONCE
     # ! THIS PYTHON TEST FILE IS DESIGNED FOR BUYING/SELLING ONLY 1 ITEM AT ONCE
@@ -195,12 +193,5 @@ trace = Scatter(
     connectgaps=False,
 )
 data.append(trace)
-# trace = Scatter(
-#     x=x_vals,
-#     y=y2,
-#     mode='lines',
-#     connectgaps=False,
-# )
-# data.append(trace)
 fig = Figure(data=data)
 fig.show()
