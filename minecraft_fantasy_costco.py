@@ -7,7 +7,7 @@ mass = 5
 mass_per_transaction = 1
 # This limits how high the mass of a commodity can go. This means that
 # selling/buying can always modify price a little bit
-maximum_mass = 5000
+maximum_mass = 1000
 # This prevents the shown price from changing *too* quickly
 max_pct_change = 0.05
 # The starting and hidden price of the commodity
@@ -18,9 +18,8 @@ var_multiplier = 1 / 50
 # This affects the variation based on mass, so that when `mass` approaches 0,
 # variation is multiplied by `mass_var_min`, and when `mass` approaches
 # `maximum_mass`, the variation is multiplied by `mass_var_max`
-# TODO: Finish working out the math for this
-mass_var_min = 2
-mass_var_max = 1 / 2
+mass_var_min = 1
+mass_var_max = 1 / 10
 # 0.05 is a spread of 5% at the most ideal price
 price_spread = 0.05
 # 0.001 results in a price difference between 1 item and a stack of 64 of:
@@ -51,6 +50,18 @@ def sell_price(input_price, amount, stack_size=64):
     hyperbola = -surcharge_curve_epsilon * stack_size / amount
     price_offset = surcharge_curve_epsilon * input_price
     return buy_mult * input_price * (1 + hyperbola) + price_offset
+
+
+def lerp(x, x_0, y_0, x_1, y_1):
+    """
+    Linearly interpolates `x` between the points (x_0, y_0) and (x_1, y_1)
+    """
+    # Literally just the formula for linear interpolation
+    # if you have a function `func` that goes between 0 and 1, you can also
+    # interpolate with that function by replacing it with
+    # (y_1 - y_0) * func((x - x_0) / (x_1 - x_0)) + y_0
+    # For more, see here: https://www.desmos.com/calculator/6wh1xdmhc5
+    return (y_1 - y_0) * ((x - x_0) / (x_1 - x_0)) + y_0
 
 
 def smoothstep(x):
@@ -132,7 +143,7 @@ for i in range(100):
     while True:
         end = False
         response = input(
-            f"Current buy/sell price is {buy}/{sell}. [b]uy, [s]ell, [h]old, or [q]uit?"
+            f"Current buy/sell price is {buy:.2f}/{sell:.2f}. [b]uy, [s]ell, [h]old, or [q]uit?"
         )
         response = response.lower()
         if len(response) == 0:
@@ -162,7 +173,8 @@ for i in range(100):
     # hopefully this is either unnecessary or doesn't happen often
     # but just in case
     hidden_price = abs(hidden_price)
-    variation = hidden_price * var_multiplier
+    mass_var = lerp(mass, 0, mass_var_min, maximum_mass, mass_var_max)
+    variation = hidden_price * var_multiplier * mass_var
     scale = variation
     hidden_price += np.random.normal(loc=hidden_price,
                                      scale=scale) - hidden_price
