@@ -142,6 +142,7 @@ for i in range(100):
     sell = sell_price(shown_price, 1, stack_size=64)
     while True:
         end = False
+        # In the plugin, hold is just what happens when nobody buys/sells
         response = input(
             f"Current buy/sell price is {buy:.2f}/{sell:.2f}. [b]uy, [s]ell, [h]old, or [q]uit?"
         )
@@ -150,14 +151,17 @@ for i in range(100):
             response = 'h'
         if response == "h":
             smooth_price()
-
             break
         elif response == "b":
+            # In plugin, add check for sufficient funds in player's account
+            # If they do, then their account should be -= buy * sell_amount
             hidden_price += push_amount()
             smooth_price()
             add_mass()
             break
         elif response == "s":
+            # in plugin, check for sufficient item count in inventory
+            # If they do, then their account should be += sell * sell_amount
             hidden_price -= push_amount()
             smooth_price()
             add_mass()
