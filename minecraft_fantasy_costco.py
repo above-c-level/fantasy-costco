@@ -127,8 +127,8 @@ for i in range(100):
     # ! IN THE ACTUAL PLUGIN, WE'LL ALLOW FOR TRADING UP TO A FULL STACK AT ONCE
     # ! THIS PYTHON TEST FILE IS DESIGNED FOR BUYING/SELLING ONLY 1 ITEM AT ONCE
     ############################################################################
-    buy = buy_price(shown_price, 1)
-    sell = sell_price(shown_price, 1)
+    buy = buy_price(shown_price, 1, stack_size=64)
+    sell = sell_price(shown_price, 1, stack_size=64)
     while True:
         end = False
         response = input(
