@@ -45,11 +45,14 @@ data class Merchandise(
         }
     }
 
-    // TODO: Check this:
-    // ? There's probably a way to automatically get this? In the meantime,
-    // ? this just returns 64
-    fun getMaxStackSize(): Int {
-        return 64
+    /** Gets the buy price of `amount` of this item */
+    fun itemBuyPrice(amount: Int) {
+        return CostcoUtils.buyPrice(this.shownPrice, amount, this.material.getMaxStackSize())
+    }
+
+    /** Gets the sell price of `amount` of this item */
+    fun itemSellPrice(amount: Int) {
+        return CostcoUtils.sellPrice(this.shownPrice, amount, this.material.getMaxStackSize())
     }
 
     fun perturbPrice() {
