@@ -1,9 +1,7 @@
 package games.skweekychair.fantasycostco
 
-import org.bukkit.plugin.java.JavaPlugin
-
 /** Holds useful methods for the fantasy costco stock simulator. */
-class CostcoUtils : JavaPlugin() {
+object CostcoUtils {
     /**
      * Returns the buy price given given an ideal price, the number of items being purchased, and
      * the maximum amount that can be held in one stack.

@@ -74,7 +74,7 @@ def smoothstep(x):
         return 3 * x**2 - 2 * x**3
 
 
-def lerp_clamp(x, upper_bound, lower_bound, multiplier=0.25):
+def lerp_clamp(x, upper_bound, lower_bound, multiplier):
     """
     Combination of lerp and clamp. Linearly interpolates between 0 and
     some `multiplier` between `lower_bound` and `upper_bound`, but it

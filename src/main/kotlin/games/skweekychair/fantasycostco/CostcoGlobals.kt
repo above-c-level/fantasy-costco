@@ -29,7 +29,13 @@ object CostcoGlobals {
     // 10.63 and 10 for buy prices (10 is the idealized price in this example)
     val surchargeCurveEpsilon = 0.001
 
-    val buyMult = (1.0 + priceSpread / 2.0)
+    val buyMult = 1.0 + priceSpread / 2.0
 
-    val sellMult = (1.0 - priceSpread / 2.0)
+    val sellMult = 1.0 - priceSpread / 2.0
+
+    // How hard to clamp down on the distance a commodity can travel from its "ideal" price
+    // This seems to work best with values between 0.25 and 0.5 based on preliminary testing.
+    // Hypothetically, a market running randomly would run with a value of 0, but we don't want
+    // values to wander *too* much
+    val clampMultiplier = 0.5
 }
