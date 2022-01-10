@@ -1,6 +1,14 @@
 package games.skweekychair.fantasycostco
 
+import org.bukkit.Material
 import org.bukkit.plugin.java.JavaPlugin
+
+data class Merchandise(
+        var material: Material,
+        var mass: Double,
+        var hiddenPrice: Double,
+        var shownPrice: Double
+)
 
 class CostcoPlugin : JavaPlugin() {
 

@@ -23,8 +23,8 @@ mass_var_max = 1 / 10
 # 0.05 is a spread of 5% at the most ideal price
 price_spread = 0.05
 # 0.001 results in a price difference between 1 item and a stack of 64 of:
-# 9.37 and 10 for sell prices (10 is the idealized price)
-# 10.63 and 10 for buy prices (10 is the idealized price)
+# 9.37 and 10 for sell prices (10 is the idealized price in this example)
+# 10.63 and 10 for buy prices (10 is the idealized price in this example)
 surcharge_curve_epsilon = 0.001
 # Start out with the shown price the same
 shown_price = hidden_price
