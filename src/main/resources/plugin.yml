@@ -1,1 +1,12 @@
-hi there!
+name: FantasyCostco
+main: games.skweekychair.fantasycostco.CostcoPlugin
+version: 0.1
+
+# commands:
+#   addhome:
+#     description: add a new home at current locatin with name
+#     usage: /<command> [name]
+#     permission: countryroads.addhome
+# permissions:
+#   countryroads.addhome:
+#     default: true
