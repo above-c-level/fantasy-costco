@@ -9,9 +9,9 @@ class CostcoUtils : JavaPlugin() {
      * the maximum amount that can be held in one stack.
      */
     fun buyPrice(inputPrice: Double, amount: Int, stackSize: Int = 64): Double {
-        val hyperbola: Double = CostcoGlobals.getSurchargeCurveEpsilon() * stackSize / amount
-        val priceOffset: Double = CostcoGlobals.getSurchargeCurveEpsilon() * inputPrice
-        return CostcoGlobals.getBuyMult() * inputPrice * (1 + hyperbola) - priceOffset
+        val hyperbola: Double = CostcoGlobals.surchargeCurveEpsilon * stackSize / amount
+        val priceOffset: Double = CostcoGlobals.surchargeCurveEpsilon * inputPrice
+        return CostcoGlobals.buyMult * inputPrice * (1 + hyperbola) - priceOffset
     }
 
     /**
@@ -19,10 +19,10 @@ class CostcoUtils : JavaPlugin() {
      * the maximum amount that can be held in one stack.
      */
     fun sellPrice(inputPrice: Double, amount: Int, stackSize: Int = 64): Double {
-        val hyperbola: Double = -CostcoGlobals.getSurchargeCurveEpsilon() * stackSize / amount
-        val priceOffset: Double = CostcoGlobals.getSurchargeCurveEpsilon() * inputPrice
+        val hyperbola: Double = -CostcoGlobals.surchargeCurveEpsilon * stackSize / amount
+        val priceOffset: Double = CostcoGlobals.surchargeCurveEpsilon * inputPrice
         // TODO: Check this--the python file uses buy_mult
-        return CostcoGlobals.getSellMult() * inputPrice * (1 + hyperbola) + priceOffset
+        return CostcoGlobals.sellMult * inputPrice * (1 + hyperbola) + priceOffset
     }
 
     /** Linearly interpolates `x` between the points (x0, y0) and (x1, y1) */
