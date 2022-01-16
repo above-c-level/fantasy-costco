@@ -46,12 +46,12 @@ data class Merchandise(
     }
 
     /** Gets the buy price of `amount` of this item */
-    fun itemBuyPrice(amount: Int) {
+    fun itemBuyPrice(amount: Int): Double {
         return CostcoUtils.buyPrice(this.shownPrice, amount, this.material.getMaxStackSize())
     }
 
     /** Gets the sell price of `amount` of this item */
-    fun itemSellPrice(amount: Int) {
+    fun itemSellPrice(amount: Int): Double {
         return CostcoUtils.sellPrice(this.shownPrice, amount, this.material.getMaxStackSize())
     }
 
