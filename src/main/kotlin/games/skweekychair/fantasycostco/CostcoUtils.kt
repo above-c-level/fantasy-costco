@@ -4,6 +4,7 @@ import java.io.File
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import org.bukkit.Bukkit
+import org.bukkit.entity.Player
 
 /** Holds useful methods for the fantasy costco stock simulator. */
 
@@ -24,6 +25,15 @@ fun saveAll() {
     val logger = Bukkit.getServer().getLogger()
     logger.info("[FantasyCostco] Saving wallets")
     saveWallets(wallets)
+}
+
+fun walletAdd(player: Player, amount: Double) {
+    wallets[player.uniqueId.toString()] =
+            wallets.getOrDefault(player.uniqueId.toString(), CostcoGlobals.defaultWallet) + amount
+}
+
+fun walletSubtract(player: Player, amount: Double) {
+    walletAdd(player, -amount)
 }
 
 /**

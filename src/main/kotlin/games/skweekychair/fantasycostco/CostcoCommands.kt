@@ -28,8 +28,7 @@ object SellCommand : TabExecutor {
         }
         sender.sendMessage("The sell price is ${merchandise.itemSellPrice(item.amount)}")
 
-        wallets[player.uniqueId.toString()] =
-                wallets.getOrDefault(player.uniqueId.toString(), CostcoGlobals.defaultWallet) + 1.9
+        walletAdd(player, 1.9)
 
         saveWallets(wallets)
 
