@@ -3,6 +3,7 @@ package games.skweekychair.fantasycostco
 import java.io.File
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
+import org.bukkit.Bukkit
 
 /** Holds useful methods for the fantasy costco stock simulator. */
 
@@ -16,6 +17,13 @@ fun saveWallets(wallets: HashMap<String, Double>) {
 fun loadWallets(): HashMap<String, Double> {
     val readFile = File("wallets.json").bufferedReader().readText()
     return Json.decodeFromString(readFile)
+}
+
+fun saveAll() {
+    // TODO: Add merchandise saving here also
+    val logger = Bukkit.getServer().getLogger()
+    logger.info("[FantasyCostco] Saving wallets")
+    saveWallets(wallets)
 }
 
 /**
