@@ -4,9 +4,9 @@ import org.bukkit.plugin.java.JavaPlugin
 
 class CostcoPlugin : JavaPlugin() {
 
-    @override
-    fun onEnable() {
+    override fun onEnable() {
         saveDefaultConfig()
+        CostcoGlobals.spigotConfig = getConfig()
     }
 
 }

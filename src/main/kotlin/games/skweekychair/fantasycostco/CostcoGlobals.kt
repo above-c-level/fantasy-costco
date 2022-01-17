@@ -1,8 +1,14 @@
 package games.skweekychair.fantasycostco
 
+import org.bukkit.configuration.file.FileConfiguration
+import org.bukkit.configuration.file.YamlConfiguration
+import org.bukkit.configuration.ConfigurationSection
+
 object CostcoGlobals {
+    var spigotConfig: FileConfiguration = YamlConfiguration()
+    
     // Mass to add to each transaction
-    val massPerTransaction = 1.0
+    val massPerTransaction get() = spigotConfig.getDouble("mass-per-transaction", 1.0)
 
     // This limits how high the mass of a commodity can go. This means that
     // selling/buying can always modify price a little bit
