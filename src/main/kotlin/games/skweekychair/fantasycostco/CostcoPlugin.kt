@@ -14,8 +14,6 @@ var wallets = HashMap<String, Double>()
 class CostcoPlugin : JavaPlugin() {
 
     override fun onEnable() {
-        val logger = Bukkit.getServer().getLogger()
-        logger.info("[FantasyCostco] Starting up")
         Bukkit.getServer().getPluginManager().registerEvents(CostcoListener(), this)
         saveDefaultConfig()
         var config = getConfig()
