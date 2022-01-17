@@ -38,4 +38,6 @@ object CostcoGlobals {
     // Hypothetically, a market running randomly would run with a value of 0, but we don't want
     // values to wander *too* much
     val clampMultiplier = 0.5
+
+    val startingMass = 5
 }
