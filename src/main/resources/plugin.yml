@@ -1,6 +1,7 @@
 name: FantasyCostco
 main: games.skweekychair.fantasycostco.CostcoPlugin
 version: 0.1
+api-version: 1.18
 
 commands:
   buy:
