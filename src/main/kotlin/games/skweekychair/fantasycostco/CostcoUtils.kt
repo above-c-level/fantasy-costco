@@ -19,8 +19,8 @@ fun loadWallets(): HashMap<String, Double> {
 }
 
 /**
- * Returns the buy price given given an ideal price, the number of items being purchased, and
- * the maximum amount that can be held in one stack.
+ * Returns the buy price given given an ideal price, the number of items being purchased, and the
+ * maximum amount that can be held in one stack.
  */
 fun buyPrice(inputPrice: Double, amount: Int, stackSize: Int = 64): Double {
     val hyperbola: Double = CostcoGlobals.surchargeCurveEpsilon * stackSize / amount
@@ -29,8 +29,8 @@ fun buyPrice(inputPrice: Double, amount: Int, stackSize: Int = 64): Double {
 }
 
 /**
- * Returns the sell price given given an ideal price, the number of items being purchased, and
- * the maximum amount that can be held in one stack.
+ * Returns the sell price given given an ideal price, the number of items being purchased, and the
+ * maximum amount that can be held in one stack.
  */
 fun sellPrice(inputPrice: Double, amount: Int, stackSize: Int = 64): Double {
     val hyperbola: Double = -CostcoGlobals.surchargeCurveEpsilon * stackSize / amount
