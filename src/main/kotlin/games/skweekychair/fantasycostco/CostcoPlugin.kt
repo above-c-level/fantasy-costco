@@ -5,6 +5,7 @@ import org.bukkit.World
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
+import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.world.WorldSaveEvent
@@ -12,6 +13,7 @@ import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.plugin.java.JavaPlugin
 
 var wallets = HashMap<String, Double>()
+var merch = HashSet<Merchandise>()
 
 class CostcoPlugin : JavaPlugin() {
 
@@ -23,6 +25,14 @@ class CostcoPlugin : JavaPlugin() {
 
         getCommand("buy")?.setExecutor(BuyCommand)
         getCommand("sell")?.setExecutor(SellCommand)
+
+        val scheduler = Bukkit.getServer().getScheduler()
+        scheduler.runTaskTimer(
+                this,
+                Perturber(),
+                CostcoGlobals.secondsBetweenPriceMotion,
+                CostcoGlobals.secondsBetweenPriceMotion
+        )
     }
 
     override fun onDisable() {
@@ -43,7 +53,8 @@ class CostcoListener : Listener {
     @EventHandler(priority = EventPriority.NORMAL)
     fun onPlayerInteract(event: PlayerInteractEvent) {
 
-        if (event.getHand() == EquipmentSlot.HAND) {
+        if (event.getHand() == EquipmentSlot.HAND && event.getAction() == Action.RIGHT_CLICK_BLOCK
+        ) {
             val helditem = event.getMaterial().name
             // Block is null when right clicking air with an item
             val block = event.getClickedBlock()?.getType()?.name

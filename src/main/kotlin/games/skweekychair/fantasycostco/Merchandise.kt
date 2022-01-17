@@ -1,7 +1,18 @@
 package games.skweekychair.fantasycostco
 
 import java.util.Random
+import org.bukkit.Bukkit
 import org.bukkit.Material
+
+// Holds for each item registered already
+class Perturber : Runnable {
+    override fun run() {
+        for (item in merch) {
+            item.hold()
+        }
+        Bukkit.broadcastMessage("Perturbed prices of ${merch.size} items")
+    }
+}
 
 data class Merchandise(
         var material: Material,

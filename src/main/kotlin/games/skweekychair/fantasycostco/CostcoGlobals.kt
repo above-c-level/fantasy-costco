@@ -56,6 +56,9 @@ object CostcoGlobals {
     val startingMass
         get() = spigotConfig.getDouble("starting-mass", 5.0)
 
+    val secondsBetweenPriceMotion
+        get() = spigotConfig.getLong("seconds-between-price-motion", 60L) * 20
+
     // Not stored in config because they're just helper values
     val buyMult
         get() = 1.0 + priceSpread / 2.0
