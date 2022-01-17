@@ -15,14 +15,18 @@ object SellCommand : TabExecutor {
             args: Array<String>
     ): Boolean {
         if (sender !is Player) {
-            sender.sendMessage(ChatColor.RED.char + "You have to be a player to use this command.")
+            sender.sendMessage(
+                    ChatColor.RED.toString() + "You have to be a player to use this command."
+            )
             return false
         }
 
         val player = sender as Player
 
-        val item = player.inventory.itemInMainHand.type.name
-        sender.sendMessage("$item")
+        val item = player.inventory.itemInMainHand
+        val name = item.type.name
+        val count = item.amount
+        sender.sendMessage("You are holding $count of $name")
 
         return true
     }
