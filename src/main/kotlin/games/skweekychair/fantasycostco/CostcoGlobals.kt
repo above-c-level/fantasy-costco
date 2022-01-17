@@ -6,6 +6,10 @@ import org.bukkit.configuration.file.YamlConfiguration
 object CostcoGlobals {
     var spigotConfig: FileConfiguration = YamlConfiguration()
 
+    // Starting amount in wallet
+    val defaultWallet
+        get() = spigotConfig.getDouble("default-wallet", 10.0)
+
     // Mass to add to each transaction
     val massPerTransaction
         get() = spigotConfig.getDouble("mass-per-transaction", 1.0)
@@ -53,6 +57,8 @@ object CostcoGlobals {
         get() = spigotConfig.getDouble("starting-mass", 5.0)
 
     // Not stored in config because they're just helper values
-    val buyMult get() = 1.0 + priceSpread / 2.0
-    val sellMult get() = 1.0 - priceSpread / 2.0
+    val buyMult
+        get() = 1.0 + priceSpread / 2.0
+    val sellMult
+        get() = 1.0 - priceSpread / 2.0
 }

@@ -7,4 +7,5 @@ mass-var-max: 0.1
 price-spread: 0.05
 surcharge-curve-epsilon: 0.001
 clamp-multiplier: 0.5
-starting-mass: 5
+starting-mass: 5.0
+default-wallet: 10.0

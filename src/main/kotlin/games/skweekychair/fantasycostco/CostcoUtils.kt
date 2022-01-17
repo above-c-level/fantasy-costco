@@ -1,7 +1,24 @@
 package games.skweekychair.fantasycostco
 
+import java.io.File
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
 /** Holds useful methods for the fantasy costco stock simulator. */
 object CostcoUtils {
+
+    // TODO: *Ideally*, return type should be HashMap<UUID, Double>
+    // TODO: Update wallets.json path
+    fun saveWallets(wallets: HashMap<String, Double>) {
+        val jsonString = Json.encodeToString(wallets)
+        File("wallets.json").bufferedWriter().use { out -> out.write(jsonString) }
+    }
+
+    fun loadWallets(): HashMap<String, Double> {
+        val readFile = File("wallets.json").bufferedReader().readText()
+        return Json.decodeFromString(readFile)
+    }
+
     /**
      * Returns the buy price given given an ideal price, the number of items being purchased, and
      * the maximum amount that can be held in one stack.

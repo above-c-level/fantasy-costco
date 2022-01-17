@@ -18,8 +18,7 @@ object SellCommand : TabExecutor {
             sender.sendMessage("${ChatColor.RED}You have to be a player to use this command.")
             return false
         }
-
-        val player = sender as Player
+        val player = sender
 
         val item = player.inventory.itemInMainHand
         val merchandise = Merchandise(item.type, CostcoGlobals.startingMass, 5.0)
@@ -28,6 +27,13 @@ object SellCommand : TabExecutor {
             merchandise.hold()
         }
         sender.sendMessage("The sell price is ${merchandise.itemSellPrice(item.amount)}")
+
+        wallets[player.uniqueId.toString()] =
+                wallets.getOrDefault(player.uniqueId.toString(), CostcoGlobals.defaultWallet) + 1.9
+
+        CostcoUtils.saveWallets(wallets)
+
+        sender.sendMessage("${CostcoUtils.loadWallets()}")
 
         return true
     }
