@@ -16,7 +16,7 @@ object SellCommand : TabExecutor {
     ): Boolean {
         if (sender !is Player) {
             sender.sendMessage(
-                    ChatColor.RED.toString() + "You have to be a player to use this command."
+                    "${ChatColor.RED}You have to be a player to use this command."
             )
             return false
         }
