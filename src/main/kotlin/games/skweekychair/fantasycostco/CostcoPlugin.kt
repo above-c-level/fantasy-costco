@@ -14,10 +14,10 @@ class CostcoPlugin : JavaPlugin() {
     override fun onEnable() {
         saveDefaultConfig()
         var config = getConfig()
-        CostcoGlobals.spigotConfig = config
+        CostcoGlobals.spigotConfig = config;
 
-        getCommand("buy").executor = BuyCommand
-        getCommand("sell").executor = SellCommand
+        getCommand("buy")?.executor = BuyCommand;
+        getCommand("sell")?.executor = SellCommand;
 
         instance = this
     }
