@@ -2,11 +2,18 @@ name: FantasyCostco
 main: games.skweekychair.fantasycostco.CostcoPlugin
 version: 0.1
 
-# commands:
-#   addhome:
-#     description: add a new home at current locatin with name
-#     usage: /<command> [name]
-#     permission: countryroads.addhome
-# permissions:
-#   countryroads.addhome:
-#     default: true
+commands:
+  buy:
+    description: Buy specified quantity of specified item from server
+    usage: /<command> [item] [quantity]
+    permission: fantastycostco.buy
+  sell:
+    description: Sell item stack in hand to the server
+    usage: /<command>
+    permission: fantasycostco.sell
+permissions:
+  fantasycostco.buy:
+    default: true
+  fantasycostco.sell:
+    default: true
+
