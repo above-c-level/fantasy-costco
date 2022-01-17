@@ -9,6 +9,13 @@ data class Merchandise(
         var hiddenPrice: Double,
         var shownPrice: Double
 ) {
+
+    constructor(
+            material: Material,
+            mass: Double,
+            startingPrice: Double
+    ) : this(material, mass, startingPrice, startingPrice)
+
     // TODO: Make sure these to work properly
     /** Calculates the magnitude of the change of price given a transaction */
     fun pushAmount(): Double {

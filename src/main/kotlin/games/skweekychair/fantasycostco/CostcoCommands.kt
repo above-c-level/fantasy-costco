@@ -15,16 +15,18 @@ object SellCommand : TabExecutor {
             args: Array<String>
     ): Boolean {
         if (sender !is Player) {
-            sender.sendMessage(
-                    "${ChatColor.RED}You have to be a player to use this command."
-            )
+            sender.sendMessage("${ChatColor.RED}You have to be a player to use this command.")
             return false
         }
 
         val player = sender as Player
 
         val item = player.inventory.itemInMainHand
-        val merchandise = Merchandise(item.type, CostcoGlobals.startingMass, 5.0, 5.0)
+        val merchandise = Merchandise(item.type, CostcoGlobals.startingMass, 5.0)
+        sender.sendMessage("The sell price is ${merchandise.itemSellPrice(item.amount)}")
+        for (i in 1..10) {
+            merchandise.hold()
+        }
         sender.sendMessage("The sell price is ${merchandise.itemSellPrice(item.amount)}")
 
         return true
