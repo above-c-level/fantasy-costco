@@ -54,12 +54,12 @@ data class Merchandise(
 
     /** Gets the buy price of `amount` of this item */
     fun itemBuyPrice(amount: Int): Double {
-        return CostcoUtils.buyPrice(this.shownPrice, amount, this.material.getMaxStackSize())
+        return buyPrice(this.shownPrice, amount, this.material.getMaxStackSize())
     }
 
     /** Gets the sell price of `amount` of this item */
     fun itemSellPrice(amount: Int): Double {
-        return CostcoUtils.sellPrice(this.shownPrice, amount, this.material.getMaxStackSize())
+        return sellPrice(this.shownPrice, amount, this.material.getMaxStackSize())
     }
 
     fun perturbPrice() {
@@ -67,7 +67,7 @@ data class Merchandise(
         // but just in case
         this.hiddenPrice = Math.abs(this.hiddenPrice)
         val massVar: Double =
-                CostcoUtils.lerp(
+                lerp(
                         this.mass,
                         0.0,
                         CostcoGlobals.massVarMin,
@@ -79,7 +79,7 @@ data class Merchandise(
         this.hiddenPrice += gaussian
         val dist = Math.abs(this.hiddenPrice - this.shownPrice)
         val correctionGain =
-                CostcoUtils.lerpClamp(
+                lerpClamp(
                         dist,
                         this.hiddenPrice,
                         this.hiddenPrice / 2.0,

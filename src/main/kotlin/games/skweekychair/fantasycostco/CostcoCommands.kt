@@ -31,9 +31,9 @@ object SellCommand : TabExecutor {
         wallets[player.uniqueId.toString()] =
                 wallets.getOrDefault(player.uniqueId.toString(), CostcoGlobals.defaultWallet) + 1.9
 
-        CostcoUtils.saveWallets(wallets)
+        saveWallets(wallets)
 
-        sender.sendMessage("${CostcoUtils.loadWallets()}")
+        sender.sendMessage("${loadWallets()}")
 
         return true
     }

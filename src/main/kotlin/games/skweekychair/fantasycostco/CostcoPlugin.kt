@@ -1,6 +1,5 @@
 package games.skweekychair.fantasycostco
 
-import java.util.UUID
 import org.bukkit.plugin.java.JavaPlugin
 
 var wallets = HashMap<String, Double>()
