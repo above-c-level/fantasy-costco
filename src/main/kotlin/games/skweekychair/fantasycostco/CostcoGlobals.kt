@@ -53,6 +53,6 @@ object CostcoGlobals {
         get() = spigotConfig.getDouble("starting-mass", 5.0)
 
     // Not stored in config because they're just helper values
-    val buyMult = 1.0 + priceSpread / 2.0
-    val sellMult = 1.0 - priceSpread / 2.0
+    val buyMult get() = 1.0 + priceSpread / 2.0
+    val sellMult get() = 1.0 - priceSpread / 2.0
 }
