@@ -5,8 +5,10 @@ import org.bukkit.World
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
+import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.world.WorldSaveEvent
+import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.plugin.java.JavaPlugin
 
 var wallets = HashMap<String, Double>()
@@ -36,6 +38,17 @@ class CostcoListener : Listener {
     @EventHandler(priority = EventPriority.NORMAL)
     fun onPlayerJoin(event: PlayerJoinEvent) {
         Bukkit.getServer().getLogger().info("[FantasyCostco] Player joined")
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL)
+    fun onPlayerInteract(event: PlayerInteractEvent) {
+
+        if (event.getHand() == EquipmentSlot.HAND) {
+            val helditem = event.getMaterial().name
+            // Block is null when right clicking air with an item
+            val block = event.getClickedBlock()?.getType()?.name
+            event.getPlayer().sendMessage("You right-clicked on $block with $helditem")
+        }
     }
 
     @EventHandler(priority = EventPriority.NORMAL)

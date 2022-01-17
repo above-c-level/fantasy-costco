@@ -29,7 +29,6 @@ object SellCommand : TabExecutor {
         sender.sendMessage("The sell price is ${merchandise.itemSellPrice(item.amount)}")
 
         walletAdd(player, 1.9)
-
         saveWallets(wallets)
 
         sender.sendMessage("${loadWallets()}")
