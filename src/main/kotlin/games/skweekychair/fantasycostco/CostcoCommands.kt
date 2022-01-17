@@ -24,9 +24,8 @@ object SellCommand : TabExecutor {
         val player = sender as Player
 
         val item = player.inventory.itemInMainHand
-        val name = item.type.name
-        val count = item.amount
-        sender.sendMessage("You are holding $count of $name")
+        val merchandise = Merchandise(item.type, CostcoGlobals.startingMass, 5.0, 5.0)
+        sender.sendMessage("The sell price is ${merchandise.itemSellPrice(item.amount)}")
 
         return true
     }
