@@ -1,6 +1,7 @@
 package games.skweekychair.fantasycostco
 
 import java.io.File
+import java.util.UUID
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import org.bukkit.Bukkit
@@ -9,6 +10,11 @@ import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.EnchantmentStorageMeta
+import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.SerialDescriptor
 
 /** Holds useful methods for the fantasy costco stock simulator. */
 
@@ -160,4 +166,17 @@ fun getItemEnchants(item: ItemStack): Map<Enchantment, Int> {
         enchantments = item.enchantments
     }
     return enchantments ?: HashMap<Enchantment, Int>()
+}
+
+object UuidSerializer : KSerializer<UUID> {
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("UUID", PrimitiveKind.STRING)
+
+    override fun serialize(encoder: Encoder, value: UUID) {
+        val string = value.toString()
+        encoder.encodeString(string)
+    }
+
+    override fun deserialize(decoder: Decoder): UUID {
+        return UUID.fromString(decoder.decodeString())
+    }
 }
