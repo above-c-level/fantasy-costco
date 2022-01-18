@@ -12,15 +12,16 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta
 
 /** Holds useful methods for the fantasy costco stock simulator. */
 
+var dataPath = File("wallets.json") // CostcoPlugin.instance.getDataPath
+
 // TODO: *Ideally*, return type should be HashMap<UUID, Double>
-// TODO: Update wallets.json path
 fun saveWallets(wallets: HashMap<String, Double>) {
     val jsonString = Json.encodeToString(wallets)
-    File("wallets.json").bufferedWriter().use { out -> out.write(jsonString) }
+    dataPath.bufferedWriter().use { out -> out.write(jsonString) }
 }
 
 fun loadWallets(): HashMap<String, Double> {
-    val readFile = File("wallets.json").bufferedReader().readText()
+    val readFile = dataPath.bufferedReader().readText()
     return Json.decodeFromString(readFile)
 }
 

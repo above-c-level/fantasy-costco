@@ -11,6 +11,7 @@ import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.world.WorldSaveEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.plugin.java.JavaPlugin
+import java.io.File
 
 var wallets = HashMap<String, Double>()
 var merch = HashMap<BaseMerchandise, Merchandise>()
@@ -22,6 +23,8 @@ class CostcoPlugin : JavaPlugin() {
         saveDefaultConfig()
         var config = getConfig()
         CostcoGlobals.spigotConfig = config
+
+        dataPath = File(getDataFolder(), "wallets.json")
 
         getCommand("buy")?.setExecutor(BuyCommand)
         getCommand("sell")?.setExecutor(SellCommand)
