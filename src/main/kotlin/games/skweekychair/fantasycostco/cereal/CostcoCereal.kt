@@ -10,23 +10,26 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
 import org.bukkit.Bukkit
-
-
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.serializer
 
 object Cereal {
-    var wallets = HashMap<String, Double>()
+    
+    var wallets = HashMap<UUID, Double>()
     var merch = HashMap<BaseMerchandise, Merchandise>()
     var dataPath = File("wallets.json")
 
+    val walletsSerializer: KSerializer<Map<UUID, Double>> = MapSerializer(UuidSerializer, Double.serializer())
+
     // TODO: *Ideally*, return type should be HashMap<UUID, Double>
-    fun saveWallets(wallets: HashMap<String, Double>) {
-        val jsonString = Json.encodeToString(wallets)
+    fun saveWallets(wallets: HashMap<UUID, Double>) {
+        val jsonString = Json.encodeToString(walletsSerializer, wallets)
         dataPath.bufferedWriter().use { out -> out.write(jsonString) }
     }
 
-    fun loadWallets(): HashMap<String, Double> {
+    fun loadWallets(): HashMap<UUID, Double> {
         val readFile = dataPath.bufferedReader().readText()
-        return Json.decodeFromString(readFile)
+        return HashMap(Json.decodeFromString(walletsSerializer, readFile))
     }
 
     fun saveAll() {
