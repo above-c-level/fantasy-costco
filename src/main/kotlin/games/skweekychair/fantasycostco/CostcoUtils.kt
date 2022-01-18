@@ -4,6 +4,8 @@ import java.io.File
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import org.bukkit.Bukkit
+import org.bukkit.Material
+import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.Player
 
 /** Holds useful methods for the fantasy costco stock simulator. */
@@ -97,4 +99,33 @@ fun lerpClamp(
         val diff: Double = upperBound - lowerBound
         return multiplier * x / diff - (lowerBound * multiplier) / diff
     }
+}
+
+/**
+ * Gets merchandise from the set of Merchandise. If it does not exist, it is added automatically.
+ */
+fun getMerchandise(baseMerch: BaseMerchandise): Merchandise {
+
+    if (baseMerch !in merch) {
+        Bukkit.getServer().broadcastMessage("${baseMerch.material.name} not in merch")
+        Bukkit.getServer().broadcastMessage("baseMerch has hash code${baseMerch.hashCode()}")
+        merch[baseMerch] = Merchandise(baseMerch.material, CostcoGlobals.startingMass, 10.0)
+    } else {
+        Bukkit.getServer().broadcastMessage("${baseMerch.material.name} already in merch")
+    }
+    return merch.getOrDefault(
+            baseMerch,
+            Merchandise(baseMerch.material, CostcoGlobals.startingMass, 10.0)
+    )
+}
+/**
+ * Gets merchandise from the set of Merchandise. If it does not exist, it is added automatically.
+ */
+fun getMerchandise(
+        material: Material,
+        enchantments: Map<Enchantment, Int> = HashMap<Enchantment, Int>()
+): Merchandise {
+
+    val baseMerch = BaseMerchandise(material, enchantments)
+    return getMerchandise(baseMerch)
 }

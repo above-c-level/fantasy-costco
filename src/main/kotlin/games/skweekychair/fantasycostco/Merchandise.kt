@@ -1,25 +1,51 @@
 package games.skweekychair.fantasycostco
 
+import java.util.Objects
 import java.util.Random
 import org.bukkit.Bukkit
 import org.bukkit.Material
+import org.bukkit.enchantments.Enchantment
 
 // Holds for each item registered already
 class Perturber : Runnable {
     override fun run() {
-        for (item in merch) {
+        for (item in merch.values) {
             item.hold()
         }
+        for (item in merch) {
+            Bukkit.broadcastMessage("Pair found with material ${item.value.material}")
+        }
+
         Bukkit.broadcastMessage("Perturbed prices of ${merch.size} items")
     }
 }
 
+open class BaseMerchandise(
+        open val material: Material,
+        open val enchantments: Map<Enchantment, Int> = HashMap<Enchantment, Int>()
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+        if (other !is BaseMerchandise) {
+            return false
+        }
+        if (this.material == other.material && this.enchantments.equals(other.enchantments)) {
+            return true
+        }
+        return false
+    }
+    override fun hashCode() = Objects.hash(material, enchantments)
+}
+
 data class Merchandise(
-        var material: Material,
+        override val material: Material,
         var mass: Double,
         var hiddenPrice: Double,
-        var shownPrice: Double
-) {
+        var shownPrice: Double,
+        override val enchantments: Map<Enchantment, Int> = HashMap<Enchantment, Int>()
+) : BaseMerchandise(material, enchantments) {
 
     constructor(
             material: Material,

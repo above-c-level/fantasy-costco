@@ -13,7 +13,7 @@ import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.plugin.java.JavaPlugin
 
 var wallets = HashMap<String, Double>()
-var merch = HashSet<Merchandise>()
+var merch = HashMap<BaseMerchandise, Merchandise>()
 
 class CostcoPlugin : JavaPlugin() {
 

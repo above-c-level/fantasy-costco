@@ -21,16 +21,15 @@ object SellCommand : TabExecutor {
         val player = sender
 
         val item = player.inventory.itemInMainHand
-        val merchandise = Merchandise(item.type, CostcoGlobals.startingMass, 5.0)
+        val merchandise = getMerchandise(item.type)
         sender.sendMessage("The sell price is ${merchandise.itemSellPrice(item.amount)}")
         for (i in 1..10) {
             merchandise.hold()
         }
         sender.sendMessage("The sell price is ${merchandise.itemSellPrice(item.amount)}")
 
-        walletAdd(player, 1.9)
+        walletAdd(player, 0.0)
         saveWallets(wallets)
-
         sender.sendMessage("${loadWallets()}")
 
         return true
