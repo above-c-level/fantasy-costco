@@ -12,8 +12,7 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta
 /** Holds useful methods for the fantasy costco stock simulator. */
 fun walletAdd(player: Player, amount: Double) {
     Cereal.wallets[player.uniqueId] =
-            Cereal.wallets.getOrDefault(player.uniqueId, CostcoGlobals.defaultWallet) +
-                    amount
+            Cereal.wallets.getOrDefault(player.uniqueId, CostcoGlobals.defaultWallet) + amount
 }
 
 fun walletSubtract(player: Player, amount: Double) {
