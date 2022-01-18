@@ -1,5 +1,6 @@
 package games.skweekychair.fantasycostco
 
+import java.io.File
 import org.bukkit.Bukkit
 import org.bukkit.World
 import org.bukkit.event.EventHandler
@@ -11,13 +12,10 @@ import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.world.WorldSaveEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.plugin.java.JavaPlugin
-import java.io.File
 
-var wallets = HashMap<String, Double>()
-var merch = HashMap<BaseMerchandise, Merchandise>()
+
 
 class CostcoPlugin : JavaPlugin() {
-
     override fun onEnable() {
         Bukkit.getServer().getPluginManager().registerEvents(CostcoListener(), this)
         saveDefaultConfig()

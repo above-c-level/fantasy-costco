@@ -1,6 +1,5 @@
 package games.skweekychair.fantasycostco
 
-import java.io.File
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import org.bukkit.Bukkit
@@ -11,27 +10,6 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.EnchantmentStorageMeta
 
 /** Holds useful methods for the fantasy costco stock simulator. */
-
-var dataPath = File("wallets.json") // CostcoPlugin.instance.getDataPath
-
-// TODO: *Ideally*, return type should be HashMap<UUID, Double>
-fun saveWallets(wallets: HashMap<String, Double>) {
-    val jsonString = Json.encodeToString(wallets)
-    dataPath.bufferedWriter().use { out -> out.write(jsonString) }
-}
-
-fun loadWallets(): HashMap<String, Double> {
-    val readFile = dataPath.bufferedReader().readText()
-    return Json.decodeFromString(readFile)
-}
-
-fun saveAll() {
-    // TODO: Add merchandise saving here also
-    val logger = Bukkit.getServer().getLogger()
-    logger.info("[FantasyCostco] Saving wallets")
-    saveWallets(wallets)
-}
-
 fun walletAdd(player: Player, amount: Double) {
     wallets[player.uniqueId.toString()] =
             wallets.getOrDefault(player.uniqueId.toString(), CostcoGlobals.defaultWallet) + amount
@@ -124,6 +102,7 @@ fun getMerchandise(baseMerch: BaseMerchandise): Merchandise {
             Merchandise(baseMerch.material, CostcoGlobals.startingMass, 10.0)
     )
 }
+
 /**
  * Gets merchandise from the set of Merchandise. If it does not exist, it is added automatically.
  */
