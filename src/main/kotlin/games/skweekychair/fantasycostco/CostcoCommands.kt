@@ -21,7 +21,7 @@ object SellCommand : TabExecutor {
         val player = sender
 
         val item = player.inventory.itemInMainHand
-        val merchandise = getMerchandise(item.type)
+        val merchandise = getMerchandise(item)
         sender.sendMessage("The sell price is ${merchandise.itemSellPrice(item.amount)}")
         for (i in 1..10) {
             merchandise.hold()
@@ -29,8 +29,8 @@ object SellCommand : TabExecutor {
         sender.sendMessage("The sell price is ${merchandise.itemSellPrice(item.amount)}")
 
         walletAdd(player, 0.0)
-        saveWallets(wallets)
-        sender.sendMessage("${loadWallets()}")
+        // saveWallets(wallets)
+        // sender.sendMessage("${loadWallets()}")
 
         return true
     }

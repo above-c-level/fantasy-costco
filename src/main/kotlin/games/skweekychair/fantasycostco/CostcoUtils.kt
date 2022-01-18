@@ -7,6 +7,8 @@ import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.Player
+import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.meta.EnchantmentStorageMeta
 
 /** Holds useful methods for the fantasy costco stock simulator. */
 
@@ -113,6 +115,9 @@ fun getMerchandise(baseMerch: BaseMerchandise): Merchandise {
     } else {
         Bukkit.getServer().broadcastMessage("${baseMerch.material.name} already in merch")
     }
+    for (i in baseMerch.enchantments) {
+        Bukkit.getServer().broadcastMessage("${baseMerch.material.name} has enchantments ${i}")
+    }
     return merch.getOrDefault(
             baseMerch,
             Merchandise(baseMerch.material, CostcoGlobals.startingMass, 10.0)
@@ -128,4 +133,30 @@ fun getMerchandise(
 
     val baseMerch = BaseMerchandise(material, enchantments)
     return getMerchandise(baseMerch)
+}
+
+/**
+ * Gets merchandise from the set of Merchandise. If it does not exist, it is added automatically.
+ */
+fun getMerchandise(item: ItemStack): Merchandise {
+    val baseMerch = BaseMerchandise(item.type, getItemEnchants(item))
+    return getMerchandise(baseMerch)
+}
+
+/**
+ * Enchanted books store their information differently. This method gets the map of enchantments an
+ * item has, regardless of whether it's an enchanted book. If there are no enchantments, returns an
+ * empty Map<Enchantment, Int>
+ */
+fun getItemEnchants(item: ItemStack): Map<Enchantment, Int> {
+    var enchantments: Map<Enchantment, Int>? = null
+    if (item.type == Material.ENCHANTED_BOOK) {
+        val meta = item.itemMeta
+        if (meta is EnchantmentStorageMeta) {
+            enchantments = meta.getStoredEnchants()
+        }
+    } else {
+        enchantments = item.enchantments
+    }
+    return enchantments ?: HashMap<Enchantment, Int>()
 }
