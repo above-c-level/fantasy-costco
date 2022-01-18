@@ -1,12 +1,6 @@
 package games.skweekychair.fantasycostco
 
-
 import kotlinx.serialization.*
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
 import org.bukkit.Bukkit
 import org.bukkit.Material
@@ -17,8 +11,9 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta
 
 /** Holds useful methods for the fantasy costco stock simulator. */
 fun walletAdd(player: Player, amount: Double) {
-    wallets[player.uniqueId.toString()] =
-            wallets.getOrDefault(player.uniqueId.toString(), CostcoGlobals.defaultWallet) + amount
+    Cereal.wallets[player.uniqueId.toString()] =
+            Cereal.wallets.getOrDefault(player.uniqueId.toString(), CostcoGlobals.defaultWallet) +
+                    amount
 }
 
 fun walletSubtract(player: Player, amount: Double) {
@@ -93,17 +88,17 @@ fun lerpClamp(
  */
 fun getMerchandise(baseMerch: BaseMerchandise): Merchandise {
 
-    if (baseMerch !in merch) {
+    if (baseMerch !in Cereal.merch) {
         Bukkit.getServer().broadcastMessage("${baseMerch.material.name} not in merch")
         Bukkit.getServer().broadcastMessage("baseMerch has hash code${baseMerch.hashCode()}")
-        merch[baseMerch] = Merchandise(baseMerch.material, CostcoGlobals.startingMass, 10.0)
+        Cereal.merch[baseMerch] = Merchandise(baseMerch.material, CostcoGlobals.startingMass, 10.0)
     } else {
         Bukkit.getServer().broadcastMessage("${baseMerch.material.name} already in merch")
     }
     for (i in baseMerch.enchantments) {
         Bukkit.getServer().broadcastMessage("${baseMerch.material.name} has enchantments ${i}")
     }
-    return merch.getOrDefault(
+    return Cereal.merch.getOrDefault(
             baseMerch,
             Merchandise(baseMerch.material, CostcoGlobals.startingMass, 10.0)
     )

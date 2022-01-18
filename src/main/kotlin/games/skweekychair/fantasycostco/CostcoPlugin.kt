@@ -35,7 +35,7 @@ class CostcoPlugin : JavaPlugin() {
     }
 
     override fun onDisable() {
-        saveAll()
+        Cereal.saveAll()
         Bukkit.getServer().getLogger().info("[FantasyCostco] Shutting down :)")
     }
 }
@@ -65,7 +65,7 @@ class CostcoListener : Listener {
     fun onWorldSave(event: WorldSaveEvent) {
         // Only save on the saving of overworld so that we don't save the data three times lol
         if (event.world.environment == World.Environment.NORMAL) {
-            saveAll()
+            Cereal.saveAll()
         }
     }
 }

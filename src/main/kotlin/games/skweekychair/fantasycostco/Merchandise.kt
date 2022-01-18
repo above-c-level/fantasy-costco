@@ -5,23 +5,22 @@ import java.util.Random
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
-import kotlinx.serialization.Serializable
 
 // Holds for each item registered already
 class Perturber : Runnable {
     override fun run() {
-        for (item in merch.values) {
+        for (item in Cereal.merch.values) {
             item.hold()
         }
-        for (item in merch) {
+        for (item in Cereal.merch) {
             Bukkit.broadcastMessage("Pair found with material ${item.value.material}")
         }
 
-        Bukkit.broadcastMessage("Perturbed prices of ${merch.size} items")
+        Bukkit.broadcastMessage("Perturbed prices of ${Cereal.merch.size} items")
     }
 }
 
-//@Serializable
+// @Serializable
 open class BaseMerchandise(
         open val material: Material,
         open val enchantments: Map<Enchantment, Int> = HashMap<Enchantment, Int>()
@@ -41,8 +40,7 @@ open class BaseMerchandise(
     override fun hashCode() = Objects.hash(material, enchantments)
 }
 
-
-//@Serializable
+// @Serializable
 data class Merchandise(
         override val material: Material,
         var mass: Double,
