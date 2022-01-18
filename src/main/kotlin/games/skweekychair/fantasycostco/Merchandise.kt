@@ -5,6 +5,7 @@ import java.util.Random
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
+import kotlinx.serialization.Serializable
 
 // Holds for each item registered already
 class Perturber : Runnable {
@@ -20,6 +21,7 @@ class Perturber : Runnable {
     }
 }
 
+//@Serializable
 open class BaseMerchandise(
         open val material: Material,
         open val enchantments: Map<Enchantment, Int> = HashMap<Enchantment, Int>()
@@ -39,6 +41,8 @@ open class BaseMerchandise(
     override fun hashCode() = Objects.hash(material, enchantments)
 }
 
+
+//@Serializable
 data class Merchandise(
         override val material: Material,
         var mass: Double,
