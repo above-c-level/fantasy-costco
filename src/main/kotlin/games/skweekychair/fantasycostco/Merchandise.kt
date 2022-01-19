@@ -1,13 +1,14 @@
+@file:UseSerializers(EnchantmentSerializer::class)
+
 package games.skweekychair.fantasycostco
 
 import java.util.Objects
 import java.util.Random
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.builtins.MapSerializer
-import kotlinx.serialization.builtins.serializer
 
 // Holds for each item registered already
 class Perturber : Runnable {
@@ -23,13 +24,10 @@ class Perturber : Runnable {
     }
 }
 
-val enchantMapCerealinator = MapSerializer(EnchantmentSerializer, Int.serializer())::class
-
 @Serializable
 open class BaseMerchandise(
-        val material: Material,
-        @Serializable(with = enchantMapCerealinator) 
-        val enchantments: Map<Enchantment, Int> = HashMap<Enchantment, Int>()
+        open val material: Material,
+        open val enchantments: Map<Enchantment, Int> = HashMap<Enchantment, Int>()
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -48,18 +46,31 @@ open class BaseMerchandise(
 
 @Serializable
 class Merchandise(
-        material: Material,
+        val material: Material,
         var mass: Double,
         var hiddenPrice: Double,
         var shownPrice: Double,
-        enchantments: Map<Enchantment, Int> = HashMap<Enchantment, Int>()
-) : BaseMerchandise(material, enchantments) {
-
+        val enchantments: Map<Enchantment, Int> = HashMap<Enchantment, Int>()
+) {
     constructor(
             material: Material,
             mass: Double,
             startingPrice: Double
     ) : this(material, mass, startingPrice, startingPrice)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+        if (other !is BaseMerchandise) {
+            return false
+        }
+        if (this.material == other.material && this.enchantments.equals(other.enchantments)) {
+            return true
+        }
+        return false
+    }
+    override fun hashCode() = Objects.hash(material, enchantments)
 
     // TODO: Make sure these to work properly
     /** Calculates the magnitude of the change of price given a transaction */
