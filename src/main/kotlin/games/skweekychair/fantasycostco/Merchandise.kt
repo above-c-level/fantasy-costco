@@ -5,6 +5,9 @@ import java.util.Random
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.serializer
 
 // Holds for each item registered already
 class Perturber : Runnable {
@@ -20,10 +23,13 @@ class Perturber : Runnable {
     }
 }
 
-// @Serializable
+val enchantMapCerealinator = MapSerializer(EnchantmentSerializer, Int.serializer())::class
+
+@Serializable
 open class BaseMerchandise(
-        open val material: Material,
-        open val enchantments: Map<Enchantment, Int> = HashMap<Enchantment, Int>()
+        val material: Material,
+        @Serializable(with = enchantMapCerealinator) 
+        val enchantments: Map<Enchantment, Int> = HashMap<Enchantment, Int>()
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -40,13 +46,13 @@ open class BaseMerchandise(
     override fun hashCode() = Objects.hash(material, enchantments)
 }
 
-// @Serializable
-data class Merchandise(
-        override val material: Material,
+@Serializable
+class Merchandise(
+        material: Material,
         var mass: Double,
         var hiddenPrice: Double,
         var shownPrice: Double,
-        override val enchantments: Map<Enchantment, Int> = HashMap<Enchantment, Int>()
+        enchantments: Map<Enchantment, Int> = HashMap<Enchantment, Int>()
 ) : BaseMerchandise(material, enchantments) {
 
     constructor(

@@ -12,6 +12,9 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
 import org.bukkit.Bukkit
+import org.bukkit.enchantments.Enchantment
+import org.bukkit.Material
+import org.bukkit.NamespacedKey
 
 object Cereal {
     var wallets = HashMap<UUID, Double>()
@@ -52,3 +55,33 @@ object UuidSerializer : KSerializer<UUID> {
         return UUID.fromString(decoder.decodeString())
     }
 }
+
+object EnchantmentSerializer : KSerializer<Enchantment> {
+    override val descriptor: SerialDescriptor =
+            PrimitiveSerialDescriptor("Enchantment", PrimitiveKind.STRING)
+
+    override fun serialize(encoder: Encoder, value: Enchantment) {
+        val string = value.key.toString()
+        encoder.encodeString(string)
+    }
+
+    override fun deserialize(decoder: Decoder): Enchantment {
+        // TODO: Does this cause an uh-oh? a fucky wucky? We'll have to see!
+        return Enchantment.getByKey(NamespacedKey.fromString(decoder.decodeString()))!!
+    }
+}
+
+// object MaterialSerializer : KSerializer<Material> {
+//     override val descriptor: SerialDescriptor =
+//             PrimitiveSerialDescriptor("Material", PrimitiveKind.STRING)
+
+//     override fun serialize(encoder: Encoder, value: Material) {
+//         val string = value.name
+//         encoder.encodeString(string)
+//     }
+
+//     override fun deserialize(decoder: Decoder): Material {
+//         // TODO: Fuck around and find out
+//         return Material.getMaterial(decoder.decodeString())!!
+//     }
+// }
