@@ -16,11 +16,7 @@ class Perturber : Runnable {
         for (item in Cereal.merch.values) {
             item.hold()
         }
-        for (item in Cereal.merch) {
-            Bukkit.broadcastMessage("Pair found with material ${item.value.material}")
-        }
-
-        Bukkit.broadcastMessage("Perturbed prices of ${Cereal.merch.size} items")
+        // Bukkit.broadcastMessage("Perturbed prices of ${Cereal.merch.size} items")
     }
 }
 

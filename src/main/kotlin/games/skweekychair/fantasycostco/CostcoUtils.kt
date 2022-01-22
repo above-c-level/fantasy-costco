@@ -88,19 +88,24 @@ fun lerpClamp(
 fun getMerchandise(baseMerch: BaseMerchandise): Merchandise {
 
     if (baseMerch !in Cereal.merch) {
-        Bukkit.getServer().broadcastMessage("${baseMerch.material.name} not in merch")
-        Bukkit.getServer().broadcastMessage("baseMerch has hash code${baseMerch.hashCode()}")
+        // Bukkit.getServer().broadcastMessage("${baseMerch.material.name} not in merch")
+        // Bukkit.getServer().broadcastMessage("baseMerch has hash code${baseMerch.hashCode()}")
         Cereal.merch[baseMerch] = Merchandise(baseMerch.material, CostcoGlobals.startingMass, 10.0)
     } else {
-        Bukkit.getServer().broadcastMessage("${baseMerch.material.name} already in merch")
+        // Bukkit.getServer().broadcastMessage("${baseMerch.material.name} already in merch")
     }
     for (i in baseMerch.enchantments) {
-        Bukkit.getServer().broadcastMessage("${baseMerch.material.name} has enchantments ${i}")
+        // Bukkit.getServer().broadcastMessage("${baseMerch.material.name} has enchantments ${i}")
     }
     return Cereal.merch.getOrDefault(
             baseMerch,
             Merchandise(baseMerch.material, CostcoGlobals.startingMass, 10.0)
     )
+}
+
+fun tryDiscordBroadcast(message: String) {
+    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "discordsrv:discord bcast $message")
+    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "bcast $message")
 }
 
 /**

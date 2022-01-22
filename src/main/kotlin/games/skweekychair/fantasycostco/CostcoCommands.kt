@@ -22,12 +22,14 @@ object SellCommand : TabExecutor {
 
         val item = player.inventory.itemInMainHand
         val merchandise = getMerchandise(item)
-        sender.sendMessage("The sell price is ${merchandise.itemSellPrice(item.amount)}")
+        // sender.sendMessage("The sell price is ${merchandise.itemSellPrice(item.amount)}")
 
         walletAdd(player, 0.0)
         // saveWallets(wallets)
         // sender.sendMessage("${loadWallets()}")
-
+        tryDiscordBroadcast("hmmmmm game lagging lol what can you do")
+        tryDiscordBroadcast("hmmmmm game lagging lol what can you do")
+        tryDiscordBroadcast("hmmmmm game lagging lol what can you do")
         return true
     }
 

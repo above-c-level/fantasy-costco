@@ -49,7 +49,7 @@ class CostcoListener : Listener {
 
     @EventHandler(priority = EventPriority.NORMAL)
     fun onPlayerJoin(event: PlayerJoinEvent) {
-        Bukkit.getServer().getLogger().info("[FantasyCostco] Player joined")
+        // Bukkit.getServer().getLogger().info("[FantasyCostco] Player joined")
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
@@ -60,7 +60,7 @@ class CostcoListener : Listener {
             val helditem = event.getMaterial().name
             // Block is null when right clicking air with an item
             val block = event.getClickedBlock()?.getType()?.name
-            event.getPlayer().sendMessage("You right-clicked on $block with $helditem")
+            // event.getPlayer().sendMessage("You right-clicked on $block with $helditem")
         }
     }
 
