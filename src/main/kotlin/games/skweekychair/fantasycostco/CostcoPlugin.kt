@@ -13,7 +13,6 @@ import org.bukkit.event.world.WorldSaveEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.plugin.java.JavaPlugin
 
-
 class CostcoPlugin : JavaPlugin() {
     override fun onEnable() {
         Bukkit.getServer().getPluginManager().registerEvents(CostcoListener(), this)
@@ -21,10 +20,13 @@ class CostcoPlugin : JavaPlugin() {
         var config = getConfig()
         CostcoGlobals.spigotConfig = config
 
-        Cereal.dataPath = File(getDataFolder(), "wallets.json")
+        Cereal.walletPath = File(getDataFolder(), "wallets.json")
+        Cereal.merchPath = File(getDataFolder(), "merch.json")
 
         getCommand("buy")?.setExecutor(BuyCommand)
         getCommand("sell")?.setExecutor(SellCommand)
+
+        Cereal.loadAll()
 
         val scheduler = Bukkit.getServer().getScheduler()
         scheduler.runTaskTimer(

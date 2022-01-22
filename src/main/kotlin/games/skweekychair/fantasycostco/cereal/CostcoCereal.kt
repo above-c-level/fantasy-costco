@@ -5,6 +5,8 @@ package games.skweekychair.fantasycostco
 import java.io.File
 import java.util.UUID
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -18,35 +20,55 @@ import org.bukkit.enchantments.Enchantment
 object Cereal {
     var wallets = HashMap<UUID, Double>()
     var merch = HashMap<BaseMerchandise, Merchandise>()
-    var dataPath = File("wallets.json")
+    var walletPath = File("wallets.json")
+    var merchPath = File("merch.json")
+
+    val walletsSerializer: KSerializer<Map<UUID, Double>> =
+            MapSerializer(UuidSerializer, Double.serializer())
 
     fun saveWallets() {
-        val jsonString = Json.encodeToString<Map<UUID, Double>>(wallets)
-        dataPath.bufferedWriter().use { out -> out.write(jsonString) }
+        val jsonString = Json.encodeToString(walletsSerializer, wallets)
+        walletPath.bufferedWriter().use { out -> out.write(jsonString) }
     }
 
     fun loadWallets(): HashMap<UUID, Double> {
-        val readFile = dataPath.bufferedReader().readText()
-        return HashMap(Json.decodeFromString<Map<UUID, Double>>(readFile))
+        val readFile = walletPath.bufferedReader().readText()
+        return HashMap(Json.decodeFromString(walletsSerializer, readFile))
     }
 
     fun saveMerch() {
-        val jsonString = Json.encodeToString(merch)
-        dataPath.bufferedWriter().use { out -> out.write(jsonString) }
+        val json = Json { allowStructuredMapKeys = true }
+        val jsonString = json.encodeToString(merch)
+        merchPath.bufferedWriter().use { out -> out.write(jsonString) }
     }
 
     fun loadMerch(): HashMap<BaseMerchandise, Merchandise> {
-        val readFile = dataPath.bufferedReader().readText()
-        return HashMap(Json.decodeFromString<Map<BaseMerchandise, Merchandise>>(readFile))
+        val json = Json { allowStructuredMapKeys = true }
+        val readFile = merchPath.bufferedReader().readText()
+        return HashMap(json.decodeFromString<Map<BaseMerchandise, Merchandise>>(readFile))
     }
 
     fun saveAll() {
-        // TODO: Add merchandise saving here also
         val logger = Bukkit.getServer().getLogger()
         logger.info("[FantasyCostco] Saving wallets")
         saveWallets()
         logger.info("[FantasyCostco] Saving Merch")
         saveMerch()
+    }
+    fun loadAll() {
+        val logger = Bukkit.getServer().getLogger()
+        try {
+            wallets = loadWallets()
+        } catch (e: Throwable) {
+            logger.warning("[FantasyCostco] Failed to load wallets: ${e.message}")
+            wallets = HashMap<UUID, Double>()
+        }
+        try {
+            merch = loadMerch()
+        } catch (e: Throwable) {
+            logger.warning("[FantasyCostco] Failed to load merch: ${e.message}")
+            merch = HashMap<BaseMerchandise, Merchandise>()
+        }
     }
 }
 
@@ -78,94 +100,3 @@ object EnchantmentSerializer : KSerializer<Enchantment> {
         return Enchantment.getByKey(NamespacedKey.fromString(decoder.decodeString()))!!
     }
 }
-
-// object MaterialSerializer : KSerializer<Material> {
-//     override val descriptor: SerialDescriptor =
-//             PrimitiveSerialDescriptor("Material", PrimitiveKind.STRING)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//     override fun serialize(encoder: Encoder, value: Material) {
-//         val string = value.name
-//         encoder.encodeString(string)
-//     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//     override fun deserialize(decoder: Decoder): Material {
-//         // TODO: Fuck around and find out
-//         return Material.getMaterial(decoder.decodeString())!!
-//     }
-// }
