@@ -27,7 +27,8 @@ object SellCommand : TabExecutor {
         walletAdd(player, 0.0)
         // saveWallets(wallets)
         // sender.sendMessage("${loadWallets()}")
-        // tryDiscordBroadcast("some message to broadcast")
+        // tryDiscordBroadcast("TAX FRAUD 🚨🚨⚠️⚠️ **__A  L  E  R  T__** ⚠️⚠️🚨🚨")
+        // tryOnlyDiscord("https://tenor.com/view/burnt-demonic-demon-scream-screaming-gif-13844791")
         return true
     }
 

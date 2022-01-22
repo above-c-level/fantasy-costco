@@ -104,7 +104,15 @@ fun getMerchandise(baseMerch: BaseMerchandise): Merchandise {
 }
 
 fun tryDiscordBroadcast(message: String) {
+    tryOnlyDiscord(message)
+    tryOnlyBroadcast(message)
+}
+
+fun tryOnlyDiscord(message: String) {
     Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "discordsrv:discord bcast $message")
+}
+
+fun tryOnlyBroadcast(message: String) {
     Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "bcast $message")
 }
 

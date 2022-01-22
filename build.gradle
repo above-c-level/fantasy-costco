@@ -23,12 +23,14 @@ repositories {
     mavenCentral()
 }
 
+
+
 dependencies {
     compileOnly 'org.spigotmc:spigot-api:1.18-R0.1-SNAPSHOT' // The Spigot API with no shadowing. Requires the OSS repo.
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2"
-}
 
+}
 
 
 group 'games.skweekychair.fantasycostco'
