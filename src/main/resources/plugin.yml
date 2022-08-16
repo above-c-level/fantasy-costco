@@ -12,6 +12,10 @@ commands:
     description: Sell item stack in hand to the server
     usage: /<command>
     permission: fantasycostco.sell
+  wallet:
+    description: Get how many Blockcoins are in your wallet
+    usage: /<command>
+    permission: fantasycostco.wallet
   gui:
     description: Open a GUI
     usage: /<command>
@@ -20,3 +24,12 @@ permissions:
     default: true
   fantasycostco.sell:
     default: true
+  fantasycostco.wallet:
+    default: true
+
+
+
+
+
+
+

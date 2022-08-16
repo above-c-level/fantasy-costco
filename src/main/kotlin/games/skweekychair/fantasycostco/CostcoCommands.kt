@@ -74,3 +74,30 @@ object BuyCommand : TabExecutor {
         return listOf<String>()
     }
 }
+
+object WalletCommand : TabExecutor {
+
+    override fun onCommand(
+            sender: CommandSender,
+            cmd: Command,
+            lbl: String,
+            args: Array<String>
+    ): Boolean {
+        if (sender !is Player) {
+            sender.sendMessage("${ChatColor.RED}You have to be a player to use this command.")
+            return false
+        }
+        val player: Player = sender       
+        
+        return true
+    }
+
+    override fun onTabComplete(
+            sender: CommandSender,
+            cmd: Command,
+            lbl: String,
+            args: Array<String>
+    ): List<String> {
+        return listOf<String>()
+    }
+}
