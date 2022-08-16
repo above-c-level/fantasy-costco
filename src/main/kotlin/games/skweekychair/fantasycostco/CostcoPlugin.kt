@@ -13,7 +13,13 @@ import org.bukkit.event.world.WorldSaveEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.plugin.java.JavaPlugin
 
+/**
+ * The main class of the plugin.
+ */
 class CostcoPlugin : JavaPlugin() {
+    /**
+     * Called when the plugin is enabled by the server.
+     */
     override fun onEnable() {
         Bukkit.getServer().getPluginManager().registerEvents(CostcoListener(), this)
         saveDefaultConfig()
@@ -37,21 +43,37 @@ class CostcoPlugin : JavaPlugin() {
         )
     }
 
+    /**
+     * Called when the plugin is disabled by the server.
+     */
     override fun onDisable() {
         Cereal.saveAll()
         Bukkit.getServer().getLogger().info("[FantasyCostco] Shutting down :)")
     }
 }
 
+/**
+ * The listener for the plugin.
+ */
 class CostcoListener : Listener {
     // Listeners should help us do things such as save the wallet or current
     // material prices
 
+    /**
+     * Called when a player joins the server.
+     *
+     * @param event The event.
+     */
     @EventHandler(priority = EventPriority.NORMAL)
     fun onPlayerJoin(event: PlayerJoinEvent) {
         // Bukkit.getServer().getLogger().info("[FantasyCostco] Player joined")
     }
 
+    /**
+     * Called when a player interacts with a block.
+     *
+     * @param event The event.
+     */
     @EventHandler(priority = EventPriority.NORMAL)
     fun onPlayerInteract(event: PlayerInteractEvent) {
 
@@ -68,6 +90,11 @@ class CostcoListener : Listener {
         }
     }
 
+    /**
+     * Called when the server saves the world.
+     *
+     * @param event The event.
+     */
     @EventHandler(priority = EventPriority.NORMAL)
     fun onWorldSave(event: WorldSaveEvent) {
         // Only save on the saving of overworld so that we don't save the data three times lol

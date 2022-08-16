@@ -3,6 +3,9 @@ package games.skweekychair.fantasycostco
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.YamlConfiguration
 
+/**
+ * Handles configuration for the plugin.
+ */
 object CostcoGlobals {
     var spigotConfig: FileConfiguration = YamlConfiguration()
 

@@ -10,7 +10,9 @@ import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
 
-// Holds for each item registered already
+/**
+ * Modifies the price of items pseudorandomly without affecting the best-guess price
+ */
 class Perturber : Runnable {
     override fun run() {
         for (item in Cereal.merch.values) {
@@ -20,6 +22,11 @@ class Perturber : Runnable {
     }
 }
 
+/**
+ * Represents a single item type in the shop.
+ * @param material The base material as defined by Bukkit
+ * @param enchantments The enchantments on the item
+ */
 @Serializable
 open class BaseMerchandise(
         open val material: Material,
@@ -40,6 +47,22 @@ open class BaseMerchandise(
     override fun hashCode() = Objects.hash(material, enchantments)
 }
 
+/**
+ * Represents a single item in the shop with enchantments as well as various
+ * variables that our gradient descent algorithm uses to determine the best
+ * price.
+ * @param material The material of the item.
+ * @param mass The `mass` of our point in the gradient descent algorithm. It's
+ *             used as a way of determining an items "inertia" or resistance to
+ *             change.
+ * @param hiddenPrice The true, raw best guess at the price of the item.
+ * @param shownPrice The price as displayed to players, which is smoothed to
+ *                   prevent too much price movement too quickly, and also to
+ *                   add pseudorandom noise to the price even when no sales
+ *                   occur.
+ * @param enchantments The enchantments on the item.
+ * @constructor Creates a new merchandise item.
+ */
 @Serializable
 class Merchandise(
         val material: Material,
@@ -48,12 +71,22 @@ class Merchandise(
         var shownPrice: Double,
         val enchantments: Map<Enchantment, Int> = HashMap<Enchantment, Int>()
 ) {
+    /**
+     * The constructor for a new merchandise item.
+     * @param material The material of the item.
+     * @param mass The `mass` of our point in the gradient descent algorithm.
+     * @param startingPrice Our best guess as to the ideal starting price of the item.
+     */
     constructor(
             material: Material,
             mass: Double,
             startingPrice: Double
     ) : this(material, mass, startingPrice, startingPrice)
 
+    /**
+     * Checks whether this merchandise item is equal to another.
+     * @param other The other merchandise item to compare to.
+     */
     override fun equals(other: Any?): Boolean {
         if (this === other) {
             return true
@@ -69,7 +102,10 @@ class Merchandise(
     override fun hashCode() = Objects.hash(material, enchantments)
 
     // TODO: Make sure these to work properly
-    /** Calculates the magnitude of the change of price given a transaction */
+    /**
+     * Calculates the magnitude of the change of price given a transaction
+     * @return The magnitude of the change of price.
+     */
     fun pushAmount(): Double {
         val dist: Double = Math.abs(this.shownPrice - this.hiddenPrice) + 1.0
         val sqrtPrice: Double = Math.sqrt(this.shownPrice)
@@ -104,16 +140,28 @@ class Merchandise(
         }
     }
 
-    /** Gets the buy price of `amount` of this item */
+    // TODO: Make sure hidden price not modified if no sales occur
+    /**
+     * Gets the buy price of `amount` of this item
+     * @param amount The amount of the item to buy.
+     * @return The price of the item.
+     */
     fun itemBuyPrice(amount: Int): Double {
         return buyPrice(this.shownPrice, amount, this.material.getMaxStackSize())
     }
 
-    /** Gets the sell price of `amount` of this item */
+    /**
+     * Gets the sell price of `amount` of this item
+     * @param amount The amount of the item to sell.
+     * @return The price of the item.
+     */
     fun itemSellPrice(amount: Int): Double {
         return sellPrice(this.shownPrice, amount, this.material.getMaxStackSize())
     }
 
+    /**
+     * Pseudo-randomly perturbs the price of the item without affecting the best-guess price.
+     */
     fun perturbPrice() {
         // hopefully this is either unnecessary or doesn't happen often
         // but just in case
@@ -143,11 +191,18 @@ class Merchandise(
                 )
     }
 
+    /**
+     * First smooths changes to price, then perturbs the price.
+     */
     fun hold() {
         smoothPrice()
         perturbPrice()
     }
 
+    /**
+     * Updates our best guess at the price of the item by buying, smooths
+     * the price, adds mass, and perturbs the price.
+     */
     fun buy() {
         this.hiddenPrice += pushAmount()
         smoothPrice()
@@ -155,6 +210,10 @@ class Merchandise(
         perturbPrice()
     }
 
+    /**
+     * Updates our best guess at the price of the item by selling, smooths
+     * the price, adds mass, and perturbs the price.
+     */
     fun sell() {
         this.hiddenPrice -= pushAmount()
         smoothPrice()
