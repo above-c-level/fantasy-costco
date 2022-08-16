@@ -12,9 +12,11 @@ commands:
     description: Sell item stack in hand to the server
     usage: /<command>
     permission: fantasycostco.sell
+  gui:
+    description: Open a GUI
+    usage: /<command>
 permissions:
   fantasycostco.buy:
     default: true
   fantasycostco.sell:
     default: true
-

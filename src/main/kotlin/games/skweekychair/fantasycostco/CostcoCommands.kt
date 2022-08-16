@@ -6,6 +6,10 @@ import org.bukkit.command.CommandSender
 import org.bukkit.command.TabExecutor
 import org.bukkit.entity.Player
 
+
+/**
+ * Implements the /sell command for the plugin.
+ */
 object SellCommand : TabExecutor {
 
     override fun onCommand(
@@ -22,11 +26,11 @@ object SellCommand : TabExecutor {
 
         val item = player.inventory.itemInMainHand
         val merchandise = getMerchandise(item)
-        // sender.sendMessage("The sell price is ${merchandise.itemSellPrice(item.amount)}")
+        sender.sendMessage("The sell price is ${merchandise.itemSellPrice(item.amount)}")
 
         walletAdd(player, 0.0)
-        // saveWallets(wallets)
-        // sender.sendMessage("${loadWallets()}")
+        Cereal.saveWallets()
+        sender.sendMessage("${Cereal.loadWallets()}")
         // tryDiscordBroadcast("TAX FRAUD 🚨🚨⚠️⚠️ **__A  L  E  R  T__** ⚠️⚠️🚨🚨")
         // tryOnlyDiscord("https://tenor.com/view/burnt-demonic-demon-scream-screaming-gif-13844791")
         return true

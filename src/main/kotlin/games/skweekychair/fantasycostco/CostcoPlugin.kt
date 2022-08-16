@@ -59,8 +59,12 @@ class CostcoListener : Listener {
         ) {
             val helditem = event.getMaterial().name
             // Block is null when right clicking air with an item
-            val block = event.getClickedBlock()?.getType()?.name
-            // event.getPlayer().sendMessage("You right-clicked on $block with $helditem")
+            val block = event.getClickedBlock()
+            val blockname = block?.getType()?.name
+            val player = event.getPlayer()
+            player.sendMessage("You right-clicked on $blockname with $helditem")
+            val blockdata = block?.blockData?.getAsString()
+            player.sendMessage(blockdata)
         }
     }
 
