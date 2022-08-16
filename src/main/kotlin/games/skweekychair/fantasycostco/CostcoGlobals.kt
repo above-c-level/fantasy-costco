@@ -67,4 +67,7 @@ object CostcoGlobals {
         get() = 1.0 + priceSpread / 2.0
     val sellMult
         get() = 1.0 - priceSpread / 2.0
+
+    val debugMessages
+        get() = spigotConfig.getBoolean("debug-messages", false)
 }

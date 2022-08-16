@@ -10,3 +10,5 @@ clamp-multiplier: 0.5
 starting-mass: 5.0
 default-wallet: 10.0
 seconds-between-price-motion: 60
+
+debug-messages: false
