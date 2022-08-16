@@ -126,14 +126,15 @@ fun lerpClamp(
 fun getMerchandise(baseMerch: BaseMerchandise): Merchandise {
 
     if (baseMerch !in Cereal.merch) {
-        // Bukkit.getServer().broadcastMessage("${baseMerch.material.name} not in merch")
-        // Bukkit.getServer().broadcastMessage("baseMerch has hash code${baseMerch.hashCode()}")
+        broadcastIfDebug("${baseMerch.material.name} not in merch")
+        broadcastIfDebug("baseMerch has hash code${baseMerch.hashCode()}")
         Cereal.merch[baseMerch] = Merchandise(baseMerch.material, CostcoGlobals.startingMass, 10.0)
     } else {
-        // Bukkit.getServer().broadcastMessage("${baseMerch.material.name} already in merch")
+        broadcastIfDebug("${baseMerch.material.name} already in merch")
     }
+
     for (i in baseMerch.enchantments) {
-        // Bukkit.getServer().broadcastMessage("${baseMerch.material.name} has enchantments ${i}")
+        broadcastIfDebug("${baseMerch.material.name} has enchantments ${i}")
     }
     return Cereal.merch[baseMerch]!!
 }
@@ -161,6 +162,15 @@ fun tryOnlyDiscord(message: String) {
  */
 fun tryOnlyBroadcast(message: String) {
     Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "bcast $message")
+}
+
+/**
+ * Broadcasts a message to the minecraft server if debug mode is enabled.
+ */
+fun broadcastIfDebug(message: String) {
+    if (CostcoGlobals.debugMessages) {
+        Bukkit.getServer().broadcastMessage(message)
+    }
 }
 
 /**
