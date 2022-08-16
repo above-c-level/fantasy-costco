@@ -32,13 +32,12 @@ object SellCommand : TabExecutor {
         }
         sender.sendMessage("The sell price is ${merchandise.itemSellPrice(item.amount)}")
 
-        player.inventory.setItemInMainHand(null);
         walletAdd(player, merchandise.itemSellPrice(item.amount))
+        sender.sendMessage("${Cereal.wallets[player.uniqueId]}")
+        player.inventory.setItemInMainHand(null);
         merchandise.sell()
-        
-        Cereal.saveWallets()
-        sender.sendMessage("${Cereal.loadWallets()[player.uniqueId]}")
-        
+    
+                
         // tryDiscordBroadcast("TAX FRAUD 🚨🚨⚠️⚠️ **__A  L  E  R  T__** ⚠️⚠️🚨🚨")
         // tryOnlyDiscord("https://tenor.com/view/burnt-demonic-demon-scream-screaming-gif-13844791")
         
