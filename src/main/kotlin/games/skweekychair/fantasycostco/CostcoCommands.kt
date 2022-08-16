@@ -22,17 +22,26 @@ object SellCommand : TabExecutor {
             sender.sendMessage("${ChatColor.RED}You have to be a player to use this command.")
             return false
         }
-        val player = sender
-
+        val player: Player = sender
         val item = player.inventory.itemInMainHand
         val merchandise = getMerchandise(item)
+        
+        if (merchandise.itemSellPrice(item.amount).isNaN()) {
+            sender.sendMessage("Don't sell air man!")
+            return true;
+        }
         sender.sendMessage("The sell price is ${merchandise.itemSellPrice(item.amount)}")
 
-        walletAdd(player, 0.0)
+        player.inventory.setItemInMainHand(null);
+        walletAdd(player, merchandise.itemSellPrice(item.amount))
+        merchandise.sell()
+        
         Cereal.saveWallets()
-        sender.sendMessage("${Cereal.loadWallets()}")
+        sender.sendMessage("${Cereal.loadWallets()[player.uniqueId]}")
+        
         // tryDiscordBroadcast("TAX FRAUD 🚨🚨⚠️⚠️ **__A  L  E  R  T__** ⚠️⚠️🚨🚨")
         // tryOnlyDiscord("https://tenor.com/view/burnt-demonic-demon-scream-screaming-gif-13844791")
+        
         return true
     }
 
