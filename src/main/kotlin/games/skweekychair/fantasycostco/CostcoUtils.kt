@@ -135,10 +135,7 @@ fun getMerchandise(baseMerch: BaseMerchandise): Merchandise {
     for (i in baseMerch.enchantments) {
         // Bukkit.getServer().broadcastMessage("${baseMerch.material.name} has enchantments ${i}")
     }
-    return Cereal.merch.getOrDefault(
-            baseMerch,
-            Merchandise(baseMerch.material, CostcoGlobals.startingMass, 10.0)
-    )
+    return Cereal.merch[baseMerch]!!
 }
 
 /**
