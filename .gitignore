@@ -31,3 +31,5 @@ gradle-app.setting
 # Built Visual Studio Code Extensions
 *.vsix
 test.bat
+
+.vscode/
