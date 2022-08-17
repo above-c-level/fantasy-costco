@@ -96,7 +96,7 @@ object WalletCommand : TabExecutor {
             return false
         }
         val player: Player = sender
-
+        player.sendMessage("${Cereal.wallets[player.uniqueId]}")
         return true
     }
 
