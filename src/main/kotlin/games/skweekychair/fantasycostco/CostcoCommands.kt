@@ -32,7 +32,7 @@ object SellCommand : TabExecutor {
         player.sendMessage("The sell price is ${merchandise.itemSellPrice(item.amount)}")
 
         walletAdd(player, merchandise.itemSellPrice(item.amount))
-        player.sendMessage("${Cereal.wallets[player.uniqueId]}")
+        player.sendMessage("${getOrAddWallet(player)}")
         player.inventory.setItemInMainHand(null)
         merchandise.sell()
 
@@ -149,7 +149,7 @@ object WalletCommand : TabExecutor {
             return false
         }
         val player: Player = sender
-        player.sendMessage("${Cereal.wallets[player.uniqueId]}")
+        player.sendMessage("${getOrAddWallet(player)}")
         return true
     }
 
