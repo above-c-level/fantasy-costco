@@ -164,9 +164,7 @@ fun tryOnlyBroadcast(message: String) {
     Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "bcast $message")
 }
 
-/**
- * Broadcasts a message to the minecraft server if debug mode is enabled.
- */
+/** Broadcasts a message to the minecraft server if debug mode is enabled. */
 fun broadcastIfDebug(message: String) {
     if (CostcoGlobals.debugMessages) {
         Bukkit.getServer().broadcastMessage(message)

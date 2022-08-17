@@ -13,13 +13,9 @@ import org.bukkit.event.world.WorldSaveEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.plugin.java.JavaPlugin
 
-/**
- * The main class of the plugin.
- */
+/** The main class of the plugin. */
 class CostcoPlugin : JavaPlugin() {
-    /**
-     * Called when the plugin is enabled by the server.
-     */
+    /** Called when the plugin is enabled by the server. */
     override fun onEnable() {
         Bukkit.getServer().getPluginManager().registerEvents(CostcoListener(), this)
         saveDefaultConfig()
@@ -43,18 +39,14 @@ class CostcoPlugin : JavaPlugin() {
         )
     }
 
-    /**
-     * Called when the plugin is disabled by the server.
-     */
+    /** Called when the plugin is disabled by the server. */
     override fun onDisable() {
         Cereal.saveAll()
         Bukkit.getServer().getLogger().info("[FantasyCostco] Shutting down :)")
     }
 }
 
-/**
- * The listener for the plugin.
- */
+/** The listener for the plugin. */
 class CostcoListener : Listener {
     // Listeners should help us do things such as save the wallet or current
     // material prices
