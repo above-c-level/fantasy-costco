@@ -19,6 +19,7 @@ fun walletAdd(player: Player, amount: Double) {
             Cereal.wallets.getOrDefault(player.uniqueId, CostcoGlobals.defaultWallet) + amount
 }
 
+
 /**
  * Subtracts the given amount from the player's wallet.
  *
@@ -27,6 +28,18 @@ fun walletAdd(player: Player, amount: Double) {
  */
 fun walletSubtract(player: Player, amount: Double) {
     walletAdd(player, -amount)
+}
+
+/**
+ * Gets the player's wallet or adds it if it does not exist
+ * @param player The player to get the wallet of
+ * @return The player's wallet
+ */
+fun getOrAddWallet(player: Player): Double {
+    if (!Cereal.wallets.containsKey(player.uniqueId)) {
+        Cereal.wallets[player.uniqueId] = CostcoGlobals.defaultWallet
+    }
+    return Cereal.wallets[player.uniqueId]!!
 }
 
 /**
@@ -164,9 +177,7 @@ fun tryOnlyBroadcast(message: String) {
     Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "bcast $message")
 }
 
-/**
- * Broadcasts a message to the minecraft server if debug mode is enabled.
- */
+/** Broadcasts a message to the minecraft server if debug mode is enabled. */
 fun broadcastIfDebug(message: String) {
     if (CostcoGlobals.debugMessages) {
         Bukkit.getServer().broadcastMessage(message)

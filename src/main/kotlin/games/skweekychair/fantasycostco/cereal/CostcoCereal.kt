@@ -1,4 +1,4 @@
-@file:UseSerializers(EnchantmentSerializer::class)
+@file:UseSerializers(EnchantmentSerializer::class, LocationSerializer::class)
 
 package games.skweekychair.fantasycostco
 
@@ -14,15 +14,15 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
 import org.bukkit.Bukkit
+import org.bukkit.Location
 import org.bukkit.NamespacedKey
 import org.bukkit.enchantments.Enchantment
 
 /**
  * A bowl.
  *
- *
- * ...which happens to be an API for serialization so that other files can more
- * easily serialize and deserialize objects used in the plugin.
+ * ...which happens to be an API for serialization so that other files can more easily serialize and
+ * deserialize objects used in the plugin.
  */
 object Cereal {
     var wallets = HashMap<UUID, Double>()
@@ -33,9 +33,7 @@ object Cereal {
     val walletsSerializer: KSerializer<Map<UUID, Double>> =
             MapSerializer(UuidSerializer, Double.serializer())
 
-    /**
-     * Saves all user wallets to a file.
-     */
+    /** Saves all user wallets to a file. */
     fun saveWallets() {
         val jsonString = Json.encodeToString(walletsSerializer, wallets)
         walletPath.bufferedWriter().use { out -> out.write(jsonString) }
@@ -50,9 +48,7 @@ object Cereal {
         return HashMap(Json.decodeFromString(walletsSerializer, readFile))
     }
 
-    /**
-     * Saves all merch to a file.
-     */
+    /** Saves all merch to a file. */
     fun saveMerch() {
         val json = Json { allowStructuredMapKeys = true }
         val jsonString = json.encodeToString(merch)
@@ -69,9 +65,7 @@ object Cereal {
         return HashMap(json.decodeFromString<Map<BaseMerchandise, Merchandise>>(readFile))
     }
 
-    /**
-     * Saves wallets and merch simultaneously.
-     */
+    /** Saves wallets and merch simultaneously. */
     fun saveAll() {
         val logger = Bukkit.getServer().getLogger()
         logger.info("[FantasyCostco] Saving wallets")
@@ -79,9 +73,7 @@ object Cereal {
         logger.info("[FantasyCostco] Saving Merch")
         saveMerch()
     }
-    /**
-     * Loads wallets and merch simultaneously.
-     */
+    /** Loads wallets and merch simultaneously. */
     fun loadAll() {
         val logger = Bukkit.getServer().getLogger()
         try {
@@ -100,8 +92,8 @@ object Cereal {
 }
 
 /**
- * A serializer for UUIDs. This is necessary Kotlin requires a description
- * of the way in which the UUIDs used in our HashMaps should be serialized.
+ * A serializer for UUIDs. This is necessary Kotlin requires a description of the way in which the
+ * UUIDs used in our HashMaps should be serialized.
  */
 object UuidSerializer : KSerializer<UUID> {
     override val descriptor: SerialDescriptor =
@@ -128,8 +120,8 @@ object UuidSerializer : KSerializer<UUID> {
 }
 
 /**
- * A serializer for Enchantments. This is necessary Kotlin requires a description
- * of the way in which an Enchantment should be serialized.
+ * A serializer for Enchantments. This is necessary Kotlin requires a description of the way in
+ * which an Enchantment should be serialized.
  */
 object EnchantmentSerializer : KSerializer<Enchantment> {
     override val descriptor: SerialDescriptor =
@@ -153,5 +145,39 @@ object EnchantmentSerializer : KSerializer<Enchantment> {
     override fun deserialize(decoder: Decoder): Enchantment {
         // TODO: Does this cause an uh-oh? a fucky wucky? We'll have to see!
         return Enchantment.getByKey(NamespacedKey.fromString(decoder.decodeString()))!!
+    }
+}
+
+/**
+ * A serializer for Locations. This is necessary Kotlin requires a description of the way in which
+ * an Location should be serialized.
+ */
+object LocationSerializer : KSerializer<Location> {
+    // Serializes the Location's x, y, and z to double and world to String
+    override val descriptor: SerialDescriptor =
+            PrimitiveSerialDescriptor("Location", PrimitiveKind.STRING)
+
+    /**
+     * Serializes a Location to a string.
+     * @param encoder The encoder to use.
+     * @param value The Location to serialize.
+     */
+    override fun serialize(encoder: Encoder, value: Location) {
+        encoder.encodeString("${value.world?.name},${value.x},${value.y},${value.z}")
+    }
+
+    /**
+     * Deserializes a Location from a string.
+     * @param decoder The decoder to use.
+     * @return The Location.
+     */
+    override fun deserialize(decoder: Decoder): Location {
+        val string = decoder.decodeString()
+        val split = string.split(",")
+        val world = Bukkit.getWorld(split[0])
+        val x = split[1].toDouble()
+        val y = split[2].toDouble()
+        val z = split[3].toDouble()
+        return Location(world, x, y, z)
     }
 }

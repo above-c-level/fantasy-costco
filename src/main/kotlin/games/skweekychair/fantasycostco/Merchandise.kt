@@ -1,4 +1,4 @@
-@file:UseSerializers(EnchantmentSerializer::class)
+@file:UseSerializers(EnchantmentSerializer::class, LocationSerializer::class)
 
 package games.skweekychair.fantasycostco
 
@@ -6,13 +6,11 @@ import java.util.Objects
 import java.util.Random
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
-import org.bukkit.Bukkit
+import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
 
-/**
- * Modifies the price of items pseudorandomly without affecting the best-guess price
- */
+/** Modifies the price of items pseudorandomly without affecting the best-guess price */
 class Perturber : Runnable {
     override fun run() {
         for (item in Cereal.merch.values) {
@@ -48,19 +46,25 @@ open class BaseMerchandise(
 }
 
 /**
- * Represents a single item in the shop with enchantments as well as various
- * variables that our gradient descent algorithm uses to determine the best
- * price.
+ * Represents a single item in the shop with enchantments as well as various variables that our
+ * gradient descent algorithm uses to determine the best price.
  * @param material The material of the item.
  * @param mass The `mass` of our point in the gradient descent algorithm. It's
+ * ```
  *             used as a way of determining an items "inertia" or resistance to
  *             change.
- * @param hiddenPrice The true, raw best guess at the price of the item.
+ * @param hiddenPrice
+ * ```
+ * The true, raw best guess at the price of the item.
  * @param shownPrice The price as displayed to players, which is smoothed to
+ * ```
  *                   prevent too much price movement too quickly, and also to
  *                   add pseudorandom noise to the price even when no sales
  *                   occur.
- * @param enchantments The enchantments on the item.
+ * @param enchantments
+ * ```
+ * The enchantments on the item.
+ * @param listOfSigns The signs that reference this merchandise
  * @constructor Creates a new merchandise item.
  */
 @Serializable
@@ -69,7 +73,8 @@ class Merchandise(
         var mass: Double,
         var hiddenPrice: Double,
         var shownPrice: Double,
-        val enchantments: Map<Enchantment, Int> = HashMap<Enchantment, Int>()
+        val enchantments: Map<Enchantment, Int> = HashMap<Enchantment, Int>(),
+        val listOfSigns: MutableList<Location> = mutableListOf()
 ) {
     /**
      * The constructor for a new merchandise item.
@@ -159,9 +164,7 @@ class Merchandise(
         return sellPrice(this.shownPrice, amount, this.material.getMaxStackSize())
     }
 
-    /**
-     * Pseudo-randomly perturbs the price of the item without affecting the best-guess price.
-     */
+    /** Pseudo-randomly perturbs the price of the item without affecting the best-guess price. */
     fun perturbPrice() {
         // hopefully this is either unnecessary or doesn't happen often
         // but just in case
@@ -191,17 +194,15 @@ class Merchandise(
                 )
     }
 
-    /**
-     * First smooths changes to price, then perturbs the price.
-     */
+    /** First smooths changes to price, then perturbs the price. */
     fun hold() {
         smoothPrice()
         perturbPrice()
     }
 
     /**
-     * Updates our best guess at the price of the item by buying, smooths
-     * the price, adds mass, and perturbs the price.
+     * Updates our best guess at the price of the item by buying, smooths the price, adds mass, and
+     * perturbs the price.
      */
     fun buy() {
         this.hiddenPrice += pushAmount()
@@ -211,8 +212,8 @@ class Merchandise(
     }
 
     /**
-     * Updates our best guess at the price of the item by selling, smooths
-     * the price, adds mass, and perturbs the price.
+     * Updates our best guess at the price of the item by selling, smooths the price, adds mass, and
+     * perturbs the price.
      */
     fun sell() {
         this.hiddenPrice -= pushAmount()
