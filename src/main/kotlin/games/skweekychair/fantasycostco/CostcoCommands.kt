@@ -25,7 +25,7 @@ object SellCommand : TabExecutor {
         val player: Player = sender
         val item = player.inventory.itemInMainHand
         val merchandise = getMerchandise(item)
-        
+
         if (merchandise.itemSellPrice(item.amount).isNaN()) {
             sender.sendMessage("Don't sell air man!")
             return true;
@@ -36,11 +36,11 @@ object SellCommand : TabExecutor {
         sender.sendMessage("${Cereal.wallets[player.uniqueId]}")
         player.inventory.setItemInMainHand(null);
         merchandise.sell()
-    
-                
+
+
         // tryDiscordBroadcast("TAX FRAUD 🚨🚨⚠️⚠️ **__A  L  E  R  T__** ⚠️⚠️🚨🚨")
         // tryOnlyDiscord("https://tenor.com/view/burnt-demonic-demon-scream-screaming-gif-13844791")
-        
+
         return true
     }
 
