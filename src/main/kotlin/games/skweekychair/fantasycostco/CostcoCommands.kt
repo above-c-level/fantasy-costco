@@ -1,11 +1,11 @@
 package games.skweekychair.fantasycostco
 
 import org.bukkit.ChatColor
+import org.bukkit.Material
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.command.TabExecutor
 import org.bukkit.entity.Player
-import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 
 /** Implements the /sell command for the plugin. */
@@ -66,12 +66,10 @@ object BuyCommand : TabExecutor {
         }
         val player: Player = sender
 
-
         if (args.size == 0) {
             sender.sendMessage("${ChatColor.RED}You must specify an item to buy.")
             return false
         }
-
 
         if (args.size == 1) {
             sender.sendMessage("${ChatColor.RED}You must specify how many of the item to buy.")
@@ -95,7 +93,10 @@ object BuyCommand : TabExecutor {
         if (amount < 0) {
             sender.sendMessage("${ChatColor.RED}I can't give you negative items dude :/")
             return false
-        } else if (amount >= material.maxStackSize) {
+        } else if (amount == 0) {
+            sender.sendMessage("${ChatColor.GREEN}Aight here you go")
+            return true
+        } else if (amount > material.maxStackSize) {
             sender.sendMessage("${ChatColor.RED}You asked for more than stack size.")
             return false
         }
@@ -112,14 +113,15 @@ object BuyCommand : TabExecutor {
 
         val item = player.inventory.itemInMainHand
 
-        if (item.type != Material.AIR) {
-            sender.sendMessage("${ChatColor.RED}I don't want to be mean and overwrite one of you items.")
-            return false
-        }
+        // if (item.type != Material.AIR) {
+        //     sender.sendMessage("${ChatColor.RED}I don't want to be mean and overwrite one of you
+        // items.")
+        //     return false
+        // }
 
         walletSubtract(player, price)
         merchandise.buy()
-        player.inventory.setItemInMainHand(itemStack)
+        player.inventory.addItem(itemStack)
 
         return true
     }
