@@ -27,6 +27,7 @@ class CostcoPlugin : JavaPlugin() {
 
         getCommand("buy")?.setExecutor(BuyCommand)
         getCommand("sell")?.setExecutor(SellCommand)
+        getCommand("wallet")?.setExecutor(WalletCommand)
 
         Cereal.loadAll()
 
