@@ -101,9 +101,11 @@ object BuyCommand : TabExecutor {
         }
 
         val merchandise = getMerchandise(material)
+        val price = merchandise.itemBuyPrice(amount)
 
-        if (merchandise.itemBuyPrice(amount) > Cereal.wallets[player.uniqueId]) {
-
+        if (price > getOrAddWallet(player)) {
+            sender.sendMessage("${ChatColor.RED}Honey you ain't got the money fo' that.")
+            return false
         }
 
         val itemStack = ItemStack(material, amount)
@@ -115,7 +117,9 @@ object BuyCommand : TabExecutor {
             return false
         }
 
-        player.inventory.itemInMainHand(itemStack)
+        walletSubtract(player, price)
+        merchandise.buy()
+        player.inventory.setItemInMainHand(itemStack)
 
         return true
     }
