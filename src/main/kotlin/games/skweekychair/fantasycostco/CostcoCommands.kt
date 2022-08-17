@@ -27,13 +27,13 @@ object SellCommand : TabExecutor {
         val merchandise = getMerchandise(item)
 
         if (merchandise.itemSellPrice(item.amount).isNaN()) {
-            sender.sendMessage("Don't sell air man!")
+            player.sendMessage("Don't sell air man!")
             return true;
         }
-        sender.sendMessage("The sell price is ${merchandise.itemSellPrice(item.amount)}")
+        player.sendMessage("The sell price is ${merchandise.itemSellPrice(item.amount)}")
 
         walletAdd(player, merchandise.itemSellPrice(item.amount))
-        sender.sendMessage("${Cereal.wallets[player.uniqueId]}")
+        player.sendMessage("${Cereal.wallets[player.uniqueId]}")
         player.inventory.setItemInMainHand(null);
         merchandise.sell()
 
@@ -62,7 +62,15 @@ object BuyCommand : TabExecutor {
             lbl: String,
             args: Array<String>
     ): Boolean {
-        return false
+        if (sender !is Player) {
+            sender.sendMessage("${ChatColor.RED}You have to be a player to use this command.")
+            return false
+        }
+
+        val player: Player = sender
+        val item = player.inventory.itemInMainHand
+
+        return true
     }
 
     override fun onTabComplete(
@@ -87,8 +95,8 @@ object WalletCommand : TabExecutor {
             sender.sendMessage("${ChatColor.RED}You have to be a player to use this command.")
             return false
         }
-        val player: Player = sender       
-        
+        val player: Player = sender
+
         return true
     }
 
