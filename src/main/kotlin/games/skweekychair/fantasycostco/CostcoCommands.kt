@@ -5,6 +5,8 @@ import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.command.TabExecutor
 import org.bukkit.entity.Player
+import org.bukkit.Material
+import org.bukkit.inventory.ItemStack
 
 
 /**
@@ -64,11 +66,60 @@ object BuyCommand : TabExecutor {
     ): Boolean {
         if (sender !is Player) {
             sender.sendMessage("${ChatColor.RED}You have to be a player to use this command.")
+            return true
+        }
+        val player: Player = sender
+
+
+        if (args.size == 0) {
+            sender.sendMessage("${ChatColor.RED}You must specify an item to buy.")
             return false
         }
 
-        val player: Player = sender
+
+        if (args.size == 1) {
+            sender.sendMessage("${ChatColor.RED}You must specify how many of the item to buy.")
+            return false
+        }
+
+        val material = Material.matchMaterial(args[0])
+
+        if (material == null) {
+            sender.sendMessage("${ChatColor.RED}Not an item.")
+            return false
+        }
+
+        val amount = args[1].toIntOrNull()
+
+        if (amount == null) {
+            sender.sendMessage("${ChatColor.RED}Not an amount.")
+            return false
+        }
+
+        if (amount < 0) {
+            sender.sendMessage("${ChatColor.RED}I can't give you negative items dude :/")
+            return false
+        } else if (amount >= material.maxStackSize) {
+            sender.sendMessage("${ChatColor.RED}You asked for more than stack size.")
+            return false
+        }
+
+        val merchandise = getMerchandise(material)
+
+        if (merchandise.itemBuyPrice(amount) > Cereal.wallets[player.uniqueId]) {
+
+        }
+
+        val itemStack = ItemStack(material, amount)
+
         val item = player.inventory.itemInMainHand
+
+        if (item.type != Material.AIR) {
+            sender.sendMessage("${ChatColor.RED}I don't want to be mean and overwrite one of you items.")
+            return false
+        }
+
+        player.inventory.itemInMainHand(itemStack)
 
         return true
     }
