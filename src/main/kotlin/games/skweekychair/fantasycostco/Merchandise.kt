@@ -8,6 +8,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import org.bukkit.Location
 import org.bukkit.Material
+import org.bukkit.block.Sign
 import org.bukkit.enchantments.Enchantment
 
 /** Modifies the price of items pseudorandomly without affecting the best-guess price */
@@ -15,6 +16,17 @@ class Perturber : Runnable {
     override fun run() {
         for (item in Cereal.merch.values) {
             item.hold()
+            for (signLocation in item.listOfSigns) {
+                val price = item.shownPrice
+                val sign: Sign? = signLocation.getBlock().state as Sign
+                if (sign != null) {
+                    // Set item name and price
+                    UpdateSignLine(signLocation, 2, price.toString())
+                } else {
+                    // Remove the sign
+                    item.listOfSigns.remove(signLocation)
+                }
+            }
         }
         // Bukkit.broadcastMessage("Perturbed prices of ${Cereal.merch.size} items")
     }
@@ -49,21 +61,12 @@ open class BaseMerchandise(
  * Represents a single item in the shop with enchantments as well as various variables that our
  * gradient descent algorithm uses to determine the best price.
  * @param material The material of the item.
- * @param mass The `mass` of our point in the gradient descent algorithm. It's
- * ```
- *             used as a way of determining an items "inertia" or resistance to
- *             change.
- * @param hiddenPrice
- * ```
- * The true, raw best guess at the price of the item.
- * @param shownPrice The price as displayed to players, which is smoothed to
- * ```
- *                   prevent too much price movement too quickly, and also to
- *                   add pseudorandom noise to the price even when no sales
- *                   occur.
- * @param enchantments
- * ```
- * The enchantments on the item.
+ * @param mass The `mass` of our point in the gradient descent algorithm. It's used as a way of
+ * determining an items "inertia" or resistance to change.
+ * @param hiddenPrice The true, raw best guess at the price of the item.
+ * @param shownPrice The price as displayed to players, which is smoothed to prevent too much price
+ * movement too quickly, and also to add pseudorandom noise to the price even when no sales occur.
+ * @param enchantments The enchantments on the item.
  * @param listOfSigns The signs that reference this merchandise
  * @constructor Creates a new merchandise item.
  */
