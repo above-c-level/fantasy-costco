@@ -9,6 +9,7 @@ import kotlinx.serialization.UseSerializers
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.block.Sign
+import org.bukkit.block.BlockState
 import org.bukkit.enchantments.Enchantment
 
 /** Modifies the price of items pseudorandomly without affecting the best-guess price */
@@ -18,14 +19,12 @@ class Perturber : Runnable {
             item.hold()
             for (signLocation in item.listOfSigns) {
                 val price = item.shownPrice
-                val sign: Sign? = signLocation.getBlock().state as Sign
-                if (sign != null) {
-                    // Set item name and price
-                    UpdateSignLine(signLocation, 2, price.toString())
-                } else {
-                    // Remove the sign
+                val blockState: BlockState = signLocation.getBlock().state
+                if (blockState !is Sign) {
                     item.listOfSigns.remove(signLocation)
+                    continue
                 }
+                UpdateSignLine(signLocation, 2, price.toString())
             }
         }
         // Bukkit.broadcastMessage("Perturbed prices of ${Cereal.merch.size} items")

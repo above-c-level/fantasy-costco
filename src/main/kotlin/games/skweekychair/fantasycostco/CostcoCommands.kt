@@ -113,7 +113,9 @@ object BuyCommand : TabExecutor {
 
         if (price > getOrAddWallet(player)) {
             sender.sendMessage("${ChatColor.RED}Honey, you ain't got the money fo' that.")
-            sender.sendMessage("${ChatColor.RED}You only have ${getOrAddWallet(player)}, and you need ${price}.")
+            sender.sendMessage(
+                    "${ChatColor.RED}You only have ${getOrAddWallet(player)}, and you need ${price}."
+            )
             return false
         }
 

@@ -260,10 +260,16 @@ fun UpdateSign(location: Location, update: List<Pair<Int, String>>) {
             "Updating sign at ${location.x}, ${location.y}, ${location.z} in world ${location.world?.name}"
     )
     for (i in 0 until 4) {
+        broadcastIfDebug("Updating line $i to \"\"")
         sign.setLine(i, "")
     }
+    sign.update()
     for (i in 0 until update.size) {
-        sign.setLine(update[i].first, update[i].second)
+        val pair = update[i]
+        val line = pair.first
+        val text = pair.second
+        broadcastIfDebug("Updating line $line to $text")
+        sign.setLine(line, text)
     }
     // TODO: Test if this is required.
     sign.update()
