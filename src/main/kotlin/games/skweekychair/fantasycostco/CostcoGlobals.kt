@@ -9,7 +9,7 @@ object CostcoGlobals {
 
     // Starting amount in wallet
     val defaultWallet
-        get() = spigotConfig.getDouble("default-wallet", 10.0)
+        get() = spigotConfig.getDouble("default-wallet", 100.0)
 
     // Mass to add to each transaction
     val massPerTransaction

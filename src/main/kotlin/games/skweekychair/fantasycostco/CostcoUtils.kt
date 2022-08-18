@@ -3,7 +3,10 @@ package games.skweekychair.fantasycostco
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import org.bukkit.Bukkit
+import org.bukkit.Location
 import org.bukkit.Material
+import org.bukkit.block.Block
+import org.bukkit.block.Sign
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
@@ -15,10 +18,9 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta
  * @param amount The amount to add
  */
 fun walletAdd(player: Player, amount: Double) {
-    Cereal.wallets[player.uniqueId] =
-            Cereal.wallets.getOrDefault(player.uniqueId, CostcoGlobals.defaultWallet) + amount
+    // The wallet is guaranteed not to be null so we can safely access it
+    Cereal.wallets[player.uniqueId] = getOrAddWallet(player) + amount
 }
-
 
 /**
  * Subtracts the given amount from the player's wallet.
@@ -36,10 +38,18 @@ fun walletSubtract(player: Player, amount: Double) {
  * @return The player's wallet
  */
 fun getOrAddWallet(player: Player): Double {
+    ensureWallet(player)
+    return Cereal.wallets[player.uniqueId]!!
+}
+
+/**
+ * Ensures the player's wallet exists
+ * @param player The player to ensure the wallet of
+ */
+fun ensureWallet(player: Player) {
     if (!Cereal.wallets.containsKey(player.uniqueId)) {
         Cereal.wallets[player.uniqueId] = CostcoGlobals.defaultWallet
     }
-    return Cereal.wallets[player.uniqueId]!!
 }
 
 /**
@@ -177,7 +187,10 @@ fun tryOnlyBroadcast(message: String) {
     Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "bcast $message")
 }
 
-/** Broadcasts a message to the minecraft server if debug mode is enabled. */
+/**
+ * Broadcasts a message to the minecraft server if debug mode is enabled.
+ * @param message The message to broadcast.
+ */
 fun broadcastIfDebug(message: String) {
     if (CostcoGlobals.debugMessages) {
         Bukkit.getServer().broadcastMessage(message)
@@ -227,4 +240,42 @@ fun getItemEnchants(item: ItemStack): Map<Enchantment, Int> {
         enchantments = item.enchantments
     }
     return enchantments ?: HashMap<Enchantment, Int>()
+}
+
+/**
+ * Updates the sign at a given location with the given text. If `location` does not have a sign,
+ * nothing happens.
+ * @param location The location of the sign.
+ * @param update A List of Pairs, where the first element is the line number and the second is the
+ * text.
+ */
+fun UpdateSign(location: Location, update: List<Pair<Int, String>>) {
+    val block: Block? = location.getBlock()
+    if (block !is Sign) {
+        broadcastIfDebug("Could not find sign")
+        return
+    }
+    val sign: Sign = block
+    broadcastIfDebug(
+            "Updating sign at ${location.x}, ${location.y}, ${location.z} in world ${location.world?.name}"
+    )
+    for (i in 0 until 4) {
+        sign.setLine(i, "")
+    }
+    for (i in 0 until update.size) {
+        sign.setLine(update[i].first, update[i].second)
+    }
+    // TODO: Test if this is required.
+    sign.update()
+}
+
+/**
+ * Updates the sign at a given location with the given text. If `location` does not have a sign,
+ * nothing happens.
+ * @param location The location of the sign.
+ * @param updateLine The line number to update.
+ * @param text The text to update the line with.
+ */
+fun UpdateSignLine(location: Location, updateLine: Int, text: String) {
+    UpdateSign(location, mutableListOf(Pair(updateLine, text)))
 }

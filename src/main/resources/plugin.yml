@@ -16,9 +16,10 @@ commands:
     description: Get how many Blockcoins are in your wallet
     usage: /<command>
     permission: fantasycostco.wallet
-  gui:
-    description: Open a GUI
-    usage: /<command>
+  set-wallet:
+    description: Set how many Blockcoins a player has in their wallet
+    usage: /<command> [player] [amount]
+    permission: fantasycostco.set-wallet
 permissions:
   fantasycostco.buy:
     default: true
@@ -26,10 +27,5 @@ permissions:
     default: true
   fantasycostco.wallet:
     default: true
-
-
-
-
-
-
-
+  fantasycostco.set-wallet:
+    default: false

@@ -27,6 +27,8 @@ class CostcoPlugin : JavaPlugin() {
 
         getCommand("buy")?.setExecutor(BuyCommand)
         getCommand("sell")?.setExecutor(SellCommand)
+        getCommand("wallet")?.setExecutor(WalletCommand)
+        getCommand("set-wallet")?.setExecutor(SetWalletCommand)
 
         Cereal.loadAll()
 
@@ -77,6 +79,17 @@ class CostcoListener : Listener {
             val blockname = block?.getType()?.name
             val player = event.getPlayer()
             player.sendMessage("You right-clicked on $blockname with $helditem")
+            // If the block is some kind of sign
+            if (block != null && block.getType().name.contains("SIGN")) {
+                player.sendMessage("\n\nYou right-clicked on a sign!!\n\n\n\n")
+                // choose a random merchandise
+                val randomMerch = Cereal.merch.keys.random()
+                // Add the sign's location to the merch
+                val location = block.getLocation()
+                Cereal.merch[randomMerch]!!.listOfSigns.add(location)
+                broadcastIfDebug("Calling `UpdateSign` for sign at ${location.x}, ${location.y}, ${location.z} in world ${location.world?.name}")
+                UpdateSign(location, mutableListOf(Pair(1, "hello"), Pair(2, "world")))
+            }
             val blockdata = block?.blockData?.getAsString()
             player.sendMessage(blockdata)
         }
