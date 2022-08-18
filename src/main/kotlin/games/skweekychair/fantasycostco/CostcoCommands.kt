@@ -80,7 +80,7 @@ object BuyCommand : TabExecutor {
 
         val material = Material.matchMaterial(args[0])
 
-        if (material == null) {
+        if (material == null || !material.isItem) {
             sender.sendMessage("${ChatColor.RED}Not an item.")
             return false
         }
