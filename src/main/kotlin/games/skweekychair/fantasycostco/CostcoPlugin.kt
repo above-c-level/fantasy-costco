@@ -81,14 +81,19 @@ class CostcoListener : Listener {
             player.sendMessage("You right-clicked on $blockname with $helditem")
             // If the block is some kind of sign
             if (block != null && block.getType().name.contains("SIGN")) {
-                player.sendMessage("\n\nYou right-clicked on a sign!!\n\n\n\n")
                 // choose a random merchandise
                 val randomMerch = Cereal.merch.keys.random()
                 // Add the sign's location to the merch
                 val location = block.getLocation()
                 Cereal.merch[randomMerch]!!.listOfSigns.add(location)
-                broadcastIfDebug("Calling `UpdateSign` for sign at ${location.x}, ${location.y}, ${location.z} in world ${location.world?.name}")
-                UpdateSign(location, mutableListOf(Pair(1, "hello"), Pair(2, "world")))
+                ClearSign(location)
+                UpdateSign(
+                        location,
+                        mutableListOf(
+                                Pair(0, randomMerch.material.name),
+                                Pair(2, Cereal.merch[randomMerch]!!.shownPrice.toString())
+                        )
+                )
             }
             val blockdata = block?.blockData?.getAsString()
             player.sendMessage(blockdata)

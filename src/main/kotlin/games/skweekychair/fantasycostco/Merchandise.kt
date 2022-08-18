@@ -8,8 +8,8 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import org.bukkit.Location
 import org.bukkit.Material
-import org.bukkit.block.Sign
 import org.bukkit.block.BlockState
+import org.bukkit.block.Sign
 import org.bukkit.enchantments.Enchantment
 
 /** Modifies the price of items pseudorandomly without affecting the best-guess price */
@@ -17,14 +17,18 @@ class Perturber : Runnable {
     override fun run() {
         for (item in Cereal.merch.values) {
             item.hold()
+            val staleLocations: MutableList<Location> = mutableListOf()
             for (signLocation in item.listOfSigns) {
                 val price = item.shownPrice
                 val blockState: BlockState = signLocation.getBlock().state
                 if (blockState !is Sign) {
-                    item.listOfSigns.remove(signLocation)
+                    staleLocations.add(signLocation)
                     continue
                 }
                 UpdateSignLine(signLocation, 2, price.toString())
+            }
+            for (staleLocation in staleLocations) {
+                item.listOfSigns.remove(staleLocation)
             }
         }
         // Bukkit.broadcastMessage("Perturbed prices of ${Cereal.merch.size} items")

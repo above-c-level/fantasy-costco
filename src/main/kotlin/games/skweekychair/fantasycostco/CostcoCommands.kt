@@ -24,6 +24,7 @@ object SellCommand : TabExecutor {
         }
         val player: Player = sender
         val item = player.inventory.itemInMainHand
+        val material = item.type
         val merchandise = getMerchandise(item)
 
         if (merchandise.itemSellPrice(item.amount).isNaN()) {
@@ -36,6 +37,8 @@ object SellCommand : TabExecutor {
         player.sendMessage("${getOrAddWallet(player)}")
         player.inventory.setItemInMainHand(null)
         merchandise.sell()
+        val hiddenPrice = merchandise.hiddenPrice
+        sender.sendMessage("${ChatColor.GREEN}Hidden price of ${material.name} is for ${hiddenPrice}")
 
         // tryDiscordBroadcast("TAX FRAUD 🚨🚨⚠️⚠️ **__A  L  E  R  T__** ⚠️⚠️🚨🚨")
         // tryOnlyDiscord("https://tenor.com/view/burnt-demonic-demon-scream-screaming-gif-13844791")
@@ -118,6 +121,8 @@ object BuyCommand : TabExecutor {
             )
             return false
         }
+        val hiddenPrice = merchandise.hiddenPrice
+        sender.sendMessage("${ChatColor.GREEN}Hidden price of ${material.name} is for ${hiddenPrice}")
 
         val itemStack = ItemStack(material, amount)
 
@@ -133,9 +138,9 @@ object BuyCommand : TabExecutor {
         walletSubtract(player, price)
         merchandise.buy()
         val remaining = player.inventory.addItem(itemStack)
-        if (remaining.isEmpty()) {
+        if (remaining.isNotEmpty()) {
             player.sendMessage("${ChatColor.RED}You don't have enough room for all of those items.")
-            return true
+            return false
         }
         player.sendMessage("${ChatColor.GREEN}You bought ${amount} ${material.name} for ${price}")
         return true

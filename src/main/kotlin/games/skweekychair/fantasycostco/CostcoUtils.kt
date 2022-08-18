@@ -256,23 +256,19 @@ fun UpdateSign(location: Location, update: List<Pair<Int, String>>) {
         return
     }
     val sign: Sign = blockState
-    broadcastIfDebug(
-            "Updating sign at ${location.x}, ${location.y}, ${location.z} in world ${location.world?.name}"
-    )
-    for (i in 0 until 4) {
-        broadcastIfDebug("Updating line $i to \"\"")
-        sign.setLine(i, "")
-    }
-    sign.update()
     for (i in 0 until update.size) {
         val pair = update[i]
-        val line = pair.first
-        val text = pair.second
-        broadcastIfDebug("Updating line $line to $text")
-        sign.setLine(line, text)
+        sign.setLine(pair.first, pair.second)
     }
-    // TODO: Test if this is required.
     sign.update()
+}
+/**
+ * Clears all text from a sign at the given location. If `location` does not have a sign, nothing
+ * happens.
+ * @param location The location of the sign.
+ */
+fun ClearSign(location: Location) {
+    UpdateSign(location, listOf(Pair(0, ""), Pair(1, ""), Pair(2, ""), Pair(3, "")))
 }
 
 /**
