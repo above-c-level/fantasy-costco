@@ -5,7 +5,7 @@ import kotlinx.serialization.json.*
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
-import org.bukkit.block.Block
+import org.bukkit.block.BlockState
 import org.bukkit.block.Sign
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.Player
@@ -250,12 +250,12 @@ fun getItemEnchants(item: ItemStack): Map<Enchantment, Int> {
  * text.
  */
 fun UpdateSign(location: Location, update: List<Pair<Int, String>>) {
-    val block: Block? = location.getBlock()
-    if (block !is Sign) {
+    val blockState: BlockState = location.getBlock().state
+    if (blockState !is Sign) {
         broadcastIfDebug("Could not find sign")
         return
     }
-    val sign: Sign = block
+    val sign: Sign = blockState
     broadcastIfDebug(
             "Updating sign at ${location.x}, ${location.y}, ${location.z} in world ${location.world?.name}"
     )
