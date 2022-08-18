@@ -27,6 +27,7 @@ import org.bukkit.enchantments.Enchantment
 object Cereal {
     var wallets = HashMap<UUID, Double>()
     var merch = HashMap<BaseMerchandise, Merchandise>()
+    var purchasePoints = HashMap<Location, BaseMerchandise>()
     var walletPath = File("wallets.json")
     var merchPath = File("merch.json")
 
@@ -87,6 +88,19 @@ object Cereal {
         } catch (e: Throwable) {
             logger.warning("[FantasyCostco] Failed to load merch: ${e.message}")
             merch = HashMap<BaseMerchandise, Merchandise>()
+        }
+        try {
+            // Load purchase points from merch as well to map Location to BaseMerchandise
+            for (baseMerch in merch) {
+                val merchVal: Merchandise = merch[baseMerch.key]!!
+                val signList: MutableList<Location> = merchVal.listOfSigns
+                for (signLocation in signList) {
+                    purchasePoints[signLocation] =
+                            BaseMerchandise(merchVal.material, merchVal.enchantments)
+                }
+            }
+        } catch (e: Throwable) {
+            logger.warning("[FantasyCostco] Failed to init purchase points: ${e.message}")
         }
     }
 }
