@@ -8,6 +8,8 @@ import org.bukkit.command.CommandSender
 import org.bukkit.command.TabExecutor
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
+import org.bukkit.util.StringUtil
+import java.util.stream.Stream
 
 /** Implements the /sell command for the plugin. */
 object SellCommand : TabExecutor {
@@ -147,7 +149,13 @@ object BuyCommand : TabExecutor {
             lbl: String,
             args: Array<String>
     ): List<String> {
-        return listOf<String>()
+        val completions = mutableListOf<String>()
+        if (args.size == 1) {
+            val items = Material.values().filter { material -> material.isItem() }.map { material -> material.toString() };
+            StringUtil.copyPartialMatches(args[0], items, completions);
+        }
+        completions.sort()
+        return completions
     }
 }
 
