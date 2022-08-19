@@ -26,6 +26,7 @@ object SellCommand : TabExecutor {
         }
         val player: Player = sender
         val item = player.inventory.itemInMainHand
+        val itemCount = item.amount
         val material = item.type
         val merchandise = getMerchandise(item)
 
@@ -38,7 +39,7 @@ object SellCommand : TabExecutor {
         walletAdd(player, merchandise.itemSellPrice(item.amount))
         player.sendMessage("${getOrAddWallet(player)}")
         player.inventory.setItemInMainHand(null)
-        merchandise.sell()
+        merchandise.sell(itemCount.toDouble())
         val hiddenPrice = merchandise.hiddenPrice
         sender.sendMessage("${ChatColor.GREEN}Hidden price of ${material.name} is for ${hiddenPrice}")
 
@@ -138,11 +139,19 @@ object BuyCommand : TabExecutor {
         // }
 
         walletSubtract(player, price)
-        merchandise.buy()
+        merchandise.buy(amount.toDouble())
         val remaining = player.inventory.addItem(itemStack)
         if (remaining.isNotEmpty()) {
-            player.sendMessage("${ChatColor.RED}You don't have enough room for all of those items.")
-            return false
+            for (entry in remaining) {
+                // val argnum = entry.key
+                // improve this by:
+                // 1. figure out how many items fit in one stack
+                // 2. figure out how many full stacks there are in entry.value
+                // 3. figure out how many items are left over
+                // 4. drop the full stacks
+                // 5. drop the leftover items
+                player.world.dropItem(player.location, entry.value)
+            }
         }
         player.sendMessage("${ChatColor.GREEN}You bought ${amount} ${material.name} for ${price}")
         return true

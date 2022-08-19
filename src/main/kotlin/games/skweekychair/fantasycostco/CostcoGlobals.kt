@@ -15,6 +15,10 @@ object CostcoGlobals {
     val massPerTransaction
         get() = spigotConfig.getDouble("mass-per-transaction", 1.0)
 
+    // A multiplier for how much larger transactions affect the economy
+    val purchaseSizeMultiplier
+        get() = spigotConfig.getDouble("purchase-size-multiplier", 1.0)
+
     // This limits how high the mass of a commodity can go. This means that
     // selling/buying can always modify price a little bit
     val maximumMass
@@ -27,7 +31,7 @@ object CostcoGlobals {
     // This affects how much variation the random noise has based on price
     // 1/50 seems to be a solid value
     val varMultiplier
-        get() = spigotConfig.getDouble("var-multiplier", 0.02)
+        get() = spigotConfig.getDouble("var-multiplier", 1.0/50.0)
 
     // This affects the variation based on mass, so that when `mass` approaches 0,
     // variation is multiplied by `massVarMin`, and when `mass` approaches
@@ -58,6 +62,7 @@ object CostcoGlobals {
         get() = spigotConfig.getDouble("starting-mass", 5.0)
 
     val secondsBetweenPriceMotion
+        // It's important to multiply by 20 because minecraft has 20 ticks per second
         get() = spigotConfig.getLong("seconds-between-price-motion", 60L) * 20
 
     // Not stored in config because they're just helper values
