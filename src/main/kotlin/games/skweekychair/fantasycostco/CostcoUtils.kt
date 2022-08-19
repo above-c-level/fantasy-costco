@@ -64,7 +64,7 @@ fun ensureWallet(player: Player) {
 fun buyPrice(inputPrice: Double, amount: Int, maxStack: Int = 64): Double {
     val hyperbola: Double = CostcoGlobals.surchargeCurveEpsilon * maxStack / amount
     val priceOffset: Double = CostcoGlobals.surchargeCurveEpsilon * inputPrice
-    return CostcoGlobals.buyMult * inputPrice * (1 + hyperbola) - priceOffset
+    return (CostcoGlobals.buyMult * inputPrice * (1 + hyperbola) - priceOffset) * amount
 }
 
 /**
@@ -79,7 +79,7 @@ fun sellPrice(inputPrice: Double, amount: Int, maxStack: Int = 64): Double {
     val hyperbola: Double = -CostcoGlobals.surchargeCurveEpsilon * maxStack / amount
     val priceOffset: Double = CostcoGlobals.surchargeCurveEpsilon * inputPrice
     // TODO: Check this--the python file uses buy_mult
-    return CostcoGlobals.sellMult * inputPrice * (1 + hyperbola) + priceOffset
+    return (CostcoGlobals.sellMult * inputPrice * (1 + hyperbola) + priceOffset) * amount
 }
 
 /**
