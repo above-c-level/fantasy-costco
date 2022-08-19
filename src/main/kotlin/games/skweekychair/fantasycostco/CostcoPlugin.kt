@@ -85,7 +85,7 @@ class CostcoListener : Listener {
                 val randomMerch = Cereal.merch.keys.random()
                 // Add the sign's location to the merch
                 val location = block.getLocation()
-                Cereal.merch[randomMerch]!!.listOfSigns.add(location)
+                AddSignToMerch(randomMerch, location)
                 ClearSign(location)
                 UpdateSign(
                         location,
