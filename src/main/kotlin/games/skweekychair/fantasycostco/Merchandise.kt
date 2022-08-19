@@ -27,8 +27,9 @@ class Perturber : Runnable {
                 }
                 UpdateSignLine(signLocation, 2, price.toString())
             }
+            val baseMerch = BaseMerchandise(item.material, item.enchantments)
             for (staleLocation in staleLocations) {
-                item.listOfSigns.remove(staleLocation)
+                RemoveSignFromMerch(staleLocation)
             }
         }
         // Bukkit.broadcastMessage("Perturbed prices of ${Cereal.merch.size} items")
@@ -112,25 +113,14 @@ class Merchandise(
     }
     override fun hashCode() = Objects.hash(material, enchantments)
 
-    // TODO: Make sure these to work properly
-    /**
-     * Calculates the magnitude of the change of price given a transaction
-     * @return The magnitude of the change of price.
-     */
-    fun pushAmount(): Double {
-        val dist: Double = Math.abs(this.shownPrice - this.hiddenPrice) + 1.0
-        val sqrtPrice: Double = Math.sqrt(this.shownPrice)
-        return Math.sqrt(1.0 / this.mass * dist * sqrtPrice)
-    }
-
     /**
      * Increases the 'mass' of the commodity, making it harder to move in the future. Only increases
      * the mass if it's not already at `maximumMass`
      */
     fun addMass() {
-        if (this.mass < CostcoGlobals.massPerTransaction) {
+        if (this.mass < CostcoGlobals.maximumMass) {
             this.mass += CostcoGlobals.massPerTransaction
-            this.mass = Math.min(CostcoGlobals.maximumMass, this.mass)
+            // this.mass = Math.min(CostcoGlobals.maximumMass, this.mass)
         }
     }
 
@@ -151,7 +141,6 @@ class Merchandise(
         }
     }
 
-    // TODO: Make sure hidden price not modified if no sales occur
     /**
      * Gets the buy price of `amount` of this item
      * @param amount The amount of the item to buy.
@@ -200,6 +189,18 @@ class Merchandise(
                 )
     }
 
+    /**
+     * Calculates the magnitude of the change of price given a transaction
+     * @param numItems The number of items in the transaction
+     * @return The magnitude of the change of price.
+     */
+    fun pushAmount(numItems: Double): Double {
+        val dist: Double = Math.abs(this.shownPrice - this.hiddenPrice) + 1.0
+        val sqrtPrice: Double = Math.sqrt(this.shownPrice)
+        val multItems: Double = Math.sqrt(numItems) * CostcoGlobals.purchaseSizeMultiplier
+        return Math.sqrt(multItems / this.mass * dist * sqrtPrice)
+    }
+
     /** First smooths changes to price, then perturbs the price. */
     fun hold() {
         smoothPrice()
@@ -210,8 +211,8 @@ class Merchandise(
      * Updates our best guess at the price of the item by buying, smooths the price, adds mass, and
      * perturbs the price.
      */
-    fun buy() {
-        this.hiddenPrice += pushAmount()
+    fun buy(numItems: Double) {
+        this.hiddenPrice += pushAmount(numItems)
         smoothPrice()
         addMass()
         perturbPrice()
@@ -221,8 +222,8 @@ class Merchandise(
      * Updates our best guess at the price of the item by selling, smooths the price, adds mass, and
      * perturbs the price.
      */
-    fun sell() {
-        this.hiddenPrice -= pushAmount()
+    fun sell(numItems: Double) {
+        this.hiddenPrice -= pushAmount(numItems)
         smoothPrice()
         addMass()
         perturbPrice()
