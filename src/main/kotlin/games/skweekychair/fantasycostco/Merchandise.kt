@@ -27,7 +27,6 @@ class Perturber : Runnable {
                 }
                 UpdateSignLine(signLocation, 2, price.toString())
             }
-            val baseMerch = BaseMerchandise(item.material, item.enchantments)
             for (staleLocation in staleLocations) {
                 RemoveSignFromMerch(staleLocation)
             }
