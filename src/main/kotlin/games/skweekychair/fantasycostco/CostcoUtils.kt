@@ -281,3 +281,42 @@ fun ClearSign(location: Location) {
 fun UpdateSignLine(location: Location, updateLine: Int, text: String) {
     UpdateSign(location, mutableListOf(Pair(updateLine, text)))
 }
+
+
+
+/**
+ * Removes a merchandise-sign association
+ * @param location The location of the sign.
+ * @return True if there was an association (which was then removed), false otherwise.
+ */
+fun RemoveSignFromMerch(location: Location): Boolean {
+    if (location in Cereal.purchasePoints) {
+        broadcastIfDebug("Removing ${location.blockX} ${location.blockY} ${location.blockZ}")
+        // Grab the base merch associated with the location.
+        val baseMerchAtLocation = Cereal.purchasePoints[location]
+        // Get the old merch associated with the location.
+        val oldMerch = getMerchandise(baseMerchAtLocation!!)
+        // Remove the location from the list of purchase points
+        Cereal.purchasePoints.remove(location)
+        // Lastly, remove the location from the old merch
+        oldMerch.listOfSigns.remove(location)
+        return true
+    }
+    return false
+}
+
+/**
+ * Adds a sign to the merchandise at the given location. If a sign already exists, it is
+ * overwritten. Also removes the sign from the merchandise it was previously associated with.
+ * @param baseMerch The BaseMerchandise to associate the sign with.
+ * @param location The location of the sign.
+ */
+fun AddSignToMerch(baseMerch: BaseMerchandise, location: Location) {
+    // TODO: Check for null signs?
+    // First, check if the location already is catalogued, and if so, remove it.
+    RemoveSignFromMerch(location)
+    // Add the location to the purchase points and the merch.
+    Cereal.purchasePoints[location] = baseMerch
+    val merch = getMerchandise(baseMerch)
+    merch.listOfSigns.add(location)
+}
