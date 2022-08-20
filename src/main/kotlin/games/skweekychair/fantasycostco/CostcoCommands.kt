@@ -37,7 +37,7 @@ object SellCommand : TabExecutor {
         player.sendMessage("The sell price is ${merchandise.itemSellPrice(item.amount)}")
 
         walletAdd(player, merchandise.itemSellPrice(item.amount))
-        player.sendMessage("${getOrAddWallet(player)}")
+        player.sendMessage("${getWallet(player)}")
         player.inventory.setItemInMainHand(null)
         merchandise.sell(itemCount.toDouble())
         val hiddenPrice = merchandise.hiddenPrice
@@ -116,11 +116,18 @@ object BuyCommand : TabExecutor {
 
         val merchandise = getMerchandise(material)
         val price = merchandise.itemBuyPrice(amount)
+        val playerFunds = getWallet(player)
 
-        if (price > getOrAddWallet(player)) {
+        if (price > playerFunds) {
+            val buyMaxItems: Boolean = getBuyMaxItems(player)
+            if (buyMaxItems) {
+                // Calculate the largest number of items purchaseable
+
+            }
+
             sender.sendMessage("${ChatColor.RED}Honey, you ain't got the money fo' that.")
             sender.sendMessage(
-                    "${ChatColor.RED}You only have ${getOrAddWallet(player)}, and you need ${price}."
+                    "${ChatColor.RED}You only have ${getWallet(player)}, and you need ${price}."
             )
             return false
         }
@@ -216,7 +223,7 @@ object SetWalletCommand : TabExecutor {
             return false
         }
         // Set wallet with amount
-        Cereal.wallets[player.uniqueId] = amount
+        setWallet(player, amount)
         return true
     }
 
@@ -243,7 +250,7 @@ object WalletCommand : TabExecutor {
             return false
         }
         val player: Player = sender
-        player.sendMessage("${getOrAddWallet(player)}")
+        player.sendMessage("${getWallet(player)}")
         return true
     }
 
