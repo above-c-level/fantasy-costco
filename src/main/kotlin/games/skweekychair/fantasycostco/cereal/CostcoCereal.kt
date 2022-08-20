@@ -6,7 +6,6 @@ import java.io.File
 import java.util.UUID
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.MapSerializer
-import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -25,14 +24,14 @@ import org.bukkit.enchantments.Enchantment
  * deserialize objects used in the plugin.
  */
 object Cereal {
-    var wallets = HashMap<UUID, Double>()
+    var wallets = HashMap<UUID, PlayerData>()
     var merch = HashMap<BaseMerchandise, Merchandise>()
     var purchasePoints = HashMap<Location, BaseMerchandise>()
     var walletPath = File("wallets.json")
     var merchPath = File("merch.json")
 
-    val walletsSerializer: KSerializer<Map<UUID, Double>> =
-            MapSerializer(UuidSerializer, Double.serializer())
+    val walletsSerializer: KSerializer<Map<UUID, PlayerData>> =
+            MapSerializer(UuidSerializer, PlayerDataSerializer)
 
     /** Saves all user wallets to a file. */
     fun saveWallets() {
@@ -44,9 +43,9 @@ object Cereal {
      * Loads all user wallets from a file.
      * @return A map of player UUIDs to the amount contained in their wallets.
      */
-    fun loadWallets(): HashMap<UUID, Double> {
+    fun loadWallets(): HashMap<UUID, PlayerData> {
         val readFile = walletPath.bufferedReader().readText()
-        return HashMap(Json.decodeFromString(walletsSerializer, readFile))
+        return HashMap(Json.decodeFromString<Map<UUID, PlayerData>>(readFile))
     }
 
     /** Saves all merch to a file. */
@@ -81,7 +80,7 @@ object Cereal {
             wallets = loadWallets()
         } catch (e: Throwable) {
             logger.warning("[FantasyCostco] Failed to load wallets: ${e.message}")
-            wallets = HashMap<UUID, Double>()
+            wallets = HashMap<UUID, PlayerData>()
         }
         try {
             merch = loadMerch()
@@ -102,6 +101,33 @@ object Cereal {
         } catch (e: Throwable) {
             logger.warning("[FantasyCostco] Failed to init purchase points: ${e.message}")
         }
+    }
+}
+
+/** A player class for holding player data. */
+@Serializable
+data class PlayerData(var balance: Double, var buyGoal: Int = 0, var buyMaxItems: Boolean = false)
+
+object PlayerDataSerializer : KSerializer<PlayerData> {
+    override val descriptor: SerialDescriptor =
+            PrimitiveSerialDescriptor("PlayerData", PrimitiveKind.STRING)
+
+    /**
+     * Serializes PlayerData to a string.
+     * @param encoder The encoder to use.
+     * @param value The UUID to serialize.
+     */
+    override fun serialize(encoder: Encoder, value: PlayerData) {
+        Json.encodeToJsonElement(encoder.encodeString(value.toString()))
+    }
+
+    /**
+     * Deserializes PlayerData from a string.
+     * @param decoder The decoder to use.
+     * @return The PlayerData.
+     */
+    override fun deserialize(decoder: Decoder): PlayerData {
+        return Json.decodeFromString<PlayerData>(decoder.decodeString())
     }
 }
 
