@@ -1,4 +1,4 @@
-@file:UseSerializers(EnchantmentSerializer::class, LocationSerializer::class)
+@file:UseSerializers(EnchantmentSerializer::class, LocationSerializer::class, UuidSerializer::class)
 
 package games.skweekychair.fantasycostco
 
