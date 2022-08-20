@@ -19,7 +19,7 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta
  */
 fun walletAdd(player: Player, amount: Double) {
     // The wallet is guaranteed not to be null so we can safely access it
-    Cereal.wallets[player.uniqueId] = getOrAddWallet(player) + amount
+    Cereal.wallets[player.uniqueId]!!.balance = getWallet(player) + amount
 }
 
 /**
@@ -37,9 +37,20 @@ fun walletSubtract(player: Player, amount: Double) {
  * @param player The player to get the wallet of
  * @return The player's wallet
  */
-fun getOrAddWallet(player: Player): Double {
+fun getWallet(player: Player): Double {
     ensureWallet(player)
-    return Cereal.wallets[player.uniqueId]!!
+    return Cereal.wallets[player.uniqueId]!!.balance
+}
+
+/**
+ * Sets the player's wallet to the given amount
+ * @param player The player to set the wallet of
+ * @param amount The amount to set the wallet to
+ */
+fun setWallet(player: Player, amount: Double): Double {
+    ensureWallet(player)
+    Cereal.wallets[player.uniqueId]!!.balance = amount
+    return amount
 }
 
 /**
@@ -48,9 +59,50 @@ fun getOrAddWallet(player: Player): Double {
  */
 fun ensureWallet(player: Player) {
     if (!Cereal.wallets.containsKey(player.uniqueId)) {
-        Cereal.wallets[player.uniqueId] = CostcoGlobals.defaultWallet
+        Cereal.wallets[player.uniqueId] = PlayerData(CostcoGlobals.defaultWallet)
     }
 }
+
+/**
+ * Gets the player's buy goal or adds it if it does not exist
+ * @param player The player to get the buy goal of
+ * @return The player's buy goal
+ */
+fun getBuyGoal(player: Player): Int {
+    ensureWallet(player)
+    return Cereal.wallets[player.uniqueId]!!.buyGoal
+}
+
+/**
+ * Sets the player's buy goal to the given amount
+ * @param player The player to set the buy goal of
+ * @param amount The amount to set the buy goal to
+ */
+fun setBuyGoal(player: Player, amount: Int){
+    ensureWallet(player)
+    Cereal.wallets[player.uniqueId]!!.buyGoal = amount
+}
+
+/**
+ * Gets whether the play wants to buy as much as they can afford
+ * @param player The player to get the buy goal of
+ * @return Whether the player wants to buy as much as they can afford
+ */
+fun getBuyMaxItems(player: Player): Boolean {
+    ensureWallet(player)
+    return Cereal.wallets[player.uniqueId]!!.buyMaxItems
+}
+
+/**
+ * Sets whether the player wants to buy as much as they can afford
+ * @param player The player to set the buy goal of
+ * @param buyMax Whether the player wants to buy as much as they can afford
+ */
+fun setBuyMaxItems(player: Player, buyMax: Boolean){
+    ensureWallet(player)
+    Cereal.wallets[player.uniqueId]!!.buyMaxItems = buyMax
+}
+
 
 /**
  * Returns the buy price given given an ideal price, the number of items being purchased, and the
