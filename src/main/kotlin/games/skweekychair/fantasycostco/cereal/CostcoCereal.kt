@@ -106,13 +106,12 @@ object Cereal {
 /** A player class for holding player data. */
 @Serializable
 data class PlayerData(
-    @SerialName("balance")
-    var balance: Double,
-    @SerialName("buyGoal")
-    var buyGoal: Int = 0,
-    @SerialName("buyMaxItems")
-    var buyMaxItems: Boolean = false)
-
+        // Doubles can represent as high as 140737488355328 (2^47) in increments of 0.01 with no
+        // loss of precision.
+        @SerialName("balance") var balance: Double,
+        @SerialName("buyGoal") var buyGoal: Int = 0,
+        @SerialName("buyMaxItems") var buyMaxItems: Boolean = false
+)
 
 object PlayerDataSerializer : KSerializer<PlayerData> {
     override val descriptor: SerialDescriptor =
