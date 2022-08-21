@@ -12,7 +12,6 @@ import org.bukkit.util.StringUtil
 
 /** Implements the /sell command for the plugin. */
 object SellCommand : TabExecutor {
-
     override fun onCommand(
             sender: CommandSender,
             cmd: Command,
@@ -27,17 +26,22 @@ object SellCommand : TabExecutor {
         val item = player.inventory.itemInMainHand
         val itemCount = item.amount
         val merchandise = getMerchandise(item)
+        val price = merchandise.itemSellPrice(item.amount)
 
         if (merchandise.itemSellPrice(item.amount).isNaN()) {
             player.sendMessage("Don't sell air man!")
             return true
         }
-        player.sendMessage("The sell price is ${merchandise.itemSellPrice(item.amount)}")
 
-        walletAdd(player, merchandise.itemSellPrice(item.amount))
-        player.sendMessage("${getWallet(player)}")
+        walletAdd(player, price)
+        val playerFunds = getWalletRounded(player)
+        player.sendMessage("${playerFunds}")
         player.inventory.setItemInMainHand(null)
         merchandise.sell(itemCount.toDouble())
+        player.sendMessage("${GREEN}You received ${WHITE}₿${price}${GREEN} in the sale")
+        player.sendMessage(
+                "${GREEN}You now have ${WHITE}₿${getWalletString(player)}${GREEN} in your wallet"
+        )
 
         // tryDiscordBroadcast("TAX FRAUD 🚨🚨⚠️⚠️ **__A  L  E  R  T__** ⚠️⚠️🚨🚨")
         // tryOnlyDiscord("https://tenor.com/view/burnt-demonic-demon-scream-screaming-gif-13844791")
@@ -56,7 +60,6 @@ object SellCommand : TabExecutor {
 }
 
 object BuyCommand : TabExecutor {
-
     override fun onCommand(
             sender: CommandSender,
             cmd: Command,
@@ -111,7 +114,7 @@ object BuyCommand : TabExecutor {
         // }
         val merchandise = getMerchandise(material)
         var price = merchandise.itemBuyPrice(amount)
-        val playerFunds = getWallet(player)
+        val playerFunds = getWalletRounded(player)
 
         if (price > playerFunds) {
             val buyMaxItems = getBuyMaxItems(player)
@@ -120,12 +123,10 @@ object BuyCommand : TabExecutor {
                 // of items purchaseable.
                 // Worst case scenario is the player wants a full inventory, so even if we increase
                 // the amount a player can buy up to 36 stacks, this is guaranteed
-                // to take <= 11 iterations,
+                // to take <= 11 iterations
                 var low: Int = 1
                 var high: Int = amount
-                var iters: Int = 0
                 while (low < high) {
-                    iters++
                     val mid = (low + high) / 2
                     val midBuyPrice = merchandise.itemBuyPrice(mid)
                     if (midBuyPrice > playerFunds) {
@@ -137,16 +138,17 @@ object BuyCommand : TabExecutor {
                 amount = high - 1
                 price = merchandise.itemBuyPrice(amount)
                 if (amount <= 0) {
+                    val singleItemPrice = roundDoubleString(merchandise.itemBuyPrice(1))
                     sender.sendMessage("${RED}You can't buy any more of ${material.name}.")
                     sender.sendMessage(
-                            "${RED}You only have ${WHITE}₿${playerFunds}${RED}, and you need ${WHITE}#B${merchandise.itemBuyPrice(1)}${RED} for 1."
+                            "${RED}You only have ${WHITE}₿${getWalletString(player)}${RED}, and you need ${WHITE}#B${singleItemPrice}${RED} for 1."
                     )
                     return false
                 }
             } else {
                 sender.sendMessage("${RED}Honey, you ain't got the money fo' that.")
                 sender.sendMessage(
-                        "${RED}You only have ${WHITE}₿${playerFunds}${RED}, and you need ${WHITE}₿${price}."
+                        "${RED}You only have ${WHITE}₿${getWalletString(player)}${RED}, and you need ${WHITE}₿${price}."
                 )
                 return false
             }
@@ -188,7 +190,7 @@ object BuyCommand : TabExecutor {
             }
         }
         player.sendMessage("${GREEN}You bought ${amount} ${material.name} for ${WHITE}₿${price}")
-        player.sendMessage("${GREEN}Your wallet now contains ${WHITE}₿${getWallet(player)}")
+        player.sendMessage("${GREEN}Your wallet now contains ${WHITE}₿${getWalletString(player)}")
         return true
     }
 
@@ -270,7 +272,6 @@ object SetWalletCommand : TabExecutor {
 }
 
 object WalletCommand : TabExecutor {
-
     override fun onCommand(
             sender: CommandSender,
             cmd: Command,
@@ -282,7 +283,7 @@ object WalletCommand : TabExecutor {
             return false
         }
         val player: Player = sender
-        player.sendMessage("${GREEN}You have ${WHITE}₿${getWallet(player)}")
+        player.sendMessage("${GREEN}You have ${WHITE}₿${getWalletString(player)}")
         return true
     }
 
