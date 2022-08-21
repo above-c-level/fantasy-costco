@@ -1,7 +1,7 @@
 package games.skweekychair.fantasycostco
 
 import org.bukkit.Bukkit
-import org.bukkit.ChatColor
+import org.bukkit.ChatColor.*
 import org.bukkit.Material
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
@@ -20,13 +20,12 @@ object SellCommand : TabExecutor {
             args: Array<String>
     ): Boolean {
         if (sender !is Player) {
-            sender.sendMessage("${ChatColor.RED}You have to be a player to use this command.")
+            sender.sendMessage("${RED}You have to be a player to use this command.")
             return false
         }
         val player: Player = sender
         val item = player.inventory.itemInMainHand
         val itemCount = item.amount
-        val material = item.type
         val merchandise = getMerchandise(item)
 
         if (merchandise.itemSellPrice(item.amount).isNaN()) {
@@ -65,49 +64,49 @@ object BuyCommand : TabExecutor {
             args: Array<String>
     ): Boolean {
         if (sender !is Player) {
-            sender.sendMessage("${ChatColor.RED}You have to be a player to use this command.")
+            sender.sendMessage("${RED}You have to be a player to use this command.")
             return true
         }
         val player: Player = sender
 
         if (args.size == 0) {
-            sender.sendMessage("${ChatColor.RED}You must specify an item to buy.")
+            sender.sendMessage("${RED}You must specify an item to buy.")
             return false
         } else if (args.size == 1) {
-            sender.sendMessage("${ChatColor.RED}You must specify how many of the item to buy.")
+            sender.sendMessage("${RED}You must specify how many of the item to buy.")
             return false
         } else if (args.size > 2) {
-            sender.sendMessage("${ChatColor.RED}This command only takes two arguments")
+            sender.sendMessage("${RED}This command only takes two arguments")
             return false
         }
 
         val material = Material.matchMaterial(args[0])
 
         if (material == null || !material.isItem) {
-            sender.sendMessage("${ChatColor.RED}Not an item.")
+            sender.sendMessage("${RED}Not an item.")
             return false
         }
 
         var amount = args[1].toIntOrNull()
 
         if (amount == null) {
-            sender.sendMessage("${ChatColor.RED}Not an amount.")
+            sender.sendMessage("${RED}Not an amount.")
             return false
         }
 
         if (amount < 0) {
-            sender.sendMessage("${ChatColor.RED}I can't give you negative items dude :/")
+            sender.sendMessage("${RED}I can't give you negative items dude :/")
             return false
         } else if (amount == 0) {
-            sender.sendMessage("${ChatColor.GREEN}Aight here you go")
+            sender.sendMessage("${GREEN}Aight here you go")
             return true
         } else if (amount > 27 * material.maxStackSize) {
-            sender.sendMessage("${ChatColor.RED}You can't buy that many items.")
+            sender.sendMessage("${RED}You can't buy that many items.")
             return false
         }
         // This below thing shouldn't strictly be necessary
         // else if (amount > material.maxStackSize) {
-        //     sender.sendMessage("${ChatColor.RED}You asked for more than stack size.")
+        //     sender.sendMessage("${RED}You asked for more than stack size.")
         //     return false
         // }
         val merchandise = getMerchandise(material)
@@ -138,23 +137,20 @@ object BuyCommand : TabExecutor {
                 amount = high - 1
                 price = merchandise.itemBuyPrice(amount)
                 if (amount <= 0) {
-                    sender.sendMessage("${ChatColor.RED}You can't buy any more of ${material.name}.")
-                    sender.sendMessage("${ChatColor.RED}You only have ${playerFunds}, and you need ${merchandise.itemBuyPrice(1)} for 1.")
+                    sender.sendMessage("${RED}You can't buy any more of ${material.name}.")
+                    sender.sendMessage(
+                            "${RED}You only have ${WHITE}₿${playerFunds}${RED}, and you need ${WHITE}#B${merchandise.itemBuyPrice(1)}${RED} for 1."
+                    )
                     return false
                 }
             } else {
-                sender.sendMessage("${ChatColor.RED}Honey, you ain't got the money fo' that.")
+                sender.sendMessage("${RED}Honey, you ain't got the money fo' that.")
                 sender.sendMessage(
-                        "${ChatColor.RED}You only have ${playerFunds}, and you need ${price}."
+                        "${RED}You only have ${WHITE}₿${playerFunds}${RED}, and you need ${WHITE}₿${price}."
                 )
                 return false
             }
         }
-
-        val hiddenPrice = merchandise.hiddenPrice
-        sender.sendMessage(
-                "${ChatColor.GREEN}Hidden price of ${material.name} is for ${hiddenPrice}"
-        )
 
         val itemStack = ItemStack(material, amount)
 
@@ -162,7 +158,7 @@ object BuyCommand : TabExecutor {
 
         // if (item.type != Material.AIR) {
         //     sender.sendMessage(
-        //             "${ChatColor.RED}I don't want to be mean and overwrite one of you items."
+        //             "${RED}I don't want to be mean and overwrite one of you items."
         //     )
         //     return false
         // }
@@ -191,7 +187,8 @@ object BuyCommand : TabExecutor {
                 }
             }
         }
-        player.sendMessage("${ChatColor.GREEN}You bought ${amount} ${material.name} for ${price}")
+        player.sendMessage("${GREEN}You bought ${amount} ${material.name} for ${WHITE}₿${price}")
+        player.sendMessage("${GREEN}Your wallet now contains ${WHITE}₿${getWallet(player)}")
         return true
     }
 
@@ -228,18 +225,18 @@ object SetWalletCommand : TabExecutor {
 
         // If sender does not have permission, return false
         if (!sender.hasPermission("fantasycostco.set-wallet")) {
-            sender.sendMessage("${ChatColor.RED}You don't have permission to use this command.")
+            sender.sendMessage("${RED}You don't have permission to use this command.")
             return false
         }
         // Make sure there are two arguments
         if (args.size == 0) {
-            sender.sendMessage("${ChatColor.RED}You must specify a player to set their wallet")
+            sender.sendMessage("${RED}You must specify a player to set their wallet")
             return false
         } else if (args.size == 1) {
-            sender.sendMessage("${ChatColor.RED}You must specify the amount to set their wallet to")
+            sender.sendMessage("${RED}You must specify the amount to set their wallet to")
             return false
         } else if (args.size > 2) {
-            sender.sendMessage("${ChatColor.RED}This command only takes two arguments")
+            sender.sendMessage("${RED}This command only takes two arguments")
             return false
         }
 
@@ -247,17 +244,18 @@ object SetWalletCommand : TabExecutor {
         val playerArg: String = args[0]
         val player = Bukkit.getPlayer(playerArg)
         if (player == null) {
-            sender.sendMessage("${ChatColor.RED}Player not found.")
+            sender.sendMessage("${RED}Player not found.")
             return false
         }
         // Get amount
         val amount = args[1].toDoubleOrNull()
         if (amount == null) {
-            sender.sendMessage("${ChatColor.RED}Not a valid amount.")
+            sender.sendMessage("${RED}Not a valid amount.")
             return false
         }
         // Set wallet with amount
         setWallet(player, amount)
+        sender.sendMessage("${GREEN}Set ${player.name}'s wallet to ${WHITE}₿${amount}")
         return true
     }
 
@@ -280,11 +278,11 @@ object WalletCommand : TabExecutor {
             args: Array<String>
     ): Boolean {
         if (sender !is Player) {
-            sender.sendMessage("${ChatColor.RED}You have to be a player to use this command.")
+            sender.sendMessage("${RED}You have to be a player to use this command.")
             return false
         }
         val player: Player = sender
-        player.sendMessage("${getWallet(player)}")
+        player.sendMessage("${GREEN}You have ${WHITE}₿${getWallet(player)}")
         return true
     }
 
@@ -306,15 +304,18 @@ object ToggleBuyPossibleCommand : TabExecutor {
             args: Array<String>
     ): Boolean {
         if (sender !is Player) {
-            sender.sendMessage("${ChatColor.RED}You have to be a player to use this command.")
+            sender.sendMessage("${RED}You have to be a player to use this command.")
             return false
         }
 
         // If sender does not have permission, return false
         if (!sender.hasPermission("fantasycostco.toggle-buy-possible")) {
-            sender.sendMessage("${ChatColor.RED}You don't have permission to use this command.")
+            sender.sendMessage("${RED}You don't have permission to use this command.")
             return false
         }
+        val playerData = getPlayerData(sender)
+        playerData.buyMaxItems = !playerData.buyMaxItems
+        sender.sendMessage("${GREEN}Buy max items is now ${WHITE}${playerData.buyMaxItems}")
 
         return true
     }
