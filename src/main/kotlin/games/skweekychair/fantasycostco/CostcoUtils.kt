@@ -11,6 +11,7 @@ import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.EnchantmentStorageMeta
+import java.util.logging.Logger
 
 /**
  * Adds the given amount to the player's wallet.
@@ -371,4 +372,34 @@ fun AddSignToMerch(baseMerch: BaseMerchandise, location: Location) {
     Cereal.purchasePoints[location] = baseMerch
     val merch = getMerchandise(baseMerch)
     merch.listOfSigns.add(location)
+}
+
+/**
+ * Updates the price of a type of merchandise at all sign locations.
+ * @param baseMerch The BaseMerchandise to update the price of.
+ */
+fun UpdateSignPrices(baseMerch: BaseMerchandise) {
+    val merch = Cereal.merch[baseMerch]
+    if (merch == null) {
+        broadcastIfDebug("Could not find merch for ${baseMerch.material}")
+        return
+    }
+    for (location in merch.listOfSigns) {
+        UpdateSignLine(location, 2, merch.shownPrice.toString())
+    }
+}
+
+/**
+  * Logs an info message to the console.
+  */
+  fun LogInfo(message: String) {
+    return Bukkit.getServer().getLogger().info("[FantasyCostco] $message")
+}
+
+
+/**
+  * Logs a warning message to the console.
+  */
+  fun LogWarning(message: String) {
+    return Bukkit.getServer().getLogger().warning("[FantasyCostco] $message")
 }
