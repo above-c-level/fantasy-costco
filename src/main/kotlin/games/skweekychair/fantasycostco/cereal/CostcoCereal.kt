@@ -35,7 +35,8 @@ object Cereal {
 
     /** Saves all user wallets to a file. */
     fun saveWallets() {
-        val jsonString = Json.encodeToString(walletsSerializer, wallets)
+        val json = Json { allowStructuredMapKeys = true }
+        val jsonString = json.encodeToString(walletsSerializer, wallets)
         walletPath.bufferedWriter().use { out -> out.write(jsonString) }
     }
 
@@ -45,7 +46,8 @@ object Cereal {
      */
     fun loadWallets(): HashMap<UUID, PlayerData> {
         val readFile = walletPath.bufferedReader().readText()
-        return HashMap(Json.decodeFromString<Map<UUID, PlayerData>>(readFile))
+        val json = Json { allowStructuredMapKeys = true }
+        return HashMap(json.decodeFromString<Map<UUID, PlayerData>>(walletsSerializer, readFile))
     }
 
     /** Saves all merch to a file. */
@@ -67,25 +69,24 @@ object Cereal {
 
     /** Saves wallets and merch simultaneously. */
     fun saveAll() {
-        val logger = Bukkit.getServer().getLogger()
-        logger.info("[FantasyCostco] Saving wallets")
+        LogInfo("Saving wallets")
         saveWallets()
-        logger.info("[FantasyCostco] Saving Merch")
+        LogInfo("Saving Merch")
         saveMerch()
     }
+
     /** Loads wallets and merch simultaneously. */
     fun loadAll() {
-        val logger = Bukkit.getServer().getLogger()
         try {
             wallets = loadWallets()
         } catch (e: Throwable) {
-            logger.warning("[FantasyCostco] Failed to load wallets: ${e.message}")
+            LogWarning("Failed to load wallets: ${e.message}")
             wallets = HashMap<UUID, PlayerData>()
         }
         try {
             merch = loadMerch()
         } catch (e: Throwable) {
-            logger.warning("[FantasyCostco] Failed to load merch: ${e.message}")
+            LogWarning("Failed to load merch: ${e.message}")
             merch = HashMap<BaseMerchandise, Merchandise>()
         }
         try {
@@ -99,14 +100,21 @@ object Cereal {
                 }
             }
         } catch (e: Throwable) {
-            logger.warning("[FantasyCostco] Failed to init purchase points: ${e.message}")
+            LogWarning("Failed to init purchase points: ${e.message}")
         }
     }
 }
 
 /** A player class for holding player data. */
 @Serializable
-data class PlayerData(var balance: Double, var buyGoal: Int = 0, var buyMaxItems: Boolean = false)
+data class PlayerData(
+    @SerialName("balance")
+    var balance: Double,
+    @SerialName("buyGoal")
+    var buyGoal: Int = 0,
+    @SerialName("buyMaxItems")
+    var buyMaxItems: Boolean = false)
+
 
 object PlayerDataSerializer : KSerializer<PlayerData> {
     override val descriptor: SerialDescriptor =
@@ -118,7 +126,8 @@ object PlayerDataSerializer : KSerializer<PlayerData> {
      * @param value The UUID to serialize.
      */
     override fun serialize(encoder: Encoder, value: PlayerData) {
-        Json.encodeToJsonElement(encoder.encodeString(value.toString()))
+        val json = Json { allowStructuredMapKeys = true }
+        encoder.encodeString(json.encodeToString(value))
     }
 
     /**
@@ -127,7 +136,10 @@ object PlayerDataSerializer : KSerializer<PlayerData> {
      * @return The PlayerData.
      */
     override fun deserialize(decoder: Decoder): PlayerData {
-        return Json.decodeFromString<PlayerData>(decoder.decodeString())
+        val decodedString = decoder.decodeString()
+        val json = Json { allowStructuredMapKeys = true }
+        val jsonElement = json.decodeFromString<PlayerData>(decodedString)
+        return jsonElement
     }
 }
 
