@@ -110,15 +110,12 @@ object BuyCommand : TabExecutor {
         //     sender.sendMessage("${ChatColor.RED}You asked for more than stack size.")
         //     return false
         // }
-        LogInfo("In BuyCommand")
         val merchandise = getMerchandise(material)
         var price = merchandise.itemBuyPrice(amount)
         val playerFunds = getWallet(player)
-        LogInfo("    playerFunds: $playerFunds, price: $price")
 
         if (price > playerFunds) {
             val buyMaxItems = getBuyMaxItems(player)
-            LogInfo("    ${player.name} has buyMaxItems set to ${buyMaxItems}, doing binary search")
             if (buyMaxItems) {
                 // Since the price is nonlinear, we can do binary search to find the largest number
                 // of items purchaseable.
@@ -132,22 +129,14 @@ object BuyCommand : TabExecutor {
                     iters++
                     val mid = (low + high) / 2
                     val midBuyPrice = merchandise.itemBuyPrice(mid)
-                    LogInfo("        High: $high, Low: $low, Mid: $mid")
-                    LogInfo("        midBuyPrice: $midBuyPrice")
                     if (midBuyPrice > playerFunds) {
-                        LogInfo("            midBuyPrice > playerFunds")
                         high = mid - 1
-                        LogInfo("            New high: $high")
                     } else {
-                        LogInfo("            midBuyPrice <= playerFunds")
                         low = mid + 1
-                        LogInfo("            New low: $low")
                     }
                 }
-                broadcastIfDebug("Binary search took $iters iterations")
                 amount = high - 1
                 price = merchandise.itemBuyPrice(amount)
-                LogInfo("    New amount: $amount, New price: $price")
                 if (amount <= 0) {
                     sender.sendMessage("${ChatColor.RED}You can't buy any more of ${material.name}.")
                     sender.sendMessage("${ChatColor.RED}You only have ${playerFunds}, and you need ${merchandise.itemBuyPrice(1)} for 1.")
