@@ -1,5 +1,6 @@
 package games.skweekychair.fantasycostco
 
+import java.text.DecimalFormat
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import org.bukkit.Bukkit
@@ -40,6 +41,18 @@ fun walletSubtract(player: Player, amount: Double) {
 fun getWallet(player: Player): Double {
     ensureWallet(player)
     return Cereal.wallets[player.uniqueId]!!.balance
+}
+
+fun getWalletRounded(player: Player): Double {
+    return roundDouble(getWallet(player))
+}
+/**
+ * Gets the player's wallet or adds it if it does not exist
+ * @param player The player to get the wallet of
+ * @return The player's wallet
+ */
+fun getWalletString(player: Player): String {
+    return roundDoubleString(getWallet(player))
 }
 
 /**
@@ -381,7 +394,7 @@ fun UpdateSignPrices(baseMerch: BaseMerchandise) {
         return
     }
     for (location in merch.listOfSigns) {
-        UpdateSignLine(location, 2, merch.shownPrice.toString())
+        UpdateSignLine(location, 2, merch.roundedPriceString())
     }
 }
 
@@ -404,4 +417,34 @@ fun LogWarning(message: String) {
 fun getPlayerData(player: Player): PlayerData {
     ensureWallet(player)
     return Cereal.wallets[player.uniqueId]!!
+}
+
+/**
+ * Round a double to a specified number of decimal places with trailing zeros.
+ * @param value The value to round.
+ * @param places The number of decimal places to round to.
+ * @return The rounded value.
+ */
+fun roundDoubleString(value: Double, significantDigits: Int = 2): String {
+    if (significantDigits < 0) throw IllegalArgumentException()
+    var format: StringBuilder = StringBuilder("#.")
+    for (i in 0 until significantDigits) {
+        format.append("#")
+    }
+    return DecimalFormat(format.toString()).format(value)
+}
+
+/**
+ * Round a double to a specified number of significant digits.
+ * @param value The value to round.
+ * @param significantDigits The number of significant digits to round to.
+ * @return The rounded value.
+ */
+fun roundDouble(value: Double, significantDigits: Int = 2): Double {
+    if (value.isNaN()) {
+        return Double.NaN
+    }
+
+    val scale = Math.pow(10.0, significantDigits.toDouble())
+    return Math.round(value * scale) / scale
 }
