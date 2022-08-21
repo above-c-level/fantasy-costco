@@ -11,7 +11,6 @@ import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.EnchantmentStorageMeta
-import java.util.logging.Logger
 
 /**
  * Adds the given amount to the player's wallet.
@@ -79,7 +78,7 @@ fun getBuyGoal(player: Player): Int {
  * @param player The player to set the buy goal of
  * @param amount The amount to set the buy goal to
  */
-fun setBuyGoal(player: Player, amount: Int){
+fun setBuyGoal(player: Player, amount: Int) {
     ensureWallet(player)
     Cereal.wallets[player.uniqueId]!!.buyGoal = amount
 }
@@ -99,11 +98,10 @@ fun getBuyMaxItems(player: Player): Boolean {
  * @param player The player to set the buy goal of
  * @param buyMax Whether the player wants to buy as much as they can afford
  */
-fun setBuyMaxItems(player: Player, buyMax: Boolean){
+fun setBuyMaxItems(player: Player, buyMax: Boolean) {
     ensureWallet(player)
     Cereal.wallets[player.uniqueId]!!.buyMaxItems = buyMax
 }
-
 
 /**
  * Returns the buy price given given an ideal price, the number of items being purchased, and the
@@ -335,8 +333,6 @@ fun UpdateSignLine(location: Location, updateLine: Int, text: String) {
     UpdateSign(location, mutableListOf(Pair(updateLine, text)))
 }
 
-
-
 /**
  * Removes a merchandise-sign association
  * @param location The location of the sign.
@@ -389,17 +385,23 @@ fun UpdateSignPrices(baseMerch: BaseMerchandise) {
     }
 }
 
-/**
-  * Logs an info message to the console.
-  */
-  fun LogInfo(message: String) {
+/** Logs an info message to the console. */
+fun LogInfo(message: String) {
     return Bukkit.getServer().getLogger().info("[FantasyCostco] $message")
 }
 
+/** Logs a warning message to the console. */
+fun LogWarning(message: String) {
+    return Bukkit.getServer().getLogger().warning("[FantasyCostco] $message")
+}
 
 /**
-  * Logs a warning message to the console.
-  */
-  fun LogWarning(message: String) {
-    return Bukkit.getServer().getLogger().warning("[FantasyCostco] $message")
+ * Gets the data associated with a player. Makes sure the player has an entry in the map before
+ * returning it.
+ * @param player The player to get the data of.
+ * @return The data associated with the player.
+ */
+fun getPlayerData(player: Player): PlayerData {
+    ensureWallet(player)
+    return Cereal.wallets[player.uniqueId]!!
 }
