@@ -29,6 +29,7 @@ class CostcoPlugin : JavaPlugin() {
         getCommand("sell")?.setExecutor(SellCommand)
         getCommand("wallet")?.setExecutor(WalletCommand)
         getCommand("set-wallet")?.setExecutor(SetWalletCommand)
+        getCommand("toggle-buy-possible")?.setExecutor(ToggleBuyPossibleCommand)
 
         Cereal.loadAll()
 
@@ -44,7 +45,7 @@ class CostcoPlugin : JavaPlugin() {
     /** Called when the plugin is disabled by the server. */
     override fun onDisable() {
         Cereal.saveAll()
-        Bukkit.getServer().getLogger().info("[FantasyCostco] Shutting down :)")
+        LogInfo("Shutting down :)")
     }
 }
 
@@ -60,7 +61,7 @@ class CostcoListener : Listener {
      */
     @EventHandler(priority = EventPriority.NORMAL)
     fun onPlayerJoin(event: PlayerJoinEvent) {
-        // Bukkit.getServer().getLogger().info("[FantasyCostco] Player joined")
+        // LogInfo("Player joined")
     }
 
     /**
