@@ -69,9 +69,7 @@ object Cereal {
 
     /** Saves wallets and merch simultaneously. */
     fun saveAll() {
-        LogInfo("Saving wallets")
         saveWallets()
-        LogInfo("Saving Merch")
         saveMerch()
     }
 
