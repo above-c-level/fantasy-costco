@@ -215,6 +215,7 @@ class Merchandise(
         smoothPrice()
         addMass()
         perturbPrice()
+        UpdateSignPrices(BaseMerchandise(this.material, this.enchantments))
     }
 
     /**
@@ -226,5 +227,6 @@ class Merchandise(
         smoothPrice()
         addMass()
         perturbPrice()
+        UpdateSignPrices(BaseMerchandise(this.material, this.enchantments))
     }
 }
