@@ -2,6 +2,9 @@
 
 package games.skweekychair.fantasycostco
 
+import java.math.BigDecimal
+import java.math.MathContext
+import java.math.RoundingMode
 import java.util.Objects
 import java.util.Random
 import kotlinx.serialization.Serializable
@@ -19,13 +22,12 @@ class Perturber : Runnable {
             item.hold()
             val staleLocations: MutableList<Location> = mutableListOf()
             for (signLocation in item.listOfSigns) {
-                val price = item.shownPrice
                 val blockState: BlockState = signLocation.getBlock().state
                 if (blockState !is Sign) {
                     staleLocations.add(signLocation)
                     continue
                 }
-                UpdateSignLine(signLocation, 2, price.toString())
+                UpdateSignLine(signLocation, 2, item.roundedPriceString())
             }
             for (staleLocation in staleLocations) {
                 RemoveSignFromMerch(staleLocation)
@@ -141,21 +143,37 @@ class Merchandise(
     }
 
     /**
-     * Gets the buy price of `amount` of this item
+     * Returns a rounded double representation of the price of the item.
+     * @return The rounded shown price
+     */
+    fun roundedPrice(): Double {
+        return roundDouble(this.shownPrice)
+    }
+
+    /**
+     * Returns a rounded string representation of the price of the item.
+     * @return The rounded shown price
+     */
+    fun roundedPriceString(): String {
+        return roundDoubleString(this.shownPrice)
+    }
+
+    /**
+     * Returns a rounded buy price of `amount` of this item
      * @param amount The amount of the item to buy.
      * @return The price of the item.
      */
     fun itemBuyPrice(amount: Int): Double {
-        return buyPrice(this.shownPrice, amount, this.material.getMaxStackSize())
+        return roundDouble(buyPrice(this.shownPrice, amount, this.material.getMaxStackSize()))
     }
 
     /**
-     * Gets the sell price of `amount` of this item
+     * Returns a rounded sell price of `amount` of this item
      * @param amount The amount of the item to sell.
      * @return The price of the item.
      */
     fun itemSellPrice(amount: Int): Double {
-        return sellPrice(this.shownPrice, amount, this.material.getMaxStackSize())
+        return roundDouble(sellPrice(this.shownPrice, amount, this.material.getMaxStackSize()))
     }
 
     /** Pseudo-randomly perturbs the price of the item without affecting the best-guess price. */
