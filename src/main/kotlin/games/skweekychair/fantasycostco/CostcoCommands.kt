@@ -9,7 +9,6 @@ import org.bukkit.command.TabExecutor
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.util.StringUtil
-import java.util.stream.Stream
 
 /** Implements the /sell command for the plugin. */
 object SellCommand : TabExecutor {
@@ -40,8 +39,6 @@ object SellCommand : TabExecutor {
         player.sendMessage("${getWallet(player)}")
         player.inventory.setItemInMainHand(null)
         merchandise.sell(itemCount.toDouble())
-        val hiddenPrice = merchandise.hiddenPrice
-        sender.sendMessage("${ChatColor.GREEN}Hidden price of ${material.name} is for ${hiddenPrice}")
 
         // tryDiscordBroadcast("TAX FRAUD 🚨🚨⚠️⚠️ **__A  L  E  R  T__** ⚠️⚠️🚨🚨")
         // tryOnlyDiscord("https://tenor.com/view/burnt-demonic-demon-scream-screaming-gif-13844791")
@@ -91,7 +88,7 @@ object BuyCommand : TabExecutor {
             return false
         }
 
-        val amount = args[1].toIntOrNull()
+        var amount = args[1].toIntOrNull()
 
         if (amount == null) {
             sender.sendMessage("${ChatColor.RED}Not an amount.")
@@ -113,26 +110,62 @@ object BuyCommand : TabExecutor {
         //     sender.sendMessage("${ChatColor.RED}You asked for more than stack size.")
         //     return false
         // }
-
+        LogInfo("In BuyCommand")
         val merchandise = getMerchandise(material)
-        val price = merchandise.itemBuyPrice(amount)
+        var price = merchandise.itemBuyPrice(amount)
         val playerFunds = getWallet(player)
+        LogInfo("    playerFunds: $playerFunds, price: $price")
 
         if (price > playerFunds) {
-            val buyMaxItems: Boolean = getBuyMaxItems(player)
+            val buyMaxItems = getBuyMaxItems(player)
+            LogInfo("    ${player.name} has buyMaxItems set to ${buyMaxItems}, doing binary search")
             if (buyMaxItems) {
-                // Calculate the largest number of items purchaseable
-
+                // Since the price is nonlinear, we can do binary search to find the largest number
+                // of items purchaseable.
+                // Worst case scenario is the player wants a full inventory, so even if we increase
+                // the amount a player can buy up to 36 stacks, this is guaranteed
+                // to take <= 11 iterations,
+                var low: Int = 1
+                var high: Int = amount
+                var iters: Int = 0
+                while (low < high) {
+                    iters++
+                    val mid = (low + high) / 2
+                    val midBuyPrice = merchandise.itemBuyPrice(mid)
+                    LogInfo("        High: $high, Low: $low, Mid: $mid")
+                    LogInfo("        midBuyPrice: $midBuyPrice")
+                    if (midBuyPrice > playerFunds) {
+                        LogInfo("            midBuyPrice > playerFunds")
+                        high = mid - 1
+                        LogInfo("            New high: $high")
+                    } else {
+                        LogInfo("            midBuyPrice <= playerFunds")
+                        low = mid + 1
+                        LogInfo("            New low: $low")
+                    }
+                }
+                broadcastIfDebug("Binary search took $iters iterations")
+                amount = high - 1
+                price = merchandise.itemBuyPrice(amount)
+                LogInfo("    New amount: $amount, New price: $price")
+                if (amount <= 0) {
+                    sender.sendMessage("${ChatColor.RED}You can't buy any more of ${material.name}.")
+                    sender.sendMessage("${ChatColor.RED}You only have ${playerFunds}, and you need ${merchandise.itemBuyPrice(1)} for 1.")
+                    return false
+                }
+            } else {
+                sender.sendMessage("${ChatColor.RED}Honey, you ain't got the money fo' that.")
+                sender.sendMessage(
+                        "${ChatColor.RED}You only have ${playerFunds}, and you need ${price}."
+                )
+                return false
             }
-
-            sender.sendMessage("${ChatColor.RED}Honey, you ain't got the money fo' that.")
-            sender.sendMessage(
-                    "${ChatColor.RED}You only have ${getWallet(player)}, and you need ${price}."
-            )
-            return false
         }
+
         val hiddenPrice = merchandise.hiddenPrice
-        sender.sendMessage("${ChatColor.GREEN}Hidden price of ${material.name} is for ${hiddenPrice}")
+        sender.sendMessage(
+                "${ChatColor.GREEN}Hidden price of ${material.name} is for ${hiddenPrice}"
+        )
 
         val itemStack = ItemStack(material, amount)
 
@@ -151,13 +184,22 @@ object BuyCommand : TabExecutor {
         if (remaining.isNotEmpty()) {
             for (entry in remaining) {
                 // val argnum = entry.key
-                // improve this by:
-                // 1. figure out how many items fit in one stack
-                // 2. figure out how many full stacks there are in entry.value
-                // 3. figure out how many items are left over
-                // 4. drop the full stacks
-                // 5. drop the leftover items
-                player.world.dropItem(player.location, entry.value)
+                // figure out how many items fit in one stack
+                val stackSize = entry.value.maxStackSize
+                // figure out how many full stacks there are in entry.value
+                val fullStacks = entry.value.amount / stackSize
+                // figure out how many items are left over
+                val leftover = entry.value.amount % stackSize
+                // drop the full stacks
+                val fullItemStack = ItemStack(entry.value.type, stackSize)
+                for (i in 0 until fullStacks) {
+                    player.world.dropItem(player.location, fullItemStack)
+                }
+                val leftoverItemStack = ItemStack(entry.value.type, leftover)
+                // drop the leftover items
+                if (leftover > 0) {
+                    player.world.dropItem(player.location, leftoverItemStack)
+                }
             }
         }
         player.sendMessage("${ChatColor.GREEN}You bought ${amount} ${material.name} for ${price}")
@@ -172,8 +214,11 @@ object BuyCommand : TabExecutor {
     ): List<String> {
         val completions = mutableListOf<String>()
         if (args.size == 1) {
-            val items = Material.values().filter { material -> material.isItem() }.map { material -> material.toString() };
-            StringUtil.copyPartialMatches(args[0], items, completions);
+            val items =
+                    Material.values().filter { material -> material.isItem() }.map { material ->
+                        material.toString()
+                    }
+            StringUtil.copyPartialMatches(args[0], items, completions)
         }
         completions.sort()
         return completions
@@ -251,6 +296,37 @@ object WalletCommand : TabExecutor {
         }
         val player: Player = sender
         player.sendMessage("${getWallet(player)}")
+        return true
+    }
+
+    override fun onTabComplete(
+            sender: CommandSender,
+            cmd: Command,
+            lbl: String,
+            args: Array<String>
+    ): List<String> {
+        return listOf<String>()
+    }
+}
+
+object ToggleBuyPossibleCommand : TabExecutor {
+    override fun onCommand(
+            sender: CommandSender,
+            cmd: Command,
+            lbl: String,
+            args: Array<String>
+    ): Boolean {
+        if (sender !is Player) {
+            sender.sendMessage("${ChatColor.RED}You have to be a player to use this command.")
+            return false
+        }
+
+        // If sender does not have permission, return false
+        if (!sender.hasPermission("fantasycostco.toggle-buy-possible")) {
+            sender.sendMessage("${ChatColor.RED}You don't have permission to use this command.")
+            return false
+        }
+
         return true
     }
 
