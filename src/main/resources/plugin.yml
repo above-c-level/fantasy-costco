@@ -20,12 +20,18 @@ commands:
     description: Set how many Blockcoins a player has in their wallet
     usage: /<command> [player] [amount]
     permission: fantasycostco.set-wallet
+  toggle-buy-possible:
+    description: Toggle whether to attempt to buy as many items as can be afforded in the case that you don't have enough Blockcoins to buy the amount requested.
+    usage: /<command>
+    permission: fantasycostco.toggle-buy-possible
 permissions:
   fantasycostco.buy:
     default: true
   fantasycostco.sell:
     default: true
   fantasycostco.wallet:
+    default: true
+  fantasycostco.toggle-buy-possible:
     default: true
   fantasycostco.set-wallet:
     default: false
