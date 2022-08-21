@@ -92,7 +92,7 @@ class CostcoListener : Listener {
                         location,
                         mutableListOf(
                                 Pair(0, randomMerch.material.name),
-                                Pair(2, Cereal.merch[randomMerch]!!.shownPrice.toString())
+                                Pair(2, Cereal.merch[randomMerch]!!.roundedPriceString())
                         )
                 )
             }
