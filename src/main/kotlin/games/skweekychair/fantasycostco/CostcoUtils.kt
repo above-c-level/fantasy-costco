@@ -213,15 +213,30 @@ fun lerpClamp(
 fun getMerchandise(baseMerch: BaseMerchandise): Merchandise {
 
     if (baseMerch !in Cereal.merch) {
-        broadcastIfDebug("${baseMerch.material.name} not in merch")
-        broadcastIfDebug("baseMerch has hash code${baseMerch.hashCode()}")
-        Cereal.merch[baseMerch] = Merchandise(baseMerch.material, CostcoGlobals.startingMass, 10.0)
+        logIfDebug("${baseMerch.material.name} not in merch")
+        val material = baseMerch.material
+        if (CostcoGlobals.hasFixedPrice(material)) {
+            logIfDebug("    ${material.name} has fixed price")
+            val bestGuessPrice = CostcoGlobals.fixedPrice(baseMerch.material)
+            Cereal.merch[baseMerch] =
+                    Merchandise(
+                            baseMerch.material,
+                            CostcoGlobals.startingMass,
+                            bestGuessPrice,
+                            hasFixedPrice = true
+                    )
+        } else {
+            logIfDebug("    ${material.name} has varying price")
+            val bestGuessPrice = CostcoGlobals.startingMerchPrice(baseMerch.material)
+            Cereal.merch[baseMerch] =
+                    Merchandise(baseMerch.material, CostcoGlobals.startingMass, bestGuessPrice)
+        }
     } else {
-        broadcastIfDebug("${baseMerch.material.name} already in merch")
+        logIfDebug("${baseMerch.material.name} already in merch")
     }
 
     for (i in baseMerch.enchantments) {
-        broadcastIfDebug("${baseMerch.material.name} has enchantments ${i}")
+        logIfDebug("This ${baseMerch.material.name} has enchantments ${i}")
     }
     return Cereal.merch[baseMerch]!!
 }
@@ -255,9 +270,9 @@ fun tryOnlyBroadcast(message: String) {
  * Broadcasts a message to the minecraft server if debug mode is enabled.
  * @param message The message to broadcast.
  */
-fun broadcastIfDebug(message: String) {
+fun logIfDebug(message: String) {
     if (CostcoGlobals.debugMessages) {
-        Bukkit.getServer().broadcastMessage(message)
+        LogInfo(message)
     }
 }
 
@@ -316,7 +331,7 @@ fun getItemEnchants(item: ItemStack): Map<Enchantment, Int> {
 fun UpdateSign(location: Location, update: List<Pair<Int, String>>) {
     val blockState: BlockState = location.getBlock().state
     if (blockState !is Sign) {
-        broadcastIfDebug("Could not find sign")
+        logIfDebug("Could not find sign")
         return
     }
     val sign: Sign = blockState
@@ -326,6 +341,7 @@ fun UpdateSign(location: Location, update: List<Pair<Int, String>>) {
     }
     sign.update()
 }
+
 /**
  * Clears all text from a sign at the given location. If `location` does not have a sign, nothing
  * happens.
@@ -353,7 +369,7 @@ fun UpdateSignLine(location: Location, updateLine: Int, text: String) {
  */
 fun RemoveSignFromMerch(location: Location): Boolean {
     if (location in Cereal.purchasePoints) {
-        broadcastIfDebug("Removing ${location.blockX} ${location.blockY} ${location.blockZ}")
+        // logIfDebug("Removing ${location.blockX} ${location.blockY} ${location.blockZ}")
         // Grab the base merch associated with the location.
         val baseMerchAtLocation = Cereal.purchasePoints[location]
         // Get the old merch associated with the location.
@@ -390,7 +406,7 @@ fun AddSignToMerch(baseMerch: BaseMerchandise, location: Location) {
 fun UpdateSignPrices(baseMerch: BaseMerchandise) {
     val merch = Cereal.merch[baseMerch]
     if (merch == null) {
-        broadcastIfDebug("Could not find merch for ${baseMerch.material}")
+        logIfDebug("Could not find merch for ${baseMerch.material}")
         return
     }
     for (location in merch.listOfSigns) {
@@ -429,9 +445,9 @@ fun roundDoubleString(value: Double, significantDigits: Int = 2): String {
     if (significantDigits < 0) throw IllegalArgumentException()
     var format: StringBuilder = StringBuilder("#.")
     for (i in 0 until significantDigits) {
-        format.append("#")
+        format.append("0")
     }
-    return DecimalFormat(format.toString()).format(value)
+    return "₿${DecimalFormat(format.toString()).format(value)}"
 }
 
 /**
