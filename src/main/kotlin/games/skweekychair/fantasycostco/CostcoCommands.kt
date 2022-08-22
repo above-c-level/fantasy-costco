@@ -38,9 +38,9 @@ object SellCommand : TabExecutor {
         player.sendMessage("${playerFunds}")
         player.inventory.setItemInMainHand(null)
         merchandise.sell(itemCount.toDouble())
-        player.sendMessage("${GREEN}You received ${WHITE}₿${price}${GREEN} in the sale")
+        player.sendMessage("${GREEN}You received ${WHITE}${roundDoubleString(price)}${GREEN} in the sale")
         player.sendMessage(
-                "${GREEN}You now have ${WHITE}₿${getWalletString(player)}${GREEN} in your wallet"
+                "${GREEN}You now have ${WHITE}${getWalletString(player)}${GREEN} in your wallet"
         )
 
         // tryDiscordBroadcast("TAX FRAUD 🚨🚨⚠️⚠️ **__A  L  E  R  T__** ⚠️⚠️🚨🚨")
@@ -141,14 +141,14 @@ object BuyCommand : TabExecutor {
                     val singleItemPrice = roundDoubleString(merchandise.itemBuyPrice(1))
                     sender.sendMessage("${RED}You can't buy any more of ${material.name}.")
                     sender.sendMessage(
-                            "${RED}You only have ${WHITE}₿${getWalletString(player)}${RED}, and you need ${WHITE}#B${singleItemPrice}${RED} for 1."
+                            "${RED}You only have ${WHITE}${getWalletString(player)}${RED}, and you need ${WHITE}${singleItemPrice}${RED} for 1."
                     )
                     return false
                 }
             } else {
                 sender.sendMessage("${RED}Honey, you ain't got the money fo' that.")
                 sender.sendMessage(
-                        "${RED}You only have ${WHITE}₿${getWalletString(player)}${RED}, and you need ${WHITE}₿${price}."
+                        "${RED}You only have ${WHITE}${getWalletString(player)}${RED}, and you need ${WHITE}${roundDoubleString(price)}."
                 )
                 return false
             }
@@ -189,8 +189,8 @@ object BuyCommand : TabExecutor {
                 }
             }
         }
-        player.sendMessage("${GREEN}You bought ${amount} ${material.name} for ${WHITE}₿${price}")
-        player.sendMessage("${GREEN}Your wallet now contains ${WHITE}₿${getWalletString(player)}")
+        player.sendMessage("${GREEN}You bought ${amount} ${material.name} for ${WHITE}${roundDoubleString(price)}")
+        player.sendMessage("${GREEN}Your wallet now contains ${WHITE}${getWalletString(player)}")
         return true
     }
 
@@ -257,7 +257,7 @@ object SetWalletCommand : TabExecutor {
         }
         // Set wallet with amount
         setWallet(player, amount)
-        sender.sendMessage("${GREEN}Set ${player.name}'s wallet to ${WHITE}₿${amount}")
+        sender.sendMessage("${GREEN}Set ${player.name}'s wallet to ${WHITE}${amount}")
         return true
     }
 
@@ -283,7 +283,7 @@ object WalletCommand : TabExecutor {
             return false
         }
         val player: Player = sender
-        player.sendMessage("${GREEN}You have ${WHITE}₿${getWalletString(player)}")
+        player.sendMessage("${GREEN}You have ${WHITE}${getWalletString(player)}")
         return true
     }
 
