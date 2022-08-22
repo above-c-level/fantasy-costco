@@ -2,9 +2,6 @@
 
 package games.skweekychair.fantasycostco
 
-import java.math.BigDecimal
-import java.math.MathContext
-import java.math.RoundingMode
 import java.util.Objects
 import java.util.Random
 import kotlinx.serialization.Serializable
@@ -82,7 +79,8 @@ class Merchandise(
         var hiddenPrice: Double,
         var shownPrice: Double,
         val enchantments: Map<Enchantment, Int> = HashMap<Enchantment, Int>(),
-        val listOfSigns: MutableList<Location> = mutableListOf()
+        val listOfSigns: MutableList<Location> = mutableListOf(),
+        val hasFixedPrice: Boolean = false
 ) {
     /**
      * The constructor for a new merchandise item.
@@ -95,6 +93,20 @@ class Merchandise(
             mass: Double,
             startingPrice: Double
     ) : this(material, mass, startingPrice, startingPrice)
+
+    /**
+     * The constructor for a new merchandise item.
+     * @param material The material of the item.
+     * @param mass The `mass` of our point in the gradient descent algorithm.
+     * @param startingPrice Our best guess as to the ideal starting price of the item.
+     * @param hasFixedPrice Whether or not this item has a fixed price.
+     */
+    constructor(
+            material: Material,
+            mass: Double,
+            startingPrice: Double,
+            hasFixedPrice: Boolean
+    ) : this(material, mass, startingPrice, startingPrice, hasFixedPrice = hasFixedPrice)
 
     /**
      * Checks whether this merchandise item is equal to another.
@@ -220,6 +232,10 @@ class Merchandise(
 
     /** First smooths changes to price, then perturbs the price. */
     fun hold() {
+        // Return early to fix price
+        if (this.hasFixedPrice) {
+            return
+        }
         smoothPrice()
         perturbPrice()
     }
@@ -229,6 +245,10 @@ class Merchandise(
      * perturbs the price.
      */
     fun buy(numItems: Double) {
+        // Return early to fix price
+        if (this.hasFixedPrice) {
+            return
+        }
         this.hiddenPrice += pushAmount(numItems)
         smoothPrice()
         addMass()
@@ -241,6 +261,10 @@ class Merchandise(
      * perturbs the price.
      */
     fun sell(numItems: Double) {
+        // Return early to fix price
+        if (this.hasFixedPrice) {
+            return
+        }
         this.hiddenPrice -= pushAmount(numItems)
         smoothPrice()
         addMass()
