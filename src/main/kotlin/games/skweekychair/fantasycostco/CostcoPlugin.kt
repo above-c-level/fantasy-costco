@@ -1,8 +1,13 @@
 package games.skweekychair.fantasycostco
 
 import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import org.apache.commons.io.IOUtil
 import org.bukkit.Bukkit
 import org.bukkit.World
+import org.bukkit.configuration.file.FileConfiguration
+import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
@@ -21,6 +26,9 @@ class CostcoPlugin : JavaPlugin() {
         saveDefaultConfig()
         var config = getConfig()
         CostcoGlobals.spigotConfig = config
+        CostcoGlobals.merchPricesConfig = getResourcesConfig("merchprices")
+        CostcoGlobals.fixedPricesConfig = getResourcesConfig("fixedprices")
+        CostcoGlobals.enchantmentPricesConfig = getResourcesConfig("enchantmentprices")
 
         Cereal.walletPath = File(getDataFolder(), "wallets.json")
         Cereal.merchPath = File(getDataFolder(), "merch.json")
@@ -46,6 +54,31 @@ class CostcoPlugin : JavaPlugin() {
     override fun onDisable() {
         Cereal.saveAll()
         LogInfo("Shutting down :)")
+    }
+    /**
+     * Gets the configuration file for the given resource.
+     * @param resourceName The name of the resource without the extension.
+     * @return The configuration file.
+     */
+    fun getResourcesConfig(name: String): FileConfiguration {
+        // val configFile = File("plugins/KingDefence", "messages.yml")
+        // ConfigCfg = YamlConfiguration.loadConfiguration(ConfigFile)
+
+        val input = this.javaClass.getResourceAsStream("/" + name + ".yml")
+        var tempFile: File? = null
+        try {
+            tempFile = File.createTempFile(name, ".yml")
+            tempFile.deleteOnExit()
+            val out: FileOutputStream = FileOutputStream(tempFile)
+            IOUtil.copy(input, out)
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+        if (tempFile == null) {
+            throw RuntimeException("Could not create temporary file.")
+        }
+
+        return YamlConfiguration.loadConfiguration(tempFile)
     }
 }
 
