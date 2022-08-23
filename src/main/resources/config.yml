@@ -1,17 +1,38 @@
-mass-per-transaction: 5.0
+# A multiplier that affects how much price is affected by bigger purchases
 purchase-size-multiplier: 1.0
+# How much mass is added per transaction (affects how hard it is to change the price of an item)
+mass-per-transaction: 5.0
+# The starting mass of an item
+starting-mass: 5.0
+# The highest value that mass can reach
 maximum-mass: 10000.0
+# The maximum percentage a price can change per update (including transactions)
 max-pct-change: 0.05
+# A multiplier which influences how much a price can vary from its best-guess price. Higher values make prices more volatile.
 var-multiplier: 0.02
+# How much mass affects the price of an item. Higher values make prices more volatile.
 mass-var-min: 1.0
 mass-var-max: 0.005
+# Depending on the surcharge-curve-epsilon, the price-spread below will need to be different. A couple values are:
+# For surcharge-curve-epsilon = 0, any non-negative price spread works
+# For surcharge-curve-epsilon = 0.1, price spread should be >= 0.195
+# For surcharge-curve-epsilon = 0.01, price spread should be >= 0.0195 (notice the added 0 for both sides)
+# For surcharge-curve-epsilon = 0.05, price spread should be >= 0.0975
+# See here: https://www.desmos.com/calculator/vdtvxilbpj
 price-spread: 0.05
-surcharge-curve-epsilon: 0.001
+# epsilon of 0.05 and spread of 0.0001 means that buying 1 item charges ₿0.626 per transaction and buying 64 items charges ₿0.50 per transaction
+surcharge-curve-epsilon: 0.0001
+# Affects how much the price should try to correct towards the best-guess price. Higher values make corrections more aggressive.
 clamp-multiplier: 0.5
-starting-mass: 5.0
+# The default amount of money a player has in their wallet before buying/selling
 default-wallet: 10.0
+# How frequently prices should automatically update (in seconds)
 seconds-between-price-motion: 60
+# The default price of a particular piece of merchandise if not found in mechprices.yml
 default-merch-price: 10.0
+# The default price of a particular type of enchantment if not found in enchantment.yml
+# TODO: Implement this?
 default-enchantment-price: 100.0
 
+# Whether to send additional debug messages to the console.
 debug-messages: false
