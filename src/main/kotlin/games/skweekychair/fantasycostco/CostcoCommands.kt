@@ -220,6 +220,9 @@ object SellCommand : TabExecutor {
         if (damageable.hasDamage()) {
             player.sendMessage("Sorry, but we can't accept damaged goods :/")
             return true
+        } else if (CostcoGlobals.isNotAccepted(item.type)) {
+            player.sendMessage("Sorry, but we don't accept that item :/")
+            return true
         }
 
         if (getPlayerData(player).justLooking) {
