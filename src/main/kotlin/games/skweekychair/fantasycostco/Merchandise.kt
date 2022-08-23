@@ -176,6 +176,9 @@ class Merchandise(
      * @return The price of the item.
      */
     fun itemBuyPrice(amount: Int): Double {
+        if (this.hasFixedPrice) {
+            return this.shownPrice
+        }
         return roundDouble(buyPrice(this.shownPrice, amount, this.material.getMaxStackSize()))
     }
 
@@ -185,6 +188,9 @@ class Merchandise(
      * @return The price of the item.
      */
     fun itemSellPrice(amount: Int): Double {
+        if (this.hasFixedPrice) {
+            return this.shownPrice
+        }
         return roundDouble(sellPrice(this.shownPrice, amount, this.material.getMaxStackSize()))
     }
 
