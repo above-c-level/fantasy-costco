@@ -182,6 +182,7 @@ object BuyCommand : TabExecutor {
         return completions
     }
 }
+
 /** Allows the player to sell items in exchange for money. */
 object SellCommand : TabExecutor {
     override fun onCommand(
@@ -262,6 +263,7 @@ object SellCommand : TabExecutor {
     }
 }
 
+// region wallet
 /** Shows the player how much money they have in their wallet. */
 object GetWalletCommand : TabExecutor {
     override fun onCommand(
@@ -369,7 +371,9 @@ object SetWalletCommand : TabExecutor {
         return listOf<String>()
     }
 }
+// endregion
 
+// region buy all possible
 /**
  * Allows a player to toggle whether they will buy as many items as possible if they can't afford
  * the requested amount
@@ -529,7 +533,9 @@ object GetBuyPossibleCommand : TabExecutor {
         return listOf<String>()
     }
 }
+// endregion
 
+// region buy amount
 /** Allows a player to set how many items they want to buy */
 object SetBuyAmountCommand : TabExecutor {
     override fun onCommand(
@@ -616,7 +622,9 @@ object GetBuyAmountCommand : TabExecutor {
         return listOf<String>()
     }
 }
+// endregion
 
+// region just looking
 /**
  * Toggles the value of whether the player is "Just Looking" so that they don't actually buy/sell
  * anything, but can see the prices based on how many they're buying or selling.
@@ -765,3 +773,162 @@ object GetJustLookingCommand : TabExecutor {
         return listOf<String>()
     }
 }
+// endregion
+
+// region ordaining
+/**
+ * Toggle's a player's ability to set a particular sign to be a buy sign, allowing players to buy
+ * the corresponding item from it.
+ */
+object ToggleOrdainSignCommand : TabExecutor {
+    override fun onCommand(
+            sender: CommandSender,
+            cmd: Command,
+            lbl: String,
+            args: Array<String>
+    ): Boolean {
+        if (sender !is Player) {
+            sender.sendMessage("${RED}You have to be a player to use this command.")
+            return true
+        }
+        // If sender does not have permission
+        if (!sender.hasPermission("fantasycostco.ordain-sign")) {
+            sender.sendMessage("${RED}You don't have permission to use this command.")
+            return true
+        }
+
+        // Check args number
+        if (args.size > 0) {
+            sender.sendMessage("${RED}This command takes no arguments")
+            return false
+        }
+
+        val playerData = getPlayerData(sender)
+        playerData.ordainingSign = !playerData.ordainingSign
+        if (playerData.ordainingSign) {
+            sender.sendMessage(
+                    "You are now ${GREEN}ordaining signs${WHITE} and will set them to be buy signs"
+            )
+        } else {
+            sender.sendMessage(
+                    "You are ${RED}no longer${WHITE} ordaining signs, and will not set them to be buy signs"
+            )
+        }
+        return true
+    }
+    override fun onTabComplete(
+            sender: CommandSender,
+            cmd: Command,
+            lbl: String,
+            args: Array<String>
+    ): List<String> {
+        return listOf<String>()
+    }
+}
+
+/**
+ * Sets a player's ability to set a particular sign to be a buy sign, allowing players to buy the
+ * corresponding item from it.
+ */
+object SetOrdainSignCommand : TabExecutor {
+    override fun onCommand(
+            sender: CommandSender,
+            cmd: Command,
+            lbl: String,
+            args: Array<String>
+    ): Boolean {
+        if (sender !is Player) {
+            sender.sendMessage("${RED}You have to be a player to use this command.")
+            return true
+        }
+        // If sender does not have permission
+        if (!sender.hasPermission("fantasycostco.ordain-sign")) {
+            sender.sendMessage("${RED}You don't have permission to use this command.")
+            return true
+        }
+
+        // Check args number
+        if (args.size == 0) {
+            sender.sendMessage(
+                    "${RED}You must specify whether you want to be ordaining signs or not"
+            )
+            return false
+        } else if (args.size > 1) {
+            sender.sendMessage("${RED}This command only takes one argument")
+            return false
+        }
+        // Get argument
+        val ordainingSign = args[0].toBoolean()
+
+        val playerData = getPlayerData(sender)
+        playerData.ordainingSign = ordainingSign
+        if (playerData.ordainingSign) {
+            sender.sendMessage(
+                    "You are now ${GREEN}ordaining signs${WHITE} and will set them to be buy signs"
+            )
+        } else {
+            sender.sendMessage(
+                    "You are ${RED}no longer${WHITE} ordaining signs, and will not set them to be buy signs"
+            )
+        }
+        return true
+    }
+    override fun onTabComplete(
+            sender: CommandSender,
+            cmd: Command,
+            lbl: String,
+            args: Array<String>
+    ): List<String> {
+        return listOf<String>()
+    }
+}
+
+/**
+ * Gets a player's ability to set a particular sign to be a buy sign, allowing players to buy the
+ * corresponding item from it.
+ */
+object GetOrdainSignCommand : TabExecutor {
+    override fun onCommand(
+            sender: CommandSender,
+            cmd: Command,
+            lbl: String,
+            args: Array<String>
+    ): Boolean {
+        if (sender !is Player) {
+            sender.sendMessage("${RED}You have to be a player to use this command.")
+            return true
+        }
+        // If sender does not have permission
+        if (!sender.hasPermission("fantasycostco.ordain-sign")) {
+            sender.sendMessage("${RED}You don't have permission to use this command.")
+            return true
+        }
+
+        // Check args number
+        if (args.size > 0) {
+            sender.sendMessage("${RED}This command takes no arguments")
+            return false
+        }
+
+        val playerData = getPlayerData(sender)
+        if (playerData.ordainingSign) {
+            sender.sendMessage(
+                    "You are ${GREEN}ordaining signs${WHITE} and will set them to be buy signs"
+            )
+        } else {
+            sender.sendMessage(
+                    "You are ${RED}not${WHITE} ordaining signs, and will not set them to be buy signs"
+            )
+        }
+        return true
+    }
+    override fun onTabComplete(
+            sender: CommandSender,
+            cmd: Command,
+            lbl: String,
+            args: Array<String>
+    ): List<String> {
+        return listOf<String>()
+    }
+}
+// endregion
