@@ -242,6 +242,10 @@ class Merchandise(
         if (this.hasFixedPrice) {
             return
         }
+        // Don't worry about messing with prices if nobody can see them
+        if (this.listOfSigns.size == 0) {
+            return
+        }
         smoothPrice()
         perturbPrice()
     }
