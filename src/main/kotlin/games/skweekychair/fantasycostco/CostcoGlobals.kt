@@ -12,6 +12,7 @@ object CostcoGlobals {
     var merchPricesConfig: FileConfiguration = YamlConfiguration()
     var fixedPricesConfig: FileConfiguration = YamlConfiguration()
     var enchantmentPricesConfig: FileConfiguration = YamlConfiguration()
+    var notAcceptedConfig: FileConfiguration = YamlConfiguration()
 
     // Starting amount in wallet
     val defaultWallet
@@ -129,5 +130,16 @@ object CostcoGlobals {
     fun fixedPrice(baseMaterial: Material): Double {
         val price = fixedPricesConfig.getDouble(baseMaterial.name)
         return price
+    }
+
+    /**
+     * Checks whether a material is not accepted. If the material is not in the config, false is
+     * returned.
+     * @param material The material to check.
+     * @return Whether the material is not accepted.
+     */
+    fun isNotAccepted(baseMaterial: Material): Boolean {
+        val isNotAccepted = notAcceptedConfig.contains(baseMaterial.name)
+        return isNotAccepted
     }
 }
