@@ -29,6 +29,7 @@ class CostcoPlugin : JavaPlugin() {
         CostcoGlobals.merchPricesConfig = getResourcesConfig("merchprices")
         CostcoGlobals.fixedPricesConfig = getResourcesConfig("fixedprices")
         CostcoGlobals.enchantmentPricesConfig = getResourcesConfig("enchantmentprices")
+        CostcoGlobals.notAcceptedConfig = getResourcesConfig("notaccepted")
 
         Cereal.walletPath = File(getDataFolder(), "wallets.json")
         Cereal.merchPath = File(getDataFolder(), "merch.json")
