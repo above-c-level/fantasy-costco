@@ -65,6 +65,18 @@ commands:
     description: See what your current setting is for "just looking".
     usage: /<command>
     permission: fantasycostco.just-looking
+  toggle-ordain-sign:
+    description: Toggle whether you want to ordain a sign to allow players to buy items.
+    usage: /<command>
+    permission: fantasycostco.ordain-sign
+  set-ordain-sign:
+    description: Set whether you want to ordain a sign to allow players to buy items.
+    usage: /<command> [true|false]
+    permission: fantasycostco.ordain-sign
+  get-ordain-sign:
+    description: See what your current setting is for ordaining a sign.
+    usage: /<command>
+    permission: fantasycostco.ordain-sign
 permissions:
   fantasycostco.buy:
     default: true
@@ -80,3 +92,5 @@ permissions:
     default: true
   fantasycostco.just-looking:
     default: true
+  fantasycostco.ordain-sign:
+    default: op
