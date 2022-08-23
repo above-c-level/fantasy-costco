@@ -111,7 +111,8 @@ data class PlayerData(
         @SerialName("balance") var balance: Double,
         @SerialName("buyGoal") var buyGoal: Int = 0,
         @SerialName("buyMaxItems") var buyMaxItems: Boolean = false,
-        @SerialName("justLooking") var justLooking: Boolean = false
+        @SerialName("justLooking") var justLooking: Boolean = false,
+        @SerialName("ordainingSign") var ordainingSign: Boolean = false
 )
 
 object PlayerDataSerializer : KSerializer<PlayerData> {
