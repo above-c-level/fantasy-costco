@@ -8,57 +8,10 @@ import org.bukkit.command.CommandSender
 import org.bukkit.command.TabExecutor
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.meta.Damageable
 import org.bukkit.util.StringUtil
 
-/** Implements the /sell command for the plugin. */
-object SellCommand : TabExecutor {
-    override fun onCommand(
-            sender: CommandSender,
-            cmd: Command,
-            lbl: String,
-            args: Array<String>
-    ): Boolean {
-        if (sender !is Player) {
-            sender.sendMessage("${RED}You have to be a player to use this command.")
-            return false
-        }
-        val player: Player = sender
-        val item = player.inventory.itemInMainHand
-        val itemCount = item.amount
-        val merchandise = getMerchandise(item)
-        val price = merchandise.itemSellPrice(item.amount)
-
-        if (merchandise.itemSellPrice(item.amount).isNaN()) {
-            player.sendMessage("Don't sell air man!")
-            return true
-        }
-
-        walletAdd(player, price)
-        val playerFunds = getWalletRounded(player)
-        player.sendMessage("${playerFunds}")
-        player.inventory.setItemInMainHand(null)
-        merchandise.sell(itemCount.toDouble())
-        player.sendMessage("${GREEN}You received ${WHITE}${roundDoubleString(price)}${GREEN} in the sale")
-        player.sendMessage(
-                "${GREEN}You now have ${WHITE}${getWalletString(player)}${GREEN} in your wallet"
-        )
-
-        // tryDiscordBroadcast("TAX FRAUD 🚨🚨⚠️⚠️ **__A  L  E  R  T__** ⚠️⚠️🚨🚨")
-        // tryOnlyDiscord("https://tenor.com/view/burnt-demonic-demon-scream-screaming-gif-13844791")
-
-        return true
-    }
-
-    override fun onTabComplete(
-            sender: CommandSender,
-            cmd: Command,
-            lbl: String,
-            args: Array<String>
-    ): List<String> {
-        return listOf<String>()
-    }
-}
-
+/** Allows the player to purchase items in exchange for money */
 object BuyCommand : TabExecutor {
     override fun onCommand(
             sender: CommandSender,
@@ -66,104 +19,119 @@ object BuyCommand : TabExecutor {
             lbl: String,
             args: Array<String>
     ): Boolean {
+        // Make sure the sender is a player
         if (sender !is Player) {
             sender.sendMessage("${RED}You have to be a player to use this command.")
             return true
         }
+
+        // Check permission
+        if (!sender.hasPermission("fantasycostco.buy")) {
+            sender.sendMessage("${RED}You don't have permission to use this command.")
+            return true
+        }
         val player: Player = sender
 
+        // Make sure the command was called with the right amount of arguments
         if (args.size == 0) {
             sender.sendMessage("${RED}You must specify an item to buy.")
             return false
-        } else if (args.size == 1) {
-            sender.sendMessage("${RED}You must specify how many of the item to buy.")
-            return false
         } else if (args.size > 2) {
-            sender.sendMessage("${RED}This command only takes two arguments")
+            sender.sendMessage("${RED}This command only takes up to two arguments")
             return false
         }
 
+        // Make sure the material submitted is valid
         val material = Material.matchMaterial(args[0])
 
         if (material == null || !material.isItem) {
             sender.sendMessage("${RED}Not an item.")
-            return false
+            return true
         }
 
-        var amount = args[1].toIntOrNull()
-
+        // Get amount if specified, or fall back to previously set value
+        var amount: Int?
+        if (args.size == 2) {
+            amount = args[1].toIntOrNull()
+        } else {
+            amount = getPlayerData(player).buyGoal
+        }
         if (amount == null) {
             sender.sendMessage("${RED}Not an amount.")
             return false
         }
 
+        // Make sure amount requested is valid
         if (amount < 0) {
             sender.sendMessage("${RED}I can't give you negative items dude :/")
-            return false
+            return true
         } else if (amount == 0) {
-            sender.sendMessage("${GREEN}Aight here you go")
+            sender.sendMessage("${GREEN}Aight here's your 0 ${material.name}")
             return true
         } else if (amount > 27 * material.maxStackSize) {
             sender.sendMessage("${RED}You can't buy that many items.")
-            return false
+            return true
         }
-        // This below thing shouldn't strictly be necessary
-        // else if (amount > material.maxStackSize) {
-        //     sender.sendMessage("${RED}You asked for more than stack size.")
-        //     return false
-        // }
-        val merchandise = getMerchandise(material)
-        var price = merchandise.itemBuyPrice(amount)
-        val playerFunds = getWalletRounded(player)
 
+        val merchandise = getMerchandise(material)
+        var price = roundDouble(merchandise.itemBuyPrice(amount))
+        val playerFunds = getWalletRounded(player)
+        val playerData = getPlayerData(player)
+        // Deal with cases where the player just wants to see prices
+        if (playerData.justLooking) {
+            var newWallet = roundDouble(playerFunds - price)
+            var newWalletStr: String
+            var roundedPrice: String
+            if (newWallet < 0.0) {
+                newWalletStr = roundDoubleString(newWallet)
+                roundedPrice = roundDoubleString(price)
+                sender.sendMessage(
+                        "You wouldn't have enough money to buy that many ${material.name}s, since you have $newWalletStr and it costs $roundedPrice, but for now you're just looking"
+                )
+                val result = binarySearchPrice(amount, merchandise, playerFunds)
+                amount = result.first
+                roundedPrice = roundDoubleString(result.second)
+                newWalletStr = roundDoubleString(playerFunds - result.second)
+                sender.sendMessage(
+                        "You could buy up to ${amount} instead for ${roundedPrice} leaving you with $newWalletStr, but for now you're just looking"
+                )
+                return true
+            } else {
+                newWalletStr = roundDoubleString(newWallet)
+                roundedPrice = roundDoubleString(price)
+                player.sendMessage(
+                        "It would cost you ${roundedPrice} and you would have ${newWalletStr} remaining in your wallet, but for now you're just looking"
+                )
+            }
+            return true
+        }
+
+        // Make sure the player has enough money to buy the items
         if (price > playerFunds) {
             val buyMaxItems = getBuyMaxItems(player)
-            if (buyMaxItems) {
-                // Since the price is nonlinear, we can do binary search to find the largest number
-                // of items purchaseable.
-                // Worst case scenario is the player wants a full inventory, so even if we increase
-                // the amount a player can buy up to 36 stacks, this is guaranteed
-                // to take <= 11 iterations
-                var low: Int = 1
-                var high: Int = amount
-                while (low < high) {
-                    val mid = (low + high) / 2
-                    val midBuyPrice = merchandise.itemBuyPrice(mid)
-                    if (midBuyPrice > playerFunds) {
-                        high = mid - 1
-                    } else {
-                        low = mid + 1
-                    }
-                }
-                amount = high - 1
-                price = merchandise.itemBuyPrice(amount)
-                if (amount <= 0) {
-                    val singleItemPrice = roundDoubleString(merchandise.itemBuyPrice(1))
-                    sender.sendMessage("${RED}You can't buy any more of ${material.name}.")
-                    sender.sendMessage(
-                            "${RED}You only have ${WHITE}${getWalletString(player)}${RED}, and you need ${WHITE}${singleItemPrice}${RED} for 1."
-                    )
-                    return false
-                }
-            } else {
+            if (!buyMaxItems) {
                 sender.sendMessage("${RED}Honey, you ain't got the money fo' that.")
                 sender.sendMessage(
                         "${RED}You only have ${WHITE}${getWalletString(player)}${RED}, and you need ${WHITE}${roundDoubleString(price)}."
                 )
-                return false
+                return true
+            }
+            // Since the price is nonlinear, we can do binary search to find the largest number
+            // of items purchaseable.
+            val result = binarySearchPrice(amount, merchandise, playerFunds)
+            amount = result.first
+            price = result.second
+            if (amount <= 0) {
+                val singleItemPrice = roundDoubleString(merchandise.itemBuyPrice(1))
+                sender.sendMessage("${RED}You can't buy any more of ${material.name}.")
+                sender.sendMessage(
+                        "${RED}You only have ${WHITE}${getWalletString(player)}${RED}, and you need ${WHITE}${singleItemPrice}${RED} for 1."
+                )
+                return true
             }
         }
 
         val itemStack = ItemStack(material, amount)
-
-        // val item = player.inventory.itemInMainHand
-
-        // if (item.type != Material.AIR) {
-        //     sender.sendMessage(
-        //             "${RED}I don't want to be mean and overwrite one of you items."
-        //     )
-        //     return false
-        // }
 
         walletSubtract(player, price)
         merchandise.buy(amount.toDouble())
@@ -189,7 +157,9 @@ object BuyCommand : TabExecutor {
                 }
             }
         }
-        player.sendMessage("${GREEN}You bought ${amount} ${material.name} for ${WHITE}${roundDoubleString(price)}")
+        player.sendMessage(
+                "${GREEN}You bought ${WHITE}${amount} ${material.name}${GREEN} for ${WHITE}${roundDoubleString(price)}"
+        )
         player.sendMessage("${GREEN}Your wallet now contains ${WHITE}${getWalletString(player)}")
         return true
     }
@@ -212,52 +182,70 @@ object BuyCommand : TabExecutor {
         return completions
     }
 }
-
-object SetWalletCommand : TabExecutor {
+/** Allows the player to sell items in exchange for money. */
+object SellCommand : TabExecutor {
     override fun onCommand(
             sender: CommandSender,
             cmd: Command,
             lbl: String,
             args: Array<String>
     ): Boolean {
-        // set_wallet:
-        //     description: Set how many Blockcoins a player has in their wallet
-        //     usage: /<command> [player] [amount]
-        //     permission: fantasycostco.set_wallet
+        if (sender !is Player) {
+            sender.sendMessage("${RED}You have to be a player to use this command.")
+            return true
+        }
 
-        // If sender does not have permission, return false
-        if (!sender.hasPermission("fantasycostco.set-wallet")) {
+        // Check permissions
+        if (!sender.hasPermission("fantasycostco.sell")) {
             sender.sendMessage("${RED}You don't have permission to use this command.")
-            return false
-        }
-        // Make sure there are two arguments
-        if (args.size == 0) {
-            sender.sendMessage("${RED}You must specify a player to set their wallet")
-            return false
-        } else if (args.size == 1) {
-            sender.sendMessage("${RED}You must specify the amount to set their wallet to")
-            return false
-        } else if (args.size > 2) {
-            sender.sendMessage("${RED}This command only takes two arguments")
-            return false
+            return true
         }
 
-        // Get player
-        val playerArg: String = args[0]
-        val player = Bukkit.getPlayer(playerArg)
-        if (player == null) {
-            sender.sendMessage("${RED}Player not found.")
+        // Check arguments
+        if (args.size > 0) {
+            "${RED}This command doesn't take any arguments"
             return false
         }
-        // Get amount
-        val amount = args[1].toDoubleOrNull()
-        if (amount == null) {
-            sender.sendMessage("${RED}Not a valid amount.")
+        val player: Player = sender
+        val item = player.inventory.itemInMainHand
+        val itemCount = item.amount
+        val merchandise = getMerchandise(item)
+        val price = merchandise.itemSellPrice(item.amount)
+
+        if (merchandise.itemSellPrice(item.amount).isNaN()) {
+            player.sendMessage("Don't sell air man!")
             return false
         }
-        // Set wallet with amount
-        setWallet(player, amount)
-        sender.sendMessage("${GREEN}Set ${player.name}'s wallet to ${WHITE}${amount}")
+        val damageable = item.getItemMeta() as Damageable
+        if (damageable.hasDamage()) {
+            player.sendMessage("Sorry, but we can't accept damaged goods :/")
+            return true
+        }
+
+        if (getPlayerData(player).justLooking) {
+            val newWallet = roundDoubleString(price + getWalletRounded(player))
+            val roundedPrice = roundDoubleString(price)
+            player.sendMessage(
+                    "${GREEN}You would receive ${WHITE}${roundedPrice}${GREEN} in the sale and have ${WHITE}${newWallet}${GREEN} in your wallet, but for now you're just looking"
+            )
+            return true
+        }
+
+        walletAdd(player, price)
+        val playerFunds = getWalletRounded(player)
+        player.sendMessage("${playerFunds}")
+        player.inventory.setItemInMainHand(null)
+        merchandise.sell(itemCount.toDouble())
+        player.sendMessage(
+                "${GREEN}You received ${WHITE}${roundDoubleString(price)}${GREEN} in the sale"
+        )
+        player.sendMessage(
+                "${GREEN}You now have ${WHITE}${getWalletString(player)}${GREEN} in your wallet"
+        )
+
+        // tryDiscordBroadcast("TAX FRAUD 🚨🚨⚠️⚠️ **__A  L  E  R  T__** ⚠️⚠️🚨🚨")
+        // tryOnlyDiscord("https://tenor.com/view/burnt-demonic-demon-scream-screaming-gif-13844791")
+
         return true
     }
 
@@ -271,7 +259,8 @@ object SetWalletCommand : TabExecutor {
     }
 }
 
-object WalletCommand : TabExecutor {
+/** Shows the player how much money they have in their wallet. */
+object GetWalletCommand : TabExecutor {
     override fun onCommand(
             sender: CommandSender,
             cmd: Command,
@@ -280,6 +269,18 @@ object WalletCommand : TabExecutor {
     ): Boolean {
         if (sender !is Player) {
             sender.sendMessage("${RED}You have to be a player to use this command.")
+            return true
+        }
+
+        // Check permission
+        if (!sender.hasPermission("fantasycostco.wallet")) {
+            sender.sendMessage("${RED}You don't have permission to use this command.")
+            return true
+        }
+
+        // Check args
+        if (args.size > 0) {
+            "${RED}This command doesn't take any arguments"
             return false
         }
         val player: Player = sender
@@ -297,6 +298,79 @@ object WalletCommand : TabExecutor {
     }
 }
 
+/** Sets the amount of money a player has in their wallet */
+object SetWalletCommand : TabExecutor {
+    override fun onCommand(
+            sender: CommandSender,
+            cmd: Command,
+            lbl: String,
+            args: Array<String>
+    ): Boolean {
+        // If sender does not have permission, return false
+        if (!sender.hasPermission("fantasycostco.set-wallet")) {
+            sender.sendMessage("${RED}You don't have permission to use this command.")
+            return false
+        }
+        var player: Player?
+        // Make sure there are two arguments
+        if (args.size == 0) {
+            sender.sendMessage("${RED}You must specify an amount to set the wallet to")
+            return false
+        } else if (args.size == 1) {
+            // Make sure they are a player
+            if (sender !is Player) {
+                sender.sendMessage(
+                        "${RED}You must be a player if don't specify the player to set the wallet of"
+                )
+                return false
+            }
+            player = sender
+        } else if (args.size == 2) {
+
+            // Get player
+            val playerArg: String = args[0]
+            player = Bukkit.getPlayer(playerArg)
+            if (player == null) {
+                sender.sendMessage("${RED}Player ${WHITE}${playerArg}${RED} not found")
+                return false
+            }
+        } else {
+            sender.sendMessage("${RED}This command only takes two arguments")
+            return false
+        }
+
+        // Get amount
+        val amount = args[0].toDoubleOrNull()
+        if (amount == null) {
+            sender.sendMessage("${RED}Not a valid amount.")
+            return false
+        }
+        // Set wallet with amount
+        setWallet(player, amount)
+        if (player == sender) {
+            sender.sendMessage("${GREEN}You have set your wallet to ${WHITE}${amount}")
+        } else {
+            sender.sendMessage(
+                    "${GREEN}You have set ${WHITE}${player.name}${GREEN}'s wallet to ${WHITE}${amount}"
+            )
+        }
+        return true
+    }
+
+    override fun onTabComplete(
+            sender: CommandSender,
+            cmd: Command,
+            lbl: String,
+            args: Array<String>
+    ): List<String> {
+        return listOf<String>()
+    }
+}
+
+/**
+ * Allows a player to toggle whether they will buy as many items as possible if they can't afford
+ * the requested amount
+ */
 object ToggleBuyPossibleCommand : TabExecutor {
     override fun onCommand(
             sender: CommandSender,
@@ -310,17 +384,375 @@ object ToggleBuyPossibleCommand : TabExecutor {
         }
 
         // If sender does not have permission, return false
-        if (!sender.hasPermission("fantasycostco.toggle-buy-possible")) {
+        if (!sender.hasPermission("fantasycostco.buy-possible")) {
             sender.sendMessage("${RED}You don't have permission to use this command.")
             return false
         }
+
+        // Check args number
+        if (args.size > 0) {
+            sender.sendMessage("${RED}This command doesn't take any arguments")
+            return false
+        }
+
+        // Toggle buyMaxItems
         val playerData = getPlayerData(sender)
         playerData.buyMaxItems = !playerData.buyMaxItems
-        sender.sendMessage("${GREEN}Buy max items is now ${WHITE}${playerData.buyMaxItems}")
+        if (playerData.buyMaxItems) {
+            sender.sendMessage(
+                    "You ${GREEN}will${WHITE} now buy as many items as you can afford if you don't have enough money"
+            )
+        } else {
+            sender.sendMessage(
+                    "You ${RED}will not${WHITE} buy as many items as you can afford if you don't have enough money anymore"
+            )
+        }
 
         return true
     }
 
+    override fun onTabComplete(
+            sender: CommandSender,
+            cmd: Command,
+            lbl: String,
+            args: Array<String>
+    ): List<String> {
+        return listOf<String>()
+    }
+}
+
+/**
+ * Allows a player to directly set whether they will buy as many items as possible if they can't
+ * afford the requested amount
+ */
+object SetBuyPossibleCommand : TabExecutor {
+    override fun onCommand(
+            sender: CommandSender,
+            cmd: Command,
+            lbl: String,
+            args: Array<String>
+    ): Boolean {
+        if (sender !is Player) {
+            sender.sendMessage("${RED}You have to be a player to use this command.")
+            return true
+        }
+        // If sender does not have permission, return false
+        if (!sender.hasPermission("fantasycostco.buy-possible")) {
+            sender.sendMessage("${RED}You don't have permission to use this command.")
+            return true
+        }
+
+        // Check args number
+        if (args.size == 0) {
+            sender.sendMessage("${RED}You must specify true or false")
+            return false
+        } else if (args.size > 1) {
+            sender.sendMessage("${RED}This command only takes one argument")
+            return false
+        }
+
+        // Get value and set it
+        val buyPossible = args[0].toBoolean()
+        val playerData = getPlayerData(sender)
+        playerData.buyMaxItems = buyPossible
+
+        if (playerData.buyMaxItems) {
+            sender.sendMessage(
+                    "You ${GREEN}will buy${WHITE} as many items as you can afford if you don't have enough money"
+            )
+        } else {
+            sender.sendMessage(
+                    "You ${RED}will not buy${WHITE} as many items as you can afford if you don't have enough money anymore"
+            )
+        }
+
+        return true
+    }
+    override fun onTabComplete(
+            sender: CommandSender,
+            cmd: Command,
+            lbl: String,
+            args: Array<String>
+    ): List<String> {
+        return listOf<String>()
+    }
+}
+
+/**
+ * Lets a player know whether they will buy as many items as possible if they can't afford the
+ * requested amount
+ */
+object GetBuyPossibleCommand : TabExecutor {
+    override fun onCommand(
+            sender: CommandSender,
+            cmd: Command,
+            lbl: String,
+            args: Array<String>
+    ): Boolean {
+        if (sender !is Player) {
+            sender.sendMessage("${RED}You have to be a player to use this command.")
+            return true
+        }
+        if (!sender.hasPermission("fantasycostco.buy-possible")) {
+            sender.sendMessage("${RED}You don't have permission to use this command.")
+            return true
+        }
+
+        // Check args number
+        if (args.size > 0) {
+            sender.sendMessage("${RED}This command takes no arguments")
+            return false
+        }
+        val playerData = getPlayerData(sender)
+
+        if (playerData.buyMaxItems) {
+            sender.sendMessage(
+                    "You ${GREEN}will${WHITE} buy as many items as you can afford if you don't have enough money on /buy calls"
+            )
+        } else {
+            sender.sendMessage(
+                    "You ${RED}will not${WHITE} buy as many items as you can afford if you don't have enough money on /buy calls"
+            )
+        }
+
+        return true
+    }
+    override fun onTabComplete(
+            sender: CommandSender,
+            cmd: Command,
+            lbl: String,
+            args: Array<String>
+    ): List<String> {
+        return listOf<String>()
+    }
+}
+
+/** Allows a player to set how many items they want to buy */
+object SetBuyAmountCommand : TabExecutor {
+    override fun onCommand(
+            sender: CommandSender,
+            cmd: Command,
+            lbl: String,
+            args: Array<String>
+    ): Boolean {
+        if (sender !is Player) {
+            sender.sendMessage("${RED}You have to be a player to use this command.")
+            return true
+        }
+
+        // If sender does not have permission, return false
+        if (!sender.hasPermission("fantasycostco.buy-amount")) {
+            sender.sendMessage("${RED}You don't have permission to use this command.")
+            return true
+        }
+
+        // Make sure there's an argument to set the buy amount to
+        if (args.size == 0) {
+            sender.sendMessage("${RED}You must specify the amount you want to buy")
+            return false
+        } else if (args.size > 1) {
+            sender.sendMessage("${RED}This command only takes one argument")
+            return false
+        }
+        // Make sure argument is an int
+        val amount = args[0].toIntOrNull()
+        if (amount == null) {
+            sender.sendMessage("${RED}Not a valid amount.")
+            return false
+        }
+        val playerData = getPlayerData(sender)
+        playerData.buyGoal = amount
+        sender.sendMessage("${GREEN}Your buy goal is now set to ${WHITE}${amount}")
+
+        return true
+    }
+
+    override fun onTabComplete(
+            sender: CommandSender,
+            cmd: Command,
+            lbl: String,
+            args: Array<String>
+    ): List<String> {
+        return listOf<String>()
+    }
+}
+
+/** Lets a player know how many items they want to buy as previously set */
+object GetBuyAmountCommand : TabExecutor {
+    override fun onCommand(
+            sender: CommandSender,
+            cmd: Command,
+            lbl: String,
+            args: Array<String>
+    ): Boolean {
+        if (sender !is Player) {
+            sender.sendMessage("${RED}You have to be a player to use this command.")
+            return true
+        }
+        if (!sender.hasPermission("fantasycostco.buy-amount")) {
+            sender.sendMessage("${RED}You don't have permission to use this command.")
+            return true
+        }
+        val playerData = getPlayerData(sender)
+
+        // Check args number
+        if (args.size > 0) {
+            sender.sendMessage("${RED}This command takes no arguments")
+            return false
+        }
+
+        sender.sendMessage("${GREEN}Your buy goal is ${WHITE}${playerData.buyGoal}")
+        return true
+    }
+    override fun onTabComplete(
+            sender: CommandSender,
+            cmd: Command,
+            lbl: String,
+            args: Array<String>
+    ): List<String> {
+        return listOf<String>()
+    }
+}
+
+/**
+ * Toggles the value of whether the player is "Just Looking" so that they don't actually buy/sell
+ * anything, but can see the prices based on how many they're buying or selling.
+ */
+object ToggleJustLookingCommand : TabExecutor {
+    override fun onCommand(
+            sender: CommandSender,
+            cmd: Command,
+            lbl: String,
+            args: Array<String>
+    ): Boolean {
+        if (sender !is Player) {
+            sender.sendMessage("${RED}You have to be a player to use this command.")
+            return true
+        }
+        // If sender does not have permission
+        if (!sender.hasPermission("fantasycostco.just-looking")) {
+            sender.sendMessage("${RED}You don't have permission to use this command.")
+            return true
+        }
+
+        // Check args number
+        if (args.size > 0) {
+            sender.sendMessage("${RED}This command takes no arguments")
+            return false
+        }
+        val playerData = getPlayerData(sender)
+        playerData.justLooking = !playerData.justLooking
+        if (playerData.justLooking) {
+            sender.sendMessage(
+                    "You are now ${GREEN}just looking${WHITE} and will not buy or sell anything"
+            )
+        } else {
+            sender.sendMessage(
+                    "You are ${RED}no longer${WHITE} just looking, and will buy/sell items as you normally would"
+            )
+        }
+        return true
+    }
+    override fun onTabComplete(
+            sender: CommandSender,
+            cmd: Command,
+            lbl: String,
+            args: Array<String>
+    ): List<String> {
+        return listOf<String>()
+    }
+}
+
+/**
+ * Sets the value of whether a player is "Just Looking" so that they don't actually buy/sell
+ * anything, but can see the prices based on how many they're buying or selling.
+ */
+object SetJustLookingCommand : TabExecutor {
+    override fun onCommand(
+            sender: CommandSender,
+            cmd: Command,
+            lbl: String,
+            args: Array<String>
+    ): Boolean {
+        if (sender !is Player) {
+            sender.sendMessage("${RED}You have to be a player to use this command.")
+            return true
+        }
+        // If sender does not have permission
+        if (!sender.hasPermission("fantasycostco.just-looking")) {
+            sender.sendMessage("${RED}You don't have permission to use this command.")
+            return true
+        }
+
+        // Check args number
+        if (args.size == 0) {
+            sender.sendMessage("${RED}You must specify whether you want to be just looking or not")
+            return false
+        } else if (args.size > 1) {
+            sender.sendMessage("${RED}This command only takes one argument")
+            return false
+        }
+        // Get argument
+        val justLooking = args[0].toBoolean()
+        val playerData = getPlayerData(sender)
+        playerData.justLooking = justLooking
+        if (playerData.justLooking) {
+            sender.sendMessage(
+                    "You are now ${GREEN}just looking${WHITE} and will not buy or sell anything"
+            )
+        } else {
+            sender.sendMessage(
+                    "You are ${RED}no longer${WHITE} just looking, and will buy/sell items as you normally would"
+            )
+        }
+        return true
+    }
+    override fun onTabComplete(
+            sender: CommandSender,
+            cmd: Command,
+            lbl: String,
+            args: Array<String>
+    ): List<String> {
+        return listOf<String>()
+    }
+}
+
+/** Lets a player know whether they are "Just Looking" */
+object GetJustLookingCommand : TabExecutor {
+    override fun onCommand(
+            sender: CommandSender,
+            cmd: Command,
+            lbl: String,
+            args: Array<String>
+    ): Boolean {
+        if (sender !is Player) {
+            sender.sendMessage("${RED}You have to be a player to use this command.")
+            return true
+        }
+        // If sender does not have permission
+        if (!sender.hasPermission("fantasycostco.just-looking")) {
+            sender.sendMessage("${RED}You don't have permission to use this command.")
+            return true
+        }
+
+        // Check args number
+        if (args.size > 0) {
+            sender.sendMessage("${RED}This command takes no arguments")
+            return false
+        }
+
+        val playerData = getPlayerData(sender)
+        if (playerData.justLooking) {
+            sender.sendMessage(
+                    "You are ${GREEN}just looking${WHITE} and will not buy or sell anything"
+            )
+        } else {
+            sender.sendMessage(
+                    "You are ${RED}not${WHITE} just looking, and will buy/sell items as you normally would"
+            )
+        }
+        return true
+    }
     override fun onTabComplete(
             sender: CommandSender,
             cmd: Command,
