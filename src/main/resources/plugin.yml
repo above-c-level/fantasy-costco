@@ -5,25 +5,66 @@ api-version: 1.18
 
 commands:
   buy:
-    description: Buy specified quantity of specified item from server
-    usage: /<command> [item] [quantity]
+    description: Buy some quantity of specified item from server, as specified by your buy-possible setting. Quantity is optional.
+    usage: /<command> [item] [quantity (optional)]
     permission: fantastycostco.buy
   sell:
     description: Sell item stack in hand to the server
     usage: /<command>
     permission: fantasycostco.sell
-  wallet:
+  get-wallet:
     description: Get how many Blockcoins are in your wallet
     usage: /<command>
     permission: fantasycostco.wallet
+    aliases:
+      - wallet
+      - balance
   set-wallet:
-    description: Set how many Blockcoins a player has in their wallet
-    usage: /<command> [player] [amount]
+    description: Set how many Blockcoins a player has in their wallet. If player is not specified, assumes the player who sent the command, unless they are not a player.
+    usage: /<command> [amount] [player (optional)]
     permission: fantasycostco.set-wallet
-  toggle-buy-possible:
+  toggle-buy-as-much-as-possible:
     description: Toggle whether to attempt to buy as many items as can be afforded in the case that you don't have enough Blockcoins to buy the amount requested.
     usage: /<command>
-    permission: fantasycostco.toggle-buy-possible
+    permission: fantasycostco.buy-possible
+    aliases:
+      - toggle-buy-possible
+  set-buy-as-much-as-possible:
+    description: Set whether to attempt to buy as many items as can be afforded in the case that you don't have enough Blockcoins to buy the amount requested.
+    usage: /<command> [true|false]
+    permission: fantasycostco.buy-possible
+    aliases:
+      - set-buy-possible
+  get-buy-as-much-as-possible:
+    description: See what your current setting is for attempting to buy as many items as possible.
+    usage: /<command>
+    permission: fantasycostco.buy-possible
+    aliases:
+      - get-buy-possible
+  set-buy-amount:
+    description: Set the number of items to attempt to buy. For example, if you set this to 64, you will attempt to buy 64 items at once.
+    usage: /<command> [amount]
+    permission: fantasycostco.buy-amount
+    aliases:
+      - set-amount
+  get-buy-amount:
+    description: See how many items you've already set to attempt to buy.
+    usage: /<command>
+    permission: fantasycostco.buy-amount
+    aliases:
+      - get-amount
+  toggle-just-looking:
+    description: Toggle whether you're "just looking" or actually buying/selling items. If this is true, you will not buy or sell items but can still see how much items cost.
+    usage: /<command>
+    permission: fantasycostco.just-looking
+  set-just-looking:
+    description: Set whether you're "just looking" or actually buying/selling items. If this is true, you will not buy or sell items but can still see how much items cost.
+    usage: /<command> [true|false]
+    permission: fantasycostco.just-looking
+  get-just-looking:
+    description: See what your current setting is for "just looking".
+    usage: /<command>
+    permission: fantasycostco.just-looking
 permissions:
   fantasycostco.buy:
     default: true
@@ -31,7 +72,11 @@ permissions:
     default: true
   fantasycostco.wallet:
     default: true
-  fantasycostco.toggle-buy-possible:
-    default: true
   fantasycostco.set-wallet:
-    default: false
+    default: op
+  fantasycostco.buy-possible:
+    default: true
+  fantasycostco.buy-amount:
+    default: true
+  fantasycostco.just-looking:
+    default: true
