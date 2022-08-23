@@ -35,9 +35,21 @@ class CostcoPlugin : JavaPlugin() {
 
         getCommand("buy")?.setExecutor(BuyCommand)
         getCommand("sell")?.setExecutor(SellCommand)
-        getCommand("wallet")?.setExecutor(WalletCommand)
+
+        getCommand("get-wallet")?.setExecutor(GetWalletCommand)
         getCommand("set-wallet")?.setExecutor(SetWalletCommand)
-        getCommand("toggle-buy-possible")?.setExecutor(ToggleBuyPossibleCommand)
+
+        getCommand("toggle-buy-as-much-as-possible")?.setExecutor(ToggleBuyPossibleCommand)
+        getCommand("set-buy-as-much-as-possible")?.setExecutor(SetBuyPossibleCommand)
+        getCommand("get-buy-as-much-as-possible")?.setExecutor(GetBuyPossibleCommand)
+
+        getCommand("set-buy-amount")?.setExecutor(SetBuyAmountCommand)
+        getCommand("get-buy-amount")?.setExecutor(GetBuyAmountCommand)
+
+        getCommand("toggle-just-looking")?.setExecutor(ToggleJustLookingCommand)
+        getCommand("set-just-looking")?.setExecutor(SetJustLookingCommand)
+        getCommand("get-just-looking")?.setExecutor(GetJustLookingCommand)
+
 
         Cereal.loadAll()
 
