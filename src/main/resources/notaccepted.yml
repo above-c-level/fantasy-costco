@@ -1,0 +1,3 @@
+# yaml files are maps of key/value pairs, so we need to have *something* paired with the key
+CHIPPED_ANVIL: 0
+DAMAGED_ANVIL: 0
