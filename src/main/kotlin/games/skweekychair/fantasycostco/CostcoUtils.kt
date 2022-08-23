@@ -464,3 +464,28 @@ fun roundDouble(value: Double, significantDigits: Int = 2): Double {
     val scale = Math.pow(10.0, significantDigits.toDouble())
     return Math.round(value * scale) / scale
 }
+
+/**
+ * Worst case scenario is the player wants a full inventory, so even if we increase the amount a
+ * player can buy up to 36 stacks, this is guaranteed to take <= 11 iterations
+ */
+fun binarySearchPrice(
+        amountStart: Int,
+        merchandise: Merchandise,
+        playerFunds: Double
+): Pair<Int, Double> {
+    var amount: Int = amountStart
+    var low: Int = 1
+    var high: Int = amount
+    while (low < high) {
+        val mid = (low + high) / 2
+        val midBuyPrice = merchandise.itemBuyPrice(mid)
+        if (midBuyPrice > playerFunds) {
+            high = mid - 1
+        } else {
+            low = mid + 1
+        }
+    }
+    amount = high - 1
+    return Pair(amount, merchandise.itemBuyPrice(amount))
+}
