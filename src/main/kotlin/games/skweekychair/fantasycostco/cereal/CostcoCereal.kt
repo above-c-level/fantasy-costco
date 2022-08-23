@@ -110,7 +110,8 @@ data class PlayerData(
         // loss of precision.
         @SerialName("balance") var balance: Double,
         @SerialName("buyGoal") var buyGoal: Int = 0,
-        @SerialName("buyMaxItems") var buyMaxItems: Boolean = false
+        @SerialName("buyMaxItems") var buyMaxItems: Boolean = false,
+        @SerialName("justLooking") var justLooking: Boolean = false
 )
 
 object PlayerDataSerializer : KSerializer<PlayerData> {
