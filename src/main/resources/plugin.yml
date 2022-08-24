@@ -23,65 +23,32 @@ commands:
     description: Set how many Blockcoins a player has in their wallet. If player is not specified, assumes the player who sent the command, unless they are not a player.
     usage: /<command> [amount] [player (optional)]
     permission: fantasycostco.set-wallet
-  toggle-buy-as-much-as-possible:
-    description: Toggle whether to attempt to buy as many items as can be afforded in the case that you don't have enough Blockcoins to buy the amount requested.
-    usage: /<command>
+  buy-as-much-as-possible:
+    description: Get, set, or toggle whether you will buy as much as possible when you can't afford what you requested.
+    usage: /<command> [true|false|get|toggle]
     permission: fantasycostco.buy-possible
     aliases:
-      - toggle-buy-possible
-  set-buy-as-much-as-possible:
-    description: Set whether to attempt to buy as many items as can be afforded in the case that you don't have enough Blockcoins to buy the amount requested.
-    usage: /<command> [true|false]
-    permission: fantasycostco.buy-possible
-    aliases:
-      - set-buy-possible
-  get-buy-as-much-as-possible:
-    description: See what your current setting is for attempting to buy as many items as possible.
-    usage: /<command>
-    permission: fantasycostco.buy-possible
-    aliases:
-      - get-buy-possible
-  set-buy-amount:
-    description: Set the number of items to attempt to buy. For example, if you set this to 64, you will attempt to buy 64 items at once.
-    usage: /<command> [amount]
+      - buy-possible
+      - buy-amap
+  amount:
+    description: Set or get the number of items you want to try to buy.
+    usage: /<command> [amount|get]
     permission: fantasycostco.buy-amount
     aliases:
-      - set-amount
-  get-buy-amount:
-    description: See how many items you've already set to attempt to buy.
-    usage: /<command>
-    permission: fantasycostco.buy-amount
-    aliases:
-      - get-amount
-  toggle-just-looking:
-    description: Toggle whether you're "just looking" or actually buying/selling items. If this is true, you will not buy or sell items but can still see how much items cost.
-    usage: /<command>
+      - buy-amount
+  just-looking:
+    description: Get, set, or toggle whether you're "just looking" or actually buying/selling items. If this is true, you will not buy or sell items but can still see how much items cost.
+    usage: /<command> [true|false|get|toggle]
     permission: fantasycostco.just-looking
-  set-just-looking:
-    description: Set whether you're "just looking" or actually buying/selling items. If this is true, you will not buy or sell items but can still see how much items cost.
-    usage: /<command> [true|false]
-    permission: fantasycostco.just-looking
-  get-just-looking:
-    description: See what your current setting is for "just looking".
-    usage: /<command>
-    permission: fantasycostco.just-looking
-  toggle-ordain-sign:
-    description: Toggle whether you want to ordain a sign to allow players to buy items.
-    usage: /<command>
-    permission: fantasycostco.ordain-sign
-  set-ordain-sign:
-    description: Set whether you want to ordain a sign to allow players to buy items.
-    usage: /<command> [true|false]
-    permission: fantasycostco.ordain-sign
-  get-ordain-sign:
-    description: See what your current setting is for ordaining a sign.
-    usage: /<command>
+  ordain:
+    description: Get, set, or toggle whether you want to ordain a sign to allow players to buy items.
+    usage: /<command> [true|false|get|toggle]
     permission: fantasycostco.ordain-sign
 permissions:
   fantasycostco.buy:
-    default: true
+    default: op
   fantasycostco.sell:
-    default: true
+    default: op
   fantasycostco.wallet:
     default: true
   fantasycostco.set-wallet:
