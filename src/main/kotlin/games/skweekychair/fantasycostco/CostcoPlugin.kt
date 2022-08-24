@@ -131,15 +131,16 @@ class CostcoListener : Listener {
                 val randomMerch = Cereal.merch.keys.random()
                 // Add the sign's location to the merch
                 val location = block.getLocation()
-                AddSignToMerch(randomMerch, location)
-                ClearSign(location)
-                UpdateSign(
-                        location,
-                        mutableListOf(
-                                Pair(0, randomMerch.material.name),
-                                Pair(2, Cereal.merch[randomMerch]!!.roundedPriceString())
-                        )
-                )
+                // TODO: do the sign stuff for make better sale time and buy item for player :)
+                // AddSignToMerch(randomMerch, location)
+                // ClearSign(location)
+                // UpdateSign(
+                //         location,
+                //         mutableListOf(
+                //                 Pair(0, randomMerch.material.name),
+                //                 Pair(2, Cereal.merch[randomMerch]!!.roundedPriceString())
+                //         )
+                // )
             }
             val blockdata = block?.blockData?.getAsString()
             player.sendMessage(blockdata)
