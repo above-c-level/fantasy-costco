@@ -72,7 +72,7 @@ fun setWallet(player: Player, amount: Double): Double {
  */
 fun ensureWallet(player: Player) {
     if (!Cereal.wallets.containsKey(player.uniqueId)) {
-        Cereal.wallets[player.uniqueId] = PlayerData(CostcoGlobals.defaultWallet)
+        Cereal.wallets[player.uniqueId] = MembershipCard(CostcoGlobals.defaultWallet)
     }
 }
 
@@ -430,7 +430,7 @@ fun LogWarning(message: String) {
  * @param player The player to get the data of.
  * @return The data associated with the player.
  */
-fun getPlayerData(player: Player): PlayerData {
+fun getMembershipCard(player: Player): MembershipCard {
     ensureWallet(player)
     return Cereal.wallets[player.uniqueId]!!
 }

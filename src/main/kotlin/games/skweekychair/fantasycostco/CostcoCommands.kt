@@ -54,7 +54,7 @@ object BuyCommand : TabExecutor {
         if (args.size == 2) {
             amount = args[1].toIntOrNull()
         } else {
-            amount = getPlayerData(player).buyGoal
+            amount = getMembershipCard(player).buyGoal
         }
         if (amount == null) {
             sender.sendMessage("${RED}Not an amount.")
@@ -76,9 +76,9 @@ object BuyCommand : TabExecutor {
         val merchandise = getMerchandise(material)
         var price = roundDouble(merchandise.itemBuyPrice(amount))
         val playerFunds = getWalletRounded(player)
-        val playerData = getPlayerData(player)
+        val membershipCard = getMembershipCard(player)
         // Deal with cases where the player just wants to see prices
-        if (playerData.justLooking) {
+        if (membershipCard.justLooking) {
             var newWallet = roundDouble(playerFunds - price)
             var newWalletStr: String
             var roundedPrice: String
@@ -226,7 +226,7 @@ object SellCommand : TabExecutor {
             return true
         }
 
-        if (getPlayerData(player).justLooking) {
+        if (getMembershipCard(player).justLooking) {
             val newWallet = roundDoubleString(price + getWalletRounded(player))
             val roundedPrice = roundDoubleString(price)
             player.sendMessage(
@@ -403,9 +403,9 @@ object ToggleBuyPossibleCommand : TabExecutor {
         }
 
         // Toggle buyMaxItems
-        val playerData = getPlayerData(sender)
-        playerData.buyMaxItems = !playerData.buyMaxItems
-        if (playerData.buyMaxItems) {
+        val membershipCard = getMembershipCard(sender)
+        membershipCard.buyMaxItems = !membershipCard.buyMaxItems
+        if (membershipCard.buyMaxItems) {
             sender.sendMessage(
                     "You ${GREEN}will${WHITE} now buy as many items as you can afford if you don't have enough money"
             )
@@ -460,10 +460,10 @@ object SetBuyPossibleCommand : TabExecutor {
 
         // Get value and set it
         val buyPossible = args[0].toBoolean()
-        val playerData = getPlayerData(sender)
-        playerData.buyMaxItems = buyPossible
+        val membershipCard = getMembershipCard(sender)
+        membershipCard.buyMaxItems = buyPossible
 
-        if (playerData.buyMaxItems) {
+        if (membershipCard.buyMaxItems) {
             sender.sendMessage(
                     "You ${GREEN}will buy${WHITE} as many items as you can afford if you don't have enough money"
             )
@@ -510,9 +510,9 @@ object GetBuyPossibleCommand : TabExecutor {
             sender.sendMessage("${RED}This command takes no arguments")
             return false
         }
-        val playerData = getPlayerData(sender)
+        val membershipCard = getMembershipCard(sender)
 
-        if (playerData.buyMaxItems) {
+        if (membershipCard.buyMaxItems) {
             sender.sendMessage(
                     "You ${GREEN}will${WHITE} buy as many items as you can afford if you don't have enough money on /buy calls"
             )
@@ -569,8 +569,8 @@ object SetBuyAmountCommand : TabExecutor {
             sender.sendMessage("${RED}Not a valid amount.")
             return false
         }
-        val playerData = getPlayerData(sender)
-        playerData.buyGoal = amount
+        val membershipCard = getMembershipCard(sender)
+        membershipCard.buyGoal = amount
         sender.sendMessage("${GREEN}Your buy goal is now set to ${WHITE}${amount}")
 
         return true
@@ -602,7 +602,7 @@ object GetBuyAmountCommand : TabExecutor {
             sender.sendMessage("${RED}You don't have permission to use this command.")
             return true
         }
-        val playerData = getPlayerData(sender)
+        val membershipCard = getMembershipCard(sender)
 
         // Check args number
         if (args.size > 0) {
@@ -610,7 +610,7 @@ object GetBuyAmountCommand : TabExecutor {
             return false
         }
 
-        sender.sendMessage("${GREEN}Your buy goal is ${WHITE}${playerData.buyGoal}")
+        sender.sendMessage("${GREEN}Your buy goal is ${WHITE}${membershipCard.buyGoal}")
         return true
     }
     override fun onTabComplete(
@@ -651,9 +651,9 @@ object ToggleJustLookingCommand : TabExecutor {
             sender.sendMessage("${RED}This command takes no arguments")
             return false
         }
-        val playerData = getPlayerData(sender)
-        playerData.justLooking = !playerData.justLooking
-        if (playerData.justLooking) {
+        val membershipCard = getMembershipCard(sender)
+        membershipCard.justLooking = !membershipCard.justLooking
+        if (membershipCard.justLooking) {
             sender.sendMessage(
                     "You are now ${GREEN}just looking${WHITE} and will not buy or sell anything"
             )
@@ -705,9 +705,9 @@ object SetJustLookingCommand : TabExecutor {
         }
         // Get argument
         val justLooking = args[0].toBoolean()
-        val playerData = getPlayerData(sender)
-        playerData.justLooking = justLooking
-        if (playerData.justLooking) {
+        val membershipCard = getMembershipCard(sender)
+        membershipCard.justLooking = justLooking
+        if (membershipCard.justLooking) {
             sender.sendMessage(
                     "You are now ${GREEN}just looking${WHITE} and will not buy or sell anything"
             )
@@ -752,8 +752,8 @@ object GetJustLookingCommand : TabExecutor {
             return false
         }
 
-        val playerData = getPlayerData(sender)
-        if (playerData.justLooking) {
+        val membershipCard = getMembershipCard(sender)
+        if (membershipCard.justLooking) {
             sender.sendMessage(
                     "You are ${GREEN}just looking${WHITE} and will not buy or sell anything"
             )
@@ -803,9 +803,9 @@ object ToggleOrdainSignCommand : TabExecutor {
             return false
         }
 
-        val playerData = getPlayerData(sender)
-        playerData.ordainingSign = !playerData.ordainingSign
-        if (playerData.ordainingSign) {
+        val membershipCard = getMembershipCard(sender)
+        membershipCard.ordainingSign = !membershipCard.ordainingSign
+        if (membershipCard.ordainingSign) {
             sender.sendMessage(
                     "You are now ${GREEN}ordaining signs${WHITE} and will set them to be buy signs"
             )
@@ -860,9 +860,9 @@ object SetOrdainSignCommand : TabExecutor {
         // Get argument
         val ordainingSign = args[0].toBoolean()
 
-        val playerData = getPlayerData(sender)
-        playerData.ordainingSign = ordainingSign
-        if (playerData.ordainingSign) {
+        val membershipCard = getMembershipCard(sender)
+        membershipCard.ordainingSign = ordainingSign
+        if (membershipCard.ordainingSign) {
             sender.sendMessage(
                     "You are now ${GREEN}ordaining signs${WHITE} and will set them to be buy signs"
             )
@@ -910,8 +910,8 @@ object GetOrdainSignCommand : TabExecutor {
             return false
         }
 
-        val playerData = getPlayerData(sender)
-        if (playerData.ordainingSign) {
+        val membershipCard = getMembershipCard(sender)
+        if (membershipCard.ordainingSign) {
             sender.sendMessage(
                     "You are ${GREEN}ordaining signs${WHITE} and will set them to be buy signs"
             )
