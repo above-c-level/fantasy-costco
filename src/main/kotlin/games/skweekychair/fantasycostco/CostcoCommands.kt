@@ -624,12 +624,12 @@ object GetBuyAmountCommand : TabExecutor {
 }
 // endregion
 
-// region just looking
+
 /**
- * Toggles the value of whether the player is "Just Looking" so that they don't actually buy/sell
+ * Gets or changes the value of whether a player is "Just Looking" so that they don't actually buy/sell
  * anything, but can see the prices based on how many they're buying or selling.
  */
-object ToggleJustLookingCommand : TabExecutor {
+object JustLookingCommand : TabExecutor {
     override fun onCommand(
             sender: CommandSender,
             cmd: Command,
@@ -638,82 +638,40 @@ object ToggleJustLookingCommand : TabExecutor {
     ): Boolean {
         if (sender !is Player) {
             sender.sendMessage("${RED}You have to be a player to use this command.")
-            return true
-        }
-        // If sender does not have permission
-        if (!sender.hasPermission("fantasycostco.just-looking")) {
-            sender.sendMessage("${RED}You don't have permission to use this command.")
-            return true
-        }
-
-        // Check args number
-        if (args.size > 0) {
-            sender.sendMessage("${RED}This command takes no arguments")
-            return false
-        }
-        val membershipCard = getMembershipCard(sender)
-        membershipCard.justLooking = !membershipCard.justLooking
-        if (membershipCard.justLooking) {
-            sender.sendMessage(
-                    "You are now ${GREEN}just looking${WHITE} and will not buy or sell anything"
-            )
-        } else {
-            sender.sendMessage(
-                    "You are ${RED}no longer${WHITE} just looking, and will buy/sell items as you normally would"
-            )
-        }
-        return true
-    }
-    override fun onTabComplete(
-            sender: CommandSender,
-            cmd: Command,
-            lbl: String,
-            args: Array<String>
-    ): List<String> {
-        return listOf<String>()
-    }
-}
-
-/**
- * Sets the value of whether a player is "Just Looking" so that they don't actually buy/sell
- * anything, but can see the prices based on how many they're buying or selling.
- */
-object SetJustLookingCommand : TabExecutor {
-    override fun onCommand(
-            sender: CommandSender,
-            cmd: Command,
-            lbl: String,
-            args: Array<String>
-    ): Boolean {
-        if (sender !is Player) {
-            sender.sendMessage("${RED}You have to be a player to use this command.")
-            return true
-        }
-        // If sender does not have permission
-        if (!sender.hasPermission("fantasycostco.just-looking")) {
-            sender.sendMessage("${RED}You don't have permission to use this command.")
             return true
         }
 
         // Check args number
         if (args.size == 0) {
-            sender.sendMessage("${RED}You must specify whether you want to be just looking or not")
+            // TODO: Rework message? the usage from false might be good enough tho
+            // sender.sendMessage(
+            //         "${RED}You must specify whether you want to be just looking or not"
+            // )
             return false
         } else if (args.size > 1) {
             sender.sendMessage("${RED}This command only takes one argument")
             return false
         }
+
+        val membershipCard = getMembershipCard(sender)
+
         // Get argument
-        val justLooking = args[0].toBoolean()
-        val membershipCard = getMembershipCard(sender)
-        membershipCard.justLooking = justLooking
+        val status = when(args[0]) {
+            "true" -> true
+            "false" -> false
+            "get" -> membershipCard.justLooking
+            "toggle" -> !membershipCard.justLooking
+            else -> { return false }
+        }
+
+        membershipCard.justLooking = status
         if (membershipCard.justLooking) {
             sender.sendMessage(
-                    "You are now ${GREEN}just looking${WHITE} and will not buy or sell anything"
+                    "You are ${if (args[0] == "get") "now" else "currently" } ${GREEN}just looking${WHITE} and will not buy or sell anything"
             )
         } else {
             sender.sendMessage(
-                    "You are ${RED}no longer${WHITE} just looking, and will buy/sell items as you normally would"
+                    "You are ${RED}${if (args[0] == "get") "not" else "no longer" }${WHITE} just looking, and will buy/sell items as you normally would"
             )
         }
         return true
@@ -724,57 +682,9 @@ object SetJustLookingCommand : TabExecutor {
             lbl: String,
             args: Array<String>
     ): List<String> {
-        return listOf<String>()
+        return if (args.size == 1) listOf<String>("true", "false", "get", "toggle") else listOf<String>()
     }
 }
-
-/** Lets a player know whether they are "Just Looking" */
-object GetJustLookingCommand : TabExecutor {
-    override fun onCommand(
-            sender: CommandSender,
-            cmd: Command,
-            lbl: String,
-            args: Array<String>
-    ): Boolean {
-        if (sender !is Player) {
-            sender.sendMessage("${RED}You have to be a player to use this command.")
-            return true
-        }
-        // If sender does not have permission
-        if (!sender.hasPermission("fantasycostco.just-looking")) {
-            sender.sendMessage("${RED}You don't have permission to use this command.")
-            return true
-        }
-
-        // Check args number
-        if (args.size > 0) {
-            sender.sendMessage("${RED}This command takes no arguments")
-            return false
-        }
-
-        val membershipCard = getMembershipCard(sender)
-        if (membershipCard.justLooking) {
-            sender.sendMessage(
-                    "You are ${GREEN}just looking${WHITE} and will not buy or sell anything"
-            )
-        } else {
-            sender.sendMessage(
-                    "You are ${RED}not${WHITE} just looking, and will buy/sell items as you normally would"
-            )
-        }
-        return true
-    }
-    override fun onTabComplete(
-            sender: CommandSender,
-            cmd: Command,
-            lbl: String,
-            args: Array<String>
-    ): List<String> {
-        return listOf<String>()
-    }
-}
-// endregion
-
 
 
 /**

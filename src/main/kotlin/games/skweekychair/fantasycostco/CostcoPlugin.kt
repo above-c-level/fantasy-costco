@@ -47,9 +47,7 @@ class CostcoPlugin : JavaPlugin() {
         getCommand("set-buy-amount")?.setExecutor(SetBuyAmountCommand)
         getCommand("get-buy-amount")?.setExecutor(GetBuyAmountCommand)
 
-        getCommand("toggle-just-looking")?.setExecutor(ToggleJustLookingCommand)
-        getCommand("set-just-looking")?.setExecutor(SetJustLookingCommand)
-        getCommand("get-just-looking")?.setExecutor(GetJustLookingCommand)
+        getCommand("just-looking")?.setExecutor(JustLookingCommand)
 
         getCommand("ordain")?.setExecutor(OrdainCommand)
 
