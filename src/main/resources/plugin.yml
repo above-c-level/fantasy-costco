@@ -21,7 +21,7 @@ commands:
       - balance
   set-wallet:
     description: Set how many Blockcoins a player has in their wallet. If player is not specified, assumes the player who sent the command, unless they are not a player.
-    usage: /<command> [amount] [player (optional)]
+    usage: /<command> [amount (a number)] [player (optional)]
     permission: fantasycostco.set-wallet
   buy-as-much-as-possible:
     description: Get, set, or toggle whether you will buy as much as possible when you can't afford what you requested.
@@ -32,7 +32,7 @@ commands:
       - buy-amap
   amount:
     description: Set or get the number of items you want to try to buy.
-    usage: /<command> [amount | get]
+    usage: /<command> [quantity (a number) | get]
     permission: fantasycostco.buy-amount
     aliases:
       - buy-amount
