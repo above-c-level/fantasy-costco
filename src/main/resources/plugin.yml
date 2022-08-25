@@ -25,24 +25,24 @@ commands:
     permission: fantasycostco.set-wallet
   buy-as-much-as-possible:
     description: Get, set, or toggle whether you will buy as much as possible when you can't afford what you requested.
-    usage: /<command> [true|false|get|toggle]
+    usage: /<command> [true | false | get | toggle]
     permission: fantasycostco.buy-possible
     aliases:
       - buy-possible
       - buy-amap
   amount:
     description: Set or get the number of items you want to try to buy.
-    usage: /<command> [amount|get]
+    usage: /<command> [amount | get]
     permission: fantasycostco.buy-amount
     aliases:
       - buy-amount
   just-looking:
     description: Get, set, or toggle whether you're "just looking" or actually buying/selling items. If this is true, you will not buy or sell items but can still see how much items cost.
-    usage: /<command> [true|false|get|toggle]
+    usage: /<command> [true | false | get | toggle]
     permission: fantasycostco.just-looking
   ordain:
     description: Get, set, or toggle whether you want to ordain a sign to allow players to buy items.
-    usage: /<command> [true|false|get|toggle]
+    usage: /<command> [true | false | get | toggle]
     permission: fantasycostco.ordain-sign
 permissions:
   fantasycostco.buy:
