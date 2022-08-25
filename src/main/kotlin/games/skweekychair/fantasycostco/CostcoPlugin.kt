@@ -40,9 +40,7 @@ class CostcoPlugin : JavaPlugin() {
         getCommand("get-wallet")?.setExecutor(GetWalletCommand)
         getCommand("set-wallet")?.setExecutor(SetWalletCommand)
 
-        getCommand("toggle-buy-as-much-as-possible")?.setExecutor(ToggleBuyPossibleCommand)
-        getCommand("set-buy-as-much-as-possible")?.setExecutor(SetBuyPossibleCommand)
-        getCommand("get-buy-as-much-as-possible")?.setExecutor(GetBuyPossibleCommand)
+        getCommand("buy-as-much-as-possible")?.setExecutor(BuyPossibleCommand)
 
         getCommand("set-buy-amount")?.setExecutor(SetBuyAmountCommand)
         getCommand("get-buy-amount")?.setExecutor(GetBuyAmountCommand)

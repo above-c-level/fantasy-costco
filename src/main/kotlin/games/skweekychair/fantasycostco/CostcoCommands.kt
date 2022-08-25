@@ -373,12 +373,12 @@ object SetWalletCommand : TabExecutor {
 }
 // endregion
 
-// region buy all possible
+
 /**
- * Allows a player to toggle whether they will buy as many items as possible if they can't afford
+ * Gets or changes whether a player will buy as many items as possible if they can't afford
  * the requested amount
  */
-object ToggleBuyPossibleCommand : TabExecutor {
+object BuyPossibleCommand : TabExecutor {
     override fun onCommand(
             sender: CommandSender,
             cmd: Command,
@@ -387,92 +387,42 @@ object ToggleBuyPossibleCommand : TabExecutor {
     ): Boolean {
         if (sender !is Player) {
             sender.sendMessage("${RED}You have to be a player to use this command.")
-            return false
-        }
-
-        // If sender does not have permission, return false
-        if (!sender.hasPermission("fantasycostco.buy-possible")) {
-            sender.sendMessage("${RED}You don't have permission to use this command.")
-            return false
-        }
-
-        // Check args number
-        if (args.size > 0) {
-            sender.sendMessage("${RED}This command doesn't take any arguments")
-            return false
-        }
-
-        // Toggle buyMaxItems
-        val membershipCard = getMembershipCard(sender)
-        membershipCard.buyMaxItems = !membershipCard.buyMaxItems
-        if (membershipCard.buyMaxItems) {
-            sender.sendMessage(
-                    "You ${GREEN}will${WHITE} now buy as many items as you can afford if you don't have enough money"
-            )
-        } else {
-            sender.sendMessage(
-                    "You ${RED}will not${WHITE} buy as many items as you can afford if you don't have enough money anymore"
-            )
-        }
-
-        return true
-    }
-
-    override fun onTabComplete(
-            sender: CommandSender,
-            cmd: Command,
-            lbl: String,
-            args: Array<String>
-    ): List<String> {
-        return listOf<String>()
-    }
-}
-
-/**
- * Allows a player to directly set whether they will buy as many items as possible if they can't
- * afford the requested amount
- */
-object SetBuyPossibleCommand : TabExecutor {
-    override fun onCommand(
-            sender: CommandSender,
-            cmd: Command,
-            lbl: String,
-            args: Array<String>
-    ): Boolean {
-        if (sender !is Player) {
-            sender.sendMessage("${RED}You have to be a player to use this command.")
-            return true
-        }
-        // If sender does not have permission, return false
-        if (!sender.hasPermission("fantasycostco.buy-possible")) {
-            sender.sendMessage("${RED}You don't have permission to use this command.")
             return true
         }
 
         // Check args number
         if (args.size == 0) {
-            sender.sendMessage("${RED}You must specify true or false")
+            // TODO: Rework message? the usage from false might be good enough tho
+            // sender.sendMessage(
+            //         "${RED}You must specify whether you want to be just looking or not"
+            // )
             return false
         } else if (args.size > 1) {
             sender.sendMessage("${RED}This command only takes one argument")
             return false
         }
 
-        // Get value and set it
-        val buyPossible = args[0].toBoolean()
         val membershipCard = getMembershipCard(sender)
-        membershipCard.buyMaxItems = buyPossible
 
+        // Get argument
+        val status = when(args[0]) {
+            "true" -> true
+            "false" -> false
+            "get" -> membershipCard.buyMaxItems
+            "toggle" -> !membershipCard.buyMaxItems
+            else -> { return false }
+        }
+
+        membershipCard.buyMaxItems = status
         if (membershipCard.buyMaxItems) {
             sender.sendMessage(
-                    "You ${GREEN}will buy${WHITE} as many items as you can afford if you don't have enough money"
+                    "You ${if (args[0] == "get") "currently" else "now" } ${GREEN}will${WHITE} buy as many items as you can afford if you don't have enough money on /buy calls"
             )
         } else {
             sender.sendMessage(
-                    "You ${RED}will not buy${WHITE} as many items as you can afford if you don't have enough money anymore"
+                    "You ${RED}${if (args[0] == "get") "currently" else "now" } ${RED}will not${WHITE} buy as many items as you can afford if you don't have enough money on /buy calls"
             )
         }
-
         return true
     }
     override fun onTabComplete(
@@ -481,58 +431,10 @@ object SetBuyPossibleCommand : TabExecutor {
             lbl: String,
             args: Array<String>
     ): List<String> {
-        return listOf<String>()
+        return if (args.size == 1) listOf<String>("true", "false", "get", "toggle") else listOf<String>()
     }
 }
 
-/**
- * Lets a player know whether they will buy as many items as possible if they can't afford the
- * requested amount
- */
-object GetBuyPossibleCommand : TabExecutor {
-    override fun onCommand(
-            sender: CommandSender,
-            cmd: Command,
-            lbl: String,
-            args: Array<String>
-    ): Boolean {
-        if (sender !is Player) {
-            sender.sendMessage("${RED}You have to be a player to use this command.")
-            return true
-        }
-        if (!sender.hasPermission("fantasycostco.buy-possible")) {
-            sender.sendMessage("${RED}You don't have permission to use this command.")
-            return true
-        }
-
-        // Check args number
-        if (args.size > 0) {
-            sender.sendMessage("${RED}This command takes no arguments")
-            return false
-        }
-        val membershipCard = getMembershipCard(sender)
-
-        if (membershipCard.buyMaxItems) {
-            sender.sendMessage(
-                    "You ${GREEN}will${WHITE} buy as many items as you can afford if you don't have enough money on /buy calls"
-            )
-        } else {
-            sender.sendMessage(
-                    "You ${RED}will not${WHITE} buy as many items as you can afford if you don't have enough money on /buy calls"
-            )
-        }
-
-        return true
-    }
-    override fun onTabComplete(
-            sender: CommandSender,
-            cmd: Command,
-            lbl: String,
-            args: Array<String>
-    ): List<String> {
-        return listOf<String>()
-    }
-}
 // endregion
 
 // region buy amount
