@@ -51,6 +51,8 @@ class CostcoPlugin : JavaPlugin() {
         getCommand("set-just-looking")?.setExecutor(SetJustLookingCommand)
         getCommand("get-just-looking")?.setExecutor(GetJustLookingCommand)
 
+        getCommand("ordain")?.setExecutor(OrdainCommand)
+
         Cereal.loadAll()
 
         val scheduler = Bukkit.getServer().getScheduler()
