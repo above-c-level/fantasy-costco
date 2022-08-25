@@ -420,7 +420,7 @@ object BuyPossibleCommand : TabExecutor {
             )
         } else {
             sender.sendMessage(
-                    "You ${RED}${if (args[0] == "get") "currently" else "now" } ${RED}will not${WHITE} buy as many items as you can afford if you don't have enough money on /buy calls"
+                    "You ${if (args[0] == "get") "currently" else "now" } ${RED}will not${WHITE} buy as many items as you can afford if you don't have enough money on /buy calls"
             )
         }
         return true
