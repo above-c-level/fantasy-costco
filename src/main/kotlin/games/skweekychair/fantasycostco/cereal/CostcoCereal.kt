@@ -27,6 +27,7 @@ object Cereal {
     var wallets = HashMap<UUID, MembershipCard>()
     var merch = HashMap<BaseMerchandise, Merchandise>()
     var purchasePoints = HashMap<Location, BaseMerchandise>()
+    var signs = HashMap<Location, SignData>()
     var walletPath = File("wallets.json")
     var merchPath = File("merch.json")
 
@@ -47,7 +48,9 @@ object Cereal {
     fun loadWallets(): HashMap<UUID, MembershipCard> {
         val readFile = walletPath.bufferedReader().readText()
         val json = Json { allowStructuredMapKeys = true }
-        return HashMap(json.decodeFromString<Map<UUID, MembershipCard>>(walletsSerializer, readFile))
+        return HashMap(
+                json.decodeFromString<Map<UUID, MembershipCard>>(walletsSerializer, readFile)
+        )
     }
 
     /** Saves all merch to a file. */
@@ -232,3 +235,23 @@ object LocationSerializer : KSerializer<Location> {
         return Location(world, x, y, z)
     }
 }
+
+/** An enum that gives all the ways a sign might be used. */
+@Serializable
+enum class SignType {
+    SELL_ONE,
+    SELL_STACK,
+    SELL_TYPE,
+    SELL_ALL,
+    BUY_ONE,
+    BUY_STACK,
+    BUY_SHULKER_BOX
+}
+/**
+ * A class that represents a sign. The sign has a location and some internal values which represent
+ * whether it is a sell or buy sign, as well as the
+ */
+@Serializable
+data class SignData(
+        var signType: SignType,
+)
