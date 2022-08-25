@@ -569,7 +569,7 @@ object JustLookingCommand : TabExecutor {
         membershipCard.justLooking = status
         if (membershipCard.justLooking) {
             sender.sendMessage(
-                    "You are ${if (args[0] == "get") "now" else "currently" } ${GREEN}just looking${WHITE} and will not buy or sell anything"
+                    "You are ${if (args[0] == "get") "currently" else "now" } ${GREEN}just looking${WHITE} and will not buy or sell anything"
             )
         } else {
             sender.sendMessage(
@@ -604,13 +604,6 @@ object OrdainCommand : TabExecutor {
             sender.sendMessage("${RED}You have to be a player to use this command.")
             return true
         }
-        
-        // ? pretty sure this isnt necessary
-        // If sender does not have permission
-        // if (!sender.hasPermission("fantasycostco.ordain-sign")) {
-        //     sender.sendMessage("${RED}You don't have permission to use this command.")
-        //     return true
-        // }
 
         // Check args number
         if (args.size == 0) {
@@ -638,7 +631,7 @@ object OrdainCommand : TabExecutor {
         membershipCard.ordainingSign = status
         if (membershipCard.ordainingSign) {
             sender.sendMessage(
-                    "You are ${if (args[0] == "get") "now" else "currently" } ${GREEN}ordaining signs${WHITE} and will set them to be buy signs"
+                    "You are ${if (args[0] == "get") "currently" else "now" } ${GREEN}ordaining signs${WHITE} and will set them to be buy signs"
             )
         } else {
             sender.sendMessage(
