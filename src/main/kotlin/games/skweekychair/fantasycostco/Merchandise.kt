@@ -153,14 +153,6 @@ class Merchandise(
     }
 
     /**
-     * Returns a rounded string representation of the price of the item.
-     * @return The rounded shown price
-     */
-    fun roundedPriceString(): String {
-        return roundDoubleString(this.shownPrice)
-    }
-
-    /**
      * Returns a rounded buy price of `amount` of this item
      * @param amount The amount of the item to buy.
      * @return The price of the item.
@@ -278,23 +270,61 @@ class Merchandise(
             return true
         }
 
-        val thisSign: SignData = Cereal.signs[signLocation]!!
-        if (thisSign.signType == SignType.TRUE_PRICE) {} else if (thisSign.signType ==
-                        SignType.SELL_ONE
-        ) {} else if (thisSign.signType == SignType.SELL_STACK) {} else if (thisSign.signType ==
-                        SignType.SELL_TYPE
-        ) {} else if (thisSign.signType == SignType.SELL_ALL) {} else if (thisSign.signType ==
-                        SignType.BUY_ONE
-        ) {} else if (thisSign.signType == SignType.BUY_STACK) {} else if (thisSign.signType ==
-                        SignType.BUY_SHULKER_BOX
-        ) {}
-        this.updateSignLine(signLocation, 2, this.roundedPriceString())
+        var thisSign: SignData? = Cereal.signs[signLocation]
+        if (thisSign == null) {
+            thisSign = SignData(SignType.TRUE_PRICE)
+            Cereal.signs[signLocation] = thisSign
+        }
+
+        if (thisSign.signType == SignType.TRUE_PRICE) {
+            this.updateSignLine(signLocation, 2, "Ideal Price:")
+            this.updateSignLine(signLocation, 3, roundDoubleString(this.shownPrice))
+        } else if (thisSign.signType == SignType.SELL_ONE) {
+            this.clearSign(signLocation)
+            this.updateSignLine(signLocation, 1, "Sell One")
+            this.updateSignLine(signLocation, 2, "Item")
+        } else if (thisSign.signType == SignType.SELL_STACK) {
+            this.clearSign(signLocation)
+            this.updateSignLine(signLocation, 1, "Sell a stack")
+            this.updateSignLine(signLocation, 2, "of items")
+        } else if (thisSign.signType == SignType.SELL_TYPE) {
+            this.clearSign(signLocation)
+            this.updateSignLine(signLocation, 0, "Sell all")
+            this.updateSignLine(signLocation, 1, "of this type")
+            this.updateSignLine(signLocation, 2, "(in inventory)")
+        } else if (thisSign.signType == SignType.SELL_ALL) {
+            this.clearSign(signLocation)
+            this.updateSignLine(signLocation, 0, "Sell EVERYTHING")
+            this.updateSignLine(signLocation, 1, "(yes, your whole")
+            this.updateSignLine(signLocation, 2, "ENTIRE")
+            this.updateSignLine(signLocation, 3, "inventory)")
+        } else if (thisSign.signType == SignType.BUY_ONE) {
+            val singlePrice = this.itemSellPrice(1)
+            this.updateSignLine(signLocation, 2, "Buy One")
+            this.updateSignLine(signLocation, 3, roundDoubleString(singlePrice))
+        } else if (thisSign.signType == SignType.BUY_STACK) {
+            this.updateSignLine(signLocation, 2, "Buy Stack")
+            val stackPrice = this.itemSellPrice(this.material.maxStackSize)
+            this.updateSignLine(signLocation, 3, roundDoubleString(stackPrice))
+        } else if (thisSign.signType == SignType.BUY_SHULKER_BOX) {
+            this.updateSignLine(signLocation, 2, "Buy full Shulker")
+            val shulkerMerch = Material.getMaterial("SHULKER_BOX")!!
+            // Ideal price of shulker box because they're already buying upwards of 1728 items
+            val shulkerPrice = getMerchandise(BaseMerchandise(shulkerMerch)).shownPrice
+            val filledPrice = this.itemSellPrice(this.material.maxStackSize * 27) + shulkerPrice
+            this.updateSignLine(signLocation, 3, roundDoubleString(filledPrice))
+        }
+
         return false
     }
 
     /** Updates the signs with the new prices. */
     fun updateAllSigns() {
+        logIfDebug("Updating all signs")
         val staleLocations: MutableList<Location> = mutableListOf()
+        if (this.listOfSigns.size == 0) {
+            return
+        }
         for (signLocation in this.listOfSigns) {
             if (this.updateSignIsStale(signLocation)) {
                 staleLocations.add(signLocation)
@@ -323,6 +353,10 @@ class Merchandise(
      */
     private fun updateSignName(signLocation: Location) {
         var signText: List<String> = this.nameFormat(this.material.name)
+        // Add blank string until signText has length 2
+        while (signText.size < 2) {
+            signText = signText.plus("")
+        }
         for (i in 0 until signText.size) {
             this.updateSignLine(signLocation, i, signText[i])
         }
@@ -404,7 +438,7 @@ class Merchandise(
         var line = ""
         while (words.size > 0) {
             val currentWord = words[0]
-            words = words.subList(1, words.lastIndex)
+            words.removeAt(0)
 
             // 14 chars + 1 space = 15 chars
             if (line.length + currentWord.length > 14) {
