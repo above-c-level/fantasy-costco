@@ -6,8 +6,6 @@ import kotlinx.serialization.json.*
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
-import org.bukkit.block.BlockState
-import org.bukkit.block.Sign
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
@@ -322,47 +320,6 @@ fun getItemEnchants(item: ItemStack): Map<Enchantment, Int> {
 }
 
 /**
- * Updates the sign at a given location with the given text. If `location` does not have a sign,
- * nothing happens.
- * @param location The location of the sign.
- * @param update A List of Pairs, where the first element is the line number and the second is the
- * text.
- */
-fun UpdateSign(location: Location, update: List<Pair<Int, String>>) {
-    val blockState: BlockState = location.getBlock().state
-    if (blockState !is Sign) {
-        logIfDebug("Could not find sign")
-        return
-    }
-    val sign: Sign = blockState
-    for (i in 0 until update.size) {
-        val pair = update[i]
-        sign.setLine(pair.first, pair.second)
-    }
-    sign.update()
-}
-
-/**
- * Updates the sign at a given location with the given text. If `location` does not have a sign,
- * nothing happens.
- * @param location The location of the sign.
- * @param updateLine The line number to update.
- * @param text The text to update the line with.
- */
-fun UpdateSignLine(location: Location, updateLine: Int, text: String) {
-    UpdateSign(location, mutableListOf(Pair(updateLine, text)))
-}
-
-/**
- * Clears all text from a sign at the given location. If `location` does not have a sign, nothing
- * happens.
- * @param location The location of the sign.
- */
-fun ClearSign(location: Location) {
-    UpdateSign(location, listOf(Pair(0, ""), Pair(1, ""), Pair(2, ""), Pair(3, "")))
-}
-
-/**
  * Removes a merchandise-sign association
  * @param location The location of the sign.
  * @return True if there was an association (which was then removed), false otherwise.
@@ -378,6 +335,7 @@ fun RemoveSignFromMerch(location: Location): Boolean {
         Cereal.purchasePoints.remove(location)
         // Lastly, remove the location from the old merch
         oldMerch.listOfSigns.remove(location)
+        Cereal.signs.remove(location)
         return true
     }
     return false
@@ -388,8 +346,9 @@ fun RemoveSignFromMerch(location: Location): Boolean {
  * overwritten. Also removes the sign from the merchandise it was previously associated with.
  * @param baseMerch The BaseMerchandise to associate the sign with.
  * @param location The location of the sign.
+ * @param signType The type of the sign.
  */
-fun AddSignToMerch(baseMerch: BaseMerchandise, location: Location) {
+fun AddSignToMerch(baseMerch: BaseMerchandise, location: Location, signType: SignType) {
     // TODO: Check for null signs?
     // First, check if the location already is catalogued, and if so, remove it.
     RemoveSignFromMerch(location)
@@ -397,6 +356,8 @@ fun AddSignToMerch(baseMerch: BaseMerchandise, location: Location) {
     Cereal.purchasePoints[location] = baseMerch
     val merch = getMerchandise(baseMerch)
     merch.listOfSigns.add(location)
+    Cereal.signs[location] = SignData(signType)
+    merch.updateSign(location)
 }
 
 /** Logs an info message to the console. */
