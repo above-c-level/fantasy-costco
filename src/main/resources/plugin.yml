@@ -44,6 +44,10 @@ commands:
     description: Get, set, or toggle whether you want to ordain a sign to allow players to buy items.
     usage: /<command> [true | false | get | toggle]
     permission: fantasycostco.ordain-sign
+  balance-top:
+    description: Get the players with the most Blockcoins in the server.
+    usage: /<command> [page (1..x) (optional)]
+    permission: fantasycostco.balance-top
 permissions:
   fantasycostco.buy:
     default: op
@@ -61,3 +65,5 @@ permissions:
     default: true
   fantasycostco.ordain-sign:
     default: op
+  fantasycostco.balance-top:
+    default: true

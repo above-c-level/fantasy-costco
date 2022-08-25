@@ -1,5 +1,7 @@
 package games.skweekychair.fantasycostco
 
+import java.util.PriorityQueue
+import java.util.UUID
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor.*
 import org.bukkit.Material
@@ -10,8 +12,6 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.Damageable
 import org.bukkit.util.StringUtil
-import java.util.PriorityQueue
-import java.util.UUID
 
 /** Allows the player to purchase items in exchange for money */
 object BuyCommand : TabExecutor {
@@ -375,10 +375,9 @@ object SetWalletCommand : TabExecutor {
 }
 // endregion
 
-
 /**
- * Gets or changes whether a player will buy as many items as possible if they can't afford
- * the requested amount
+ * Gets or changes whether a player will buy as many items as possible if they can't afford the
+ * requested amount
  */
 object BuyPossibleCommand : TabExecutor {
     override fun onCommand(
@@ -407,13 +406,16 @@ object BuyPossibleCommand : TabExecutor {
         val membershipCard = getMembershipCard(sender)
 
         // Get argument
-        val status = when(args[0]) {
-            "true" -> true
-            "false" -> false
-            "get" -> membershipCard.buyMaxItems
-            "toggle" -> !membershipCard.buyMaxItems
-            else -> { return false }
-        }
+        val status =
+                when (args[0]) {
+                    "true" -> true
+                    "false" -> false
+                    "get" -> membershipCard.buyMaxItems
+                    "toggle" -> !membershipCard.buyMaxItems
+                    else -> {
+                        return false
+                    }
+                }
 
         membershipCard.buyMaxItems = status
         if (membershipCard.buyMaxItems) {
@@ -433,7 +435,8 @@ object BuyPossibleCommand : TabExecutor {
             lbl: String,
             args: Array<String>
     ): List<String> {
-        return if (args.size == 1) listOf<String>("true", "false", "get", "toggle") else listOf<String>()
+        return if (args.size == 1) listOf<String>("true", "false", "get", "toggle")
+        else listOf<String>()
     }
 }
 
@@ -454,7 +457,9 @@ object AmountCommand : TabExecutor {
 
         // Make sure there's an argument to set the buy amount to
         if (args.size == 0) {
-            sender.sendMessage("${RED}You must specify the amount you want to buy or that you want to get your current goal")
+            sender.sendMessage(
+                    "${RED}You must specify the amount you want to buy or that you want to get your current goal"
+            )
             return false
         } else if (args.size > 1) {
             sender.sendMessage("${RED}This command only takes one argument")
@@ -465,17 +470,18 @@ object AmountCommand : TabExecutor {
 
         // Make sure argument is an int
         var amount = args[0].toIntOrNull()
-        
+
         if (args[0] == "get") {
-            amount = membershipCard.buyGoal 
+            amount = membershipCard.buyGoal
         } else if (amount == null) {
             sender.sendMessage("${RED}Not a valid amount.")
             return false
         }
-        
-        
+
         membershipCard.buyGoal = amount
-        sender.sendMessage("${GREEN}Your buy goal is ${if (args[0] == "get") "now set to " else ""}${WHITE}${amount}")
+        sender.sendMessage(
+                "${GREEN}Your buy goal is ${if (args[0] == "get") "now set to " else ""}${WHITE}${amount}"
+        )
 
         return true
     }
@@ -490,10 +496,9 @@ object AmountCommand : TabExecutor {
     }
 }
 
-
 /**
- * Gets or changes the value of whether a player is "Just Looking" so that they don't actually buy/sell
- * anything, but can see the prices based on how many they're buying or selling.
+ * Gets or changes the value of whether a player is "Just Looking" so that they don't actually
+ * buy/sell anything, but can see the prices based on how many they're buying or selling.
  */
 object JustLookingCommand : TabExecutor {
     override fun onCommand(
@@ -522,13 +527,16 @@ object JustLookingCommand : TabExecutor {
         val membershipCard = getMembershipCard(sender)
 
         // Get argument
-        val status = when(args[0]) {
-            "true" -> true
-            "false" -> false
-            "get" -> membershipCard.justLooking
-            "toggle" -> !membershipCard.justLooking
-            else -> { return false }
-        }
+        val status =
+                when (args[0]) {
+                    "true" -> true
+                    "false" -> false
+                    "get" -> membershipCard.justLooking
+                    "toggle" -> !membershipCard.justLooking
+                    else -> {
+                        return false
+                    }
+                }
 
         membershipCard.justLooking = status
         if (membershipCard.justLooking) {
@@ -548,14 +556,14 @@ object JustLookingCommand : TabExecutor {
             lbl: String,
             args: Array<String>
     ): List<String> {
-        return if (args.size == 1) listOf<String>("true", "false", "get", "toggle") else listOf<String>()
+        return if (args.size == 1) listOf<String>("true", "false", "get", "toggle")
+        else listOf<String>()
     }
 }
 
-
 /**
- * Gets or changes a player's ability to set a particular sign to be a buy sign, allowing players to buy
- * the corresponding item from it.
+ * Gets or changes a player's ability to set a particular sign to be a buy sign, allowing players to
+ * buy the corresponding item from it.
  */
 object OrdainCommand : TabExecutor {
     override fun onCommand(
@@ -584,13 +592,16 @@ object OrdainCommand : TabExecutor {
         val membershipCard = getMembershipCard(sender)
 
         // Get argument
-        val status = when(args[0]) {
-            "true" -> true
-            "false" -> false
-            "get" -> membershipCard.ordainingSign
-            "toggle" -> !membershipCard.ordainingSign
-            else -> { return false }
-        }
+        val status =
+                when (args[0]) {
+                    "true" -> true
+                    "false" -> false
+                    "get" -> membershipCard.ordainingSign
+                    "toggle" -> !membershipCard.ordainingSign
+                    else -> {
+                        return false
+                    }
+                }
 
         membershipCard.ordainingSign = status
         if (membershipCard.ordainingSign) {
@@ -610,7 +621,8 @@ object OrdainCommand : TabExecutor {
             lbl: String,
             args: Array<String>
     ): List<String> {
-        return if (args.size == 1) listOf<String>("true", "false", "get", "toggle") else listOf<String>()
+        return if (args.size == 1) listOf<String>("true", "false", "get", "toggle")
+        else listOf<String>()
     }
 }
 
@@ -621,40 +633,42 @@ object BalanceTopCommand : TabExecutor {
             lbl: String,
             args: Array<String>
     ): Boolean {
-        
+
         if (args.size > 1) {
             sender.sendMessage("${RED}This command takes at most one argument")
             return false
         }
 
         var page = 1
-       
+
         if (args.size == 1) {
-            var page = args[0].toIntOrNull()
-            if (page == null) {
+            val arg = args[0].toIntOrNull()
+            if (arg == null) {
                 sender.sendMessage("${RED}Not a valid page number")
                 return false
             }
+            page = arg
         }
-        
-        val pq = PriorityQueue<Pair<UUID, MembershipCard>>({ a, b -> 
-            val subtracted = a.second.balance - b.second.balance
-            if (subtracted < 0) {
-                -1
-            } else if (subtracted > 0) {
-                1
-            } else {
-                0
-            }
-        })
+
+        val pq =
+                PriorityQueue<Pair<UUID, MembershipCard>>({ a, b ->
+                    val subtracted = a.second.balance - b.second.balance
+                    if (subtracted < 0) {
+                        -1
+                    } else if (subtracted > 0) {
+                        1
+                    } else {
+                        0
+                    }
+                })
 
         for ((uuid, membershipCard) in Cereal.wallets) {
             pq.add(Pair(uuid, membershipCard))
         }
 
         val itemsPerPage = 5
-        val offset = (page-1)*itemsPerPage
-        val end = offset+(itemsPerPage-1)
+        val offset = (page - 1) * itemsPerPage
+        val end = offset + (itemsPerPage - 1)
 
         for (place in offset..end) {
             val card = pq.poll()
@@ -662,9 +676,10 @@ object BalanceTopCommand : TabExecutor {
                 sender.sendMessage("End of leaderboard.")
                 break
             }
-            sender.sendMessage("${place+1}. ${Bukkit.getOfflinePlayer(card.first).name}: ${card.second.balance}")
+            sender.sendMessage(
+                    "${place+1}. ${Bukkit.getOfflinePlayer(card.first).name}: ${roundDoubleString(card.second.balance)}"
+            )
         }
-
 
         return true
     }

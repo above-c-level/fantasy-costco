@@ -47,6 +47,7 @@ class CostcoPlugin : JavaPlugin() {
         getCommand("just-looking")?.setExecutor(JustLookingCommand)
 
         getCommand("ordain")?.setExecutor(OrdainCommand)
+        getCommand("balance-top")?.setExecutor(BalanceTopCommand)
 
         Cereal.loadAll()
 
