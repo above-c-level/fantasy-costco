@@ -27,11 +27,6 @@ object BuyCommand : TabExecutor {
             return true
         }
 
-        // Check permission
-        if (!sender.hasPermission("fantasycostco.buy")) {
-            sender.sendMessage("${RED}You don't have permission to use this command.")
-            return true
-        }
         val player: Player = sender
 
         // Make sure the command was called with the right amount of arguments
@@ -198,11 +193,6 @@ object SellCommand : TabExecutor {
             return true
         }
 
-        // Check permissions
-        if (!sender.hasPermission("fantasycostco.sell")) {
-            sender.sendMessage("${RED}You don't have permission to use this command.")
-            return true
-        }
 
         // Check arguments
         if (args.size > 0) {
