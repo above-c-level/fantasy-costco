@@ -256,4 +256,28 @@ enum class SignType {
 @Serializable
 data class SignData(
         var signType: SignType,
-)
+) {
+    fun nextSellOption() {
+        when (signType) {
+            SignType.SELL_ONE -> signType = SignType.SELL_STACK
+            SignType.SELL_STACK -> signType = SignType.SELL_TYPE
+            SignType.SELL_TYPE -> signType = SignType.SELL_ALL
+            SignType.SELL_ALL -> signType = SignType.SELL_ONE
+            else {
+                signType = SignType.SELL_ONE
+            }
+        }
+    }
+
+    fun nextBuyOption() {
+        when (signType) {
+            SignType.BUY_ONE -> signType = SignType.BUY_STACK
+            SignType.BUY_STACK -> signType = SignType.BUY_SHULKER_BOX
+            SignType.BUY_SHULKER_BOX -> signType = SignType.TRUE_PRICE
+            SignType.TRUE_PRICE -> signType = SignType.BUY_ONE
+            else {
+                signType = SignType.BUY_ONE
+            }
+        }
+    }
+}
