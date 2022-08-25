@@ -104,7 +104,7 @@ class CostcoListener : Listener {
      */
     @EventHandler(priority = EventPriority.NORMAL)
     fun onPlayerJoin(event: PlayerJoinEvent) {
-        // LogInfo("Player joined")
+        ensureWallet(event.player)
     }
 
     /**
