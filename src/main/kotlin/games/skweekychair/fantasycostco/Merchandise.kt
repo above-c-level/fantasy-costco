@@ -6,6 +6,7 @@ import java.util.Objects
 import java.util.Random
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
+import org.apache.commons.lang.WordUtils
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.block.BlockState
@@ -17,18 +18,7 @@ class Perturber : Runnable {
     override fun run() {
         for (item in Cereal.merch.values) {
             item.hold()
-            val staleLocations: MutableList<Location> = mutableListOf()
-            for (signLocation in item.listOfSigns) {
-                val blockState: BlockState = signLocation.getBlock().state
-                if (blockState !is Sign) {
-                    staleLocations.add(signLocation)
-                    continue
-                }
-                UpdateSignLine(signLocation, 2, item.roundedPriceString())
-            }
-            for (staleLocation in staleLocations) {
-                RemoveSignFromMerch(staleLocation)
-            }
+            item.updateAllSigns()
         }
         // Bukkit.broadcastMessage("Perturbed prices of ${Cereal.merch.size} items")
     }
@@ -195,7 +185,7 @@ class Merchandise(
     }
 
     /** Pseudo-randomly perturbs the price of the item without affecting the best-guess price. */
-    fun perturbPrice() {
+    private fun perturbPrice() {
         // hopefully this is either unnecessary or doesn't happen often
         // but just in case
         this.hiddenPrice = Math.abs(this.hiddenPrice)
@@ -229,7 +219,7 @@ class Merchandise(
      * @param numItems The number of items in the transaction
      * @return The magnitude of the change of price.
      */
-    fun pushAmount(numItems: Double): Double {
+    private fun pushAmount(numItems: Double): Double {
         val dist: Double = Math.abs(this.shownPrice - this.hiddenPrice) + 1.0
         val sqrtPrice: Double = Math.sqrt(this.shownPrice)
         val multItems: Double = Math.sqrt(numItems) * CostcoGlobals.purchaseSizeMultiplier
@@ -237,7 +227,7 @@ class Merchandise(
     }
 
     /** First smooths changes to price, then perturbs the price. */
-    fun hold() {
+    internal fun hold() {
         // Return early to fix price
         if (this.hasFixedPrice) {
             return
@@ -246,8 +236,8 @@ class Merchandise(
         if (this.listOfSigns.size == 0) {
             return
         }
-        smoothPrice()
-        perturbPrice()
+        this.smoothPrice()
+        this.perturbPrice()
     }
 
     /**
@@ -260,10 +250,10 @@ class Merchandise(
             return
         }
         this.hiddenPrice += pushAmount(numItems)
-        smoothPrice()
-        addMass()
-        perturbPrice()
-        UpdateSignPrices(BaseMerchandise(this.material, this.enchantments))
+        this.smoothPrice()
+        this.addMass()
+        this.perturbPrice()
+        this.updateAllSigns()
     }
 
     /**
@@ -276,9 +266,178 @@ class Merchandise(
             return
         }
         this.hiddenPrice -= pushAmount(numItems)
-        smoothPrice()
-        addMass()
-        perturbPrice()
-        UpdateSignPrices(BaseMerchandise(this.material, this.enchantments))
+        this.smoothPrice()
+        this.addMass()
+        this.perturbPrice()
+        this.updateAllSigns()
+    }
+
+    fun updateSignIsStale(signLocation: Location): Boolean {
+        val blockState: BlockState = signLocation.getBlock().state
+        if (blockState !is Sign) {
+            return true
+        }
+
+        val thisSign: SignData = Cereal.signs[signLocation]!!
+        if (thisSign.signType == SignType.TRUE_PRICE) {} else if (thisSign.signType ==
+                        SignType.SELL_ONE
+        ) {} else if (thisSign.signType == SignType.SELL_STACK) {} else if (thisSign.signType ==
+                        SignType.SELL_TYPE
+        ) {} else if (thisSign.signType == SignType.SELL_ALL) {} else if (thisSign.signType ==
+                        SignType.BUY_ONE
+        ) {} else if (thisSign.signType == SignType.BUY_STACK) {} else if (thisSign.signType ==
+                        SignType.BUY_SHULKER_BOX
+        ) {}
+        this.updateSignLine(signLocation, 2, this.roundedPriceString())
+        return false
+    }
+
+    /** Updates the signs with the new prices. */
+    fun updateAllSigns() {
+        val staleLocations: MutableList<Location> = mutableListOf()
+        for (signLocation in this.listOfSigns) {
+            if (this.updateSignIsStale(signLocation)) {
+                staleLocations.add(signLocation)
+            }
+        }
+
+        for (staleLocation in staleLocations) {
+            RemoveSignFromMerch(staleLocation)
+        }
+    }
+
+    fun updateSign(signLocation: Location, updateName: Boolean = true) {
+        var isStale = updateSignIsStale(signLocation)
+        if (isStale) {
+            RemoveSignFromMerch(signLocation)
+            return
+        }
+        if (updateName) {
+            this.updateSignName(signLocation)
+        }
+    }
+
+    /**
+     * Updates the name listed on a sign.
+     * @param signLocation The location of the sign.
+     */
+    private fun updateSignName(signLocation: Location) {
+        var signText: List<String> = this.nameFormat(this.material.name)
+        for (i in 0 until signText.size) {
+            this.updateSignLine(signLocation, i, signText[i])
+        }
+    }
+
+    /**
+     * Updates the sign at a given location with the given text. If `location` does not have a sign,
+     * nothing happens.
+     * @param location The location of the sign.
+     * @param update A List of Pairs, where the first element is the line number and the second is
+     * the text.
+     */
+    private fun updateSignText(location: Location, update: List<Pair<Int, String>>) {
+        val blockState: BlockState = location.getBlock().state
+        if (blockState !is Sign) {
+            logIfDebug("Could not find sign")
+            return
+        }
+        val sign: Sign = blockState
+        for (i in 0 until update.size) {
+            val pair = update[i]
+            sign.setLine(pair.first, pair.second)
+        }
+        sign.update()
+    }
+
+    /**
+     * Updates the sign at a given location with the given text. If `location` does not have a sign,
+     * nothing happens.
+     * @param location The location of the sign.
+     * @param updateLine The line number to update.
+     * @param text The text to update the line with.
+     */
+    private fun updateSignLine(location: Location, updateLine: Int, text: String) {
+        this.updateSignText(location, mutableListOf(Pair(updateLine, text)))
+    }
+
+    /**
+     * Clears all text from a sign at the given location. If `location` does not have a sign,
+     * nothing happens.
+     * @param location The location of the sign.
+     */
+    private fun clearSign(location: Location) {
+        this.updateSignText(location, listOf(Pair(0, ""), Pair(1, ""), Pair(2, ""), Pair(3, "")))
+    }
+
+    /**
+     * Formats the name of an item into a List of Strings that *should* fit on two lines of a
+     * Minecraft sign.
+     * @param nameIn The name of the item.
+     * @return A List of Strings for putting on a Minecraft sign.
+     */
+    private fun nameFormat(nameIn: String): List<String> {
+        // We only care about name, and we want to fit whole words
+        // into chunks of 15 chars
+        var name = nameIn.replace('_', ' ')
+        name = WordUtils.capitalizeFully(name)
+        var wordList = name.split(" ")
+        var lines = joinWords(wordList)
+        if (lines.size <= 2) {
+            return lines
+        }
+        name = shortenWords(name)
+        wordList = name.split(" ")
+        lines = joinWords(wordList)
+        return lines
+    }
+
+    /**
+     * Takes in a list of words and returns a list of the joined words such that the length of each
+     * line is less than 16 characters for Minecraft signs.
+     * @param wordsIn The list of words to join.
+     * @return A list of the joined words.
+     */
+    private fun joinWords(wordsIn: List<String>): List<String> {
+        var words: MutableList<String> = wordsIn.toMutableList()
+        val lines = mutableListOf<String>()
+        // Join as many words as possible <= 15 chars
+        var line = ""
+        while (words.size > 0) {
+            val currentWord = words[0]
+            words = words.subList(1, words.lastIndex)
+
+            // 14 chars + 1 space = 15 chars
+            if (line.length + currentWord.length > 14) {
+                lines.add(line)
+                line = ""
+            }
+            line += "${currentWord} "
+        }
+        lines.add(line)
+        return lines
+    }
+
+    /**
+     * Takes in a string containing words and shortens common words that are too long so that when
+     * split and joined, they can fit on a sign.
+     * @param nameIn The string of words to shorten.
+     * @return The shortened string of words.
+     */
+    private fun shortenWords(nameIn: String): String {
+        // These are in decreasing order of frequency
+        // (e.g. polished shows up most, followed by slab, etc)
+        // Ties were decided by choosing longest first
+        var name = nameIn
+        name = name.replace("Polished", "Plshd")
+        name = name.replace("Slab", "Slb")
+        name = name.replace("Blackstone", "Blkstn")
+        name = name.replace("Concrete", "Cncrt")
+        name = name.replace("Weathered", "Wthrd")
+        name = name.replace("Cobblestone", "Cblstn")
+        name = name.replace("Stairs", "Strs")
+        name = name.replace("Stained", "Stn")
+        name = name.replace("Terracotta", "Trcta")
+        name = name.replace("Deepslate", "Dpslt")
+        return name
     }
 }
