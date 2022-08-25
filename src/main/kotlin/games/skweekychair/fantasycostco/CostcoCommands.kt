@@ -10,6 +10,8 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.Damageable
 import org.bukkit.util.StringUtil
+import java.util.PriorityQueue
+import java.util.UUID
 
 /** Allows the player to purchase items in exchange for money */
 object BuyCommand : TabExecutor {
@@ -609,5 +611,70 @@ object OrdainCommand : TabExecutor {
             args: Array<String>
     ): List<String> {
         return if (args.size == 1) listOf<String>("true", "false", "get", "toggle") else listOf<String>()
+    }
+}
+
+object BalanceTopCommand : TabExecutor {
+    override fun onCommand(
+            sender: CommandSender,
+            cmd: Command,
+            lbl: String,
+            args: Array<String>
+    ): Boolean {
+        
+        if (args.size > 1) {
+            sender.sendMessage("${RED}This command takes at most one argument")
+            return false
+        }
+
+        var page = 1
+       
+        if (args.size == 1) {
+            var page = args[0].toIntOrNull()
+            if (page == null) {
+                sender.sendMessage("${RED}Not a valid page number")
+                return false
+            }
+        }
+        
+        val pq = PriorityQueue<Pair<UUID, MembershipCard>>({ a, b -> 
+            val subtracted = a.second.balance - b.second.balance
+            if (subtracted < 0) {
+                -1
+            } else if (subtracted > 0) {
+                1
+            } else {
+                0
+            }
+        })
+
+        for ((uuid, membershipCard) in Cereal.wallets) {
+            pq.add(Pair(uuid, membershipCard))
+        }
+
+        val itemsPerPage = 5
+        val offset = (page-1)*itemsPerPage
+        val end = offset+(itemsPerPage-1)
+
+        for (place in offset..end) {
+            val card = pq.poll()
+            if (card == null) {
+                sender.sendMessage("End of leaderboard.")
+                break
+            }
+            sender.sendMessage("${place+1}. ${Bukkit.getOfflinePlayer(card.first).name}: ${card.second.balance}")
+        }
+
+
+        return true
+    }
+
+    override fun onTabComplete(
+            sender: CommandSender,
+            cmd: Command,
+            lbl: String,
+            args: Array<String>
+    ): List<String> {
+        return listOf()
     }
 }
