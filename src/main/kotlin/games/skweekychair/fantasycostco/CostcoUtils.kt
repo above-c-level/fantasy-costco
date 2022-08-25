@@ -360,6 +360,25 @@ fun AddSignToMerch(baseMerch: BaseMerchandise, location: Location, signType: Sig
     merch.updateSign(location)
 }
 
+/**
+ * Removes the sign data from a location.
+ * @param location The location of the sign.
+ */
+fun RemoveSignData(location: Location) {
+    Cereal.signs.remove(location)
+}
+/**
+ * Adds sign data to a given location. If a sign already exists, it is overwritten. Also removes the
+ * sign from the location it was previously associated with.
+ * @param location The location of the sign.
+ * @param signType The type of the sign.
+ */
+fun AddSignData(location: Location, signType: SignType) {
+    // First, check if the location already is catalogued, and if so, remove it.
+    RemoveSignData(location)
+    Cereal.signs[location] = SignData(signType)
+}
+
 /** Logs an info message to the console. */
 fun LogInfo(message: String) {
     return Bukkit.getServer().getLogger().info("[FantasyCostco] $message")
