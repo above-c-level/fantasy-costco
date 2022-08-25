@@ -6,7 +6,7 @@ api-version: 1.18
 commands:
   buy:
     description: Buy some quantity of specified item from server, as specified by your buy-possible setting. Quantity is optional.
-    usage: /<command> [item] [quantity (optional)]
+    usage: /<command> [item] [quantity (0..1728) (optional)]
     permission: fantastycostco.buy
   sell:
     description: Sell item stack in hand to the server
@@ -32,7 +32,7 @@ commands:
       - buy-amap
   amount:
     description: Set or get the number of items you want to try to buy.
-    usage: /<command> [quantity (a number) | get]
+    usage: /<command> [quantity (0..1728) | get]
     permission: fantasycostco.buy-amount
     aliases:
       - buy-amount
