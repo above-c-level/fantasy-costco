@@ -114,35 +114,83 @@ class CostcoListener : Listener {
      */
     @EventHandler(priority = EventPriority.NORMAL)
     fun onPlayerInteract(event: PlayerInteractEvent) {
-
-        if (event.getHand() == EquipmentSlot.HAND && event.getAction() == Action.RIGHT_CLICK_BLOCK
+        if (event.getHand() != EquipmentSlot.HAND || event.getAction() != Action.RIGHT_CLICK_BLOCK
         ) {
-            val helditem = event.getMaterial().name
-            // Block is null when right clicking air with an item
-            val block = event.getClickedBlock()
-            val blockname = block?.getType()?.name
-            val player = event.getPlayer()
-            player.sendMessage("You right-clicked on $blockname with $helditem")
-            // If the block is some kind of sign
-            if (block != null && block.getType().name.contains("SIGN")) {
-                // choose a random merchandise
-                val randomMerch = Cereal.merch.keys.random()
-                // Add the sign's location to the merch
-                val location = block.getLocation()
-                // TODO: do the sign stuff for make better sale time and buy item for player :)
-                // AddSignToMerch(randomMerch, location)
-                // ClearSign(location)
-                // UpdateSign(
-                //         location,
-                //         mutableListOf(
-                //                 Pair(0, randomMerch.material.name),
-                //                 Pair(2, Cereal.merch[randomMerch]!!.roundedPriceString())
-                //         )
-                // )
-            }
-            val blockdata = block?.blockData?.getAsString()
-            player.sendMessage(blockdata)
+            return
         }
+        val block = event.getClickedBlock()
+
+        // If the player is not right clicking on a block, do nothing
+        if (block == null) {
+            return
+        }
+        // If the player is not right clicking on a sign, do nothing
+        val blockname = block.getType().name
+        if (!blockname.contains("SIGN")) {
+            return
+        }
+        val player = event.getPlayer()
+        val membershipCard = getMembershipCard(player)
+        val itemStack = event.item
+        val helditemName = event.getMaterial().name
+
+        // First, see whether there is already a sign with SignData there
+        val signLocation = block.location
+        val signData: SignData? = Cereal.signs[signLocation]
+        // The player is not ordaining the sign, so deal with buying/selling
+        if (!membershipCard.ordainingSign) {
+            // Player is right clicking without an item, check if buying
+            if (helditemName == "AIR") {
+                if (signData == null) {
+                    // This is not a costco sign there, so return
+                    return
+                }
+                // There is a sign there, so attempt to buy
+                // TODO: buy
+                player.sendMessage("Pretend you're buying the sign you clicked on")
+                // Player is right clicking with an item
+            } else {
+                if (signData == null) {
+                    // There is not a costco sign there, so return
+                    return
+                }
+                // There is a sign there, so attempt to sell
+                // TODO: sell
+                player.sendMessage("Pretend you're selling stuff")
+
+            }
+            // TODO: do the sign stuff for make better sale time and buy item for player :)
+            // The player is ordaining signs
+        } else {
+            // This is supposed to be a sell sign
+            if (helditemName == "AIR") {
+                if (signData == null) {
+                    // There is not a sign there, so initialize it
+                    AddSignData(signLocation, SignType.SELL_ONE)
+                } else {
+                    // There is a sign there, so cycle through sell options
+                    signData.nextSellOption()
+                }
+                // This is supposed to be a buy sign
+            } else {
+                if (signData == null) {
+                    // There is not a sign there, so initialize it
+                    if (itemStack == null) {
+                        LogWarning(
+                                "Null item stack for player ${player.name} while ordaining a buy sign"
+                        )
+                        return
+                    }
+                    val baseMerch = BaseMerchandise(itemStack.type, itemStack.enchantments)
+                    AddSignToMerch(baseMerch, signLocation, SignType.BUY_ONE)
+                } else {
+                    // There is a sign there, so cycle through sell options
+                    signData.nextBuyOption()
+                }
+            }
+        }
+        val blockdata = block?.blockData?.getAsString()
+        player.sendMessage(blockdata)
     }
 
     /**
