@@ -1,6 +1,6 @@
 package games.skweekychair.fantasycostco
 
-import java.text.DecimalFormat
+import java.util.Locale
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import org.bukkit.Bukkit
@@ -388,12 +388,7 @@ fun getMembershipCard(player: Player): MembershipCard {
  * @return The rounded value.
  */
 fun roundDoubleString(value: Double, significantDigits: Int = 2): String {
-    if (significantDigits < 0) throw IllegalArgumentException()
-    var format: StringBuilder = StringBuilder("#.")
-    for (i in 0 until significantDigits) {
-        format.append("0")
-    }
-    return "₿${DecimalFormat(format.toString()).format(value)}"
+    return "₿${String.format(Locale("en", "US"), "%,.2f", value)}"
 }
 
 /**
