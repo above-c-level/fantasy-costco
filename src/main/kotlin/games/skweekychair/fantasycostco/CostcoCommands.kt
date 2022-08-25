@@ -475,7 +475,7 @@ object AmountCommand : TabExecutor {
         
         
         membershipCard.buyGoal = amount
-        sender.sendMessage("${GREEN}Your buy goal is ${if (args[0] == "get") "now set to " else ""}${WHITE}${amount}")
+        sender.sendMessage("${GREEN}Your buy goal is ${if (args[0] == "get") "" else "now set to"}${WHITE}${amount}")
 
         return true
     }
