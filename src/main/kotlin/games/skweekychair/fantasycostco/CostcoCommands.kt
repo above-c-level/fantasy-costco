@@ -437,9 +437,8 @@ object BuyPossibleCommand : TabExecutor {
 
 // endregion
 
-// region buy amount
-/** Allows a player to set how many items they want to buy */
-object SetBuyAmountCommand : TabExecutor {
+/** Allows a player to set or get how many items they want to buy */
+object AmountCommand : TabExecutor {
     override fun onCommand(
             sender: CommandSender,
             cmd: Command,
@@ -448,32 +447,33 @@ object SetBuyAmountCommand : TabExecutor {
     ): Boolean {
         if (sender !is Player) {
             sender.sendMessage("${RED}You have to be a player to use this command.")
-            return true
-        }
-
-        // If sender does not have permission, return false
-        if (!sender.hasPermission("fantasycostco.buy-amount")) {
-            sender.sendMessage("${RED}You don't have permission to use this command.")
             return true
         }
 
         // Make sure there's an argument to set the buy amount to
         if (args.size == 0) {
-            sender.sendMessage("${RED}You must specify the amount you want to buy")
+            sender.sendMessage("${RED}You must specify the amount you want to buy or that you want to get your current goal")
             return false
         } else if (args.size > 1) {
             sender.sendMessage("${RED}This command only takes one argument")
             return false
         }
+
+        val membershipCard = getMembershipCard(sender)
+
         // Make sure argument is an int
-        val amount = args[0].toIntOrNull()
-        if (amount == null) {
+        var amount = args[0].toIntOrNull()
+        
+        if (args[0] == "get") {
+            amount = membershipCard.buyGoal 
+        } else if (amount == null) {
             sender.sendMessage("${RED}Not a valid amount.")
             return false
         }
-        val membershipCard = getMembershipCard(sender)
+        
+        
         membershipCard.buyGoal = amount
-        sender.sendMessage("${GREEN}Your buy goal is now set to ${WHITE}${amount}")
+        sender.sendMessage("${GREEN}Your buy goal is ${if (args[0] == "get") "now set to " else ""}${WHITE}${amount}")
 
         return true
     }
@@ -484,47 +484,9 @@ object SetBuyAmountCommand : TabExecutor {
             lbl: String,
             args: Array<String>
     ): List<String> {
-        return listOf<String>()
+        return if (args.size == 1) listOf<String>("get", "0..1728") else listOf<String>()
     }
 }
-
-/** Lets a player know how many items they want to buy as previously set */
-object GetBuyAmountCommand : TabExecutor {
-    override fun onCommand(
-            sender: CommandSender,
-            cmd: Command,
-            lbl: String,
-            args: Array<String>
-    ): Boolean {
-        if (sender !is Player) {
-            sender.sendMessage("${RED}You have to be a player to use this command.")
-            return true
-        }
-        if (!sender.hasPermission("fantasycostco.buy-amount")) {
-            sender.sendMessage("${RED}You don't have permission to use this command.")
-            return true
-        }
-        val membershipCard = getMembershipCard(sender)
-
-        // Check args number
-        if (args.size > 0) {
-            sender.sendMessage("${RED}This command takes no arguments")
-            return false
-        }
-
-        sender.sendMessage("${GREEN}Your buy goal is ${WHITE}${membershipCard.buyGoal}")
-        return true
-    }
-    override fun onTabComplete(
-            sender: CommandSender,
-            cmd: Command,
-            lbl: String,
-            args: Array<String>
-    ): List<String> {
-        return listOf<String>()
-    }
-}
-// endregion
 
 
 /**
