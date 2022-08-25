@@ -343,15 +343,6 @@ fun UpdateSign(location: Location, update: List<Pair<Int, String>>) {
 }
 
 /**
- * Clears all text from a sign at the given location. If `location` does not have a sign, nothing
- * happens.
- * @param location The location of the sign.
- */
-fun ClearSign(location: Location) {
-    UpdateSign(location, listOf(Pair(0, ""), Pair(1, ""), Pair(2, ""), Pair(3, "")))
-}
-
-/**
  * Updates the sign at a given location with the given text. If `location` does not have a sign,
  * nothing happens.
  * @param location The location of the sign.
@@ -360,6 +351,15 @@ fun ClearSign(location: Location) {
  */
 fun UpdateSignLine(location: Location, updateLine: Int, text: String) {
     UpdateSign(location, mutableListOf(Pair(updateLine, text)))
+}
+
+/**
+ * Clears all text from a sign at the given location. If `location` does not have a sign, nothing
+ * happens.
+ * @param location The location of the sign.
+ */
+fun ClearSign(location: Location) {
+    UpdateSign(location, listOf(Pair(0, ""), Pair(1, ""), Pair(2, ""), Pair(3, "")))
 }
 
 /**
@@ -397,21 +397,6 @@ fun AddSignToMerch(baseMerch: BaseMerchandise, location: Location) {
     Cereal.purchasePoints[location] = baseMerch
     val merch = getMerchandise(baseMerch)
     merch.listOfSigns.add(location)
-}
-
-/**
- * Updates the price of a type of merchandise at all sign locations.
- * @param baseMerch The BaseMerchandise to update the price of.
- */
-fun UpdateSignPrices(baseMerch: BaseMerchandise) {
-    val merch = Cereal.merch[baseMerch]
-    if (merch == null) {
-        logIfDebug("Could not find merch for ${baseMerch.material}")
-        return
-    }
-    for (location in merch.listOfSigns) {
-        UpdateSignLine(location, 2, merch.roundedPriceString())
-    }
 }
 
 /** Logs an info message to the console. */
