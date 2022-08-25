@@ -239,6 +239,7 @@ object LocationSerializer : KSerializer<Location> {
 /** An enum that gives all the ways a sign might be used. */
 @Serializable
 enum class SignType {
+    TRUE_PRICE,
     SELL_ONE,
     SELL_STACK,
     SELL_TYPE,
@@ -247,6 +248,7 @@ enum class SignType {
     BUY_STACK,
     BUY_SHULKER_BOX
 }
+
 /**
  * A class that represents a sign. The sign has a location and some internal values which represent
  * whether it is a sell or buy sign, as well as the
