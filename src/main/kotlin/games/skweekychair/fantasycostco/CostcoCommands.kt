@@ -193,7 +193,6 @@ object SellCommand : TabExecutor {
             return true
         }
 
-
         // Check arguments
         if (args.size > 0) {
             "${RED}This command doesn't take any arguments"
@@ -697,15 +696,19 @@ object PayCommand : TabExecutor {
         }
 
         if (args.size != 2) {
-            sender.sendMessage("${RED}This command takes two arguments, the name of a player to pay and an amount to pay them")
+            sender.sendMessage(
+                    "${RED}This command takes two arguments, the name of a player to pay and an amount to pay them"
+            )
             return false
-        } 
+        }
 
         val payer: Player = sender
-        val payed = Bukkit.getPlayer(args[0])
+        val payee = Bukkit.getPlayer(args[0])
 
-        if (payed == null) {
-            sender.sendMessage("${RED}The named player could not be found, is it spelled correctly and are they online?")
+        if (payee == null) {
+            sender.sendMessage(
+                    "${RED}The named player could not be found, is it spelled correctly and are they online?"
+            )
             return false
         }
 
@@ -719,17 +722,23 @@ object PayCommand : TabExecutor {
         if (getWallet(payer) < amount) {
             // ? tell player how much they have????
             sender.sendMessage("${RED}You can't afford to send that much.")
-            sender.sendMessage("${RED}You have ${WHITE}${getWalletRounded(payer)}${RED} and tried to send ${WHITE}${roundDoubleString(amount)}")
+            sender.sendMessage(
+                    "${RED}You have ${WHITE}${getWalletRounded(payer)}${RED} and tried to send ${WHITE}${roundDoubleString(amount)}"
+            )
             // returning true cuz they know how to use the command
             return true
         }
 
         walletSubtract(payer, amount)
-        walletAdd(payed, amount)
+        walletAdd(payee, amount)
 
-        sender.sendMessage("${GREEN}You payed ${WHITE}${roundDoubleString(amount)}${GREEN} to ${payed.name}")
-        payed.sendMessage("${GREEN}You were payed ${WHITE}${roundDoubleString(amount)}${GREEN} by ${payer.name}")
-        
+        sender.sendMessage(
+                "${GREEN}You paid ${WHITE}${roundDoubleString(amount)}${GREEN} to ${payee.name}"
+        )
+        payee.sendMessage(
+                "${GREEN}You were paid ${WHITE}${roundDoubleString(amount)}${GREEN} by ${payer.name}"
+        )
+
         return true
     }
 
