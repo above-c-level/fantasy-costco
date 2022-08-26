@@ -393,7 +393,7 @@ fun StartupSplashArt() {
     // woooo ansi codes
     val RED: String = "\u001B[31m"
     val BLUE: String = "\u001B[34m"
-    // val RESET: String = "\u001B[0m"
+    val RESET: String = "\u001B[0m"
     // val BLACK: String = "\u001B[30m"
     // val GREEN: String = "\u001B[32m"
     // val YELLOW: String = "\u001B[33m"
@@ -428,6 +428,6 @@ fun StartupSplashArt() {
                     "${RED}      ###########      ###########     :###########     +#######         ##########      ###########\n" +
                     "${RED}                          :=+-.            .-+=:                            :==-.           :=+-.\n" +
                     "${CYAN}                                                Where all your dreams come true\n" +
-                    "${CYAN}                                                     (Got a deal for you!)\n"
+                    "${CYAN}                                                     (Got a deal for you!)\n${RESET}"
     )
 }
