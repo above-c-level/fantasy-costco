@@ -71,19 +71,19 @@ object SignUtils {
             this.updateSignLine(signLocation, 2, "Ideal Price:")
             this.updateSignLine(signLocation, 3, roundDoubleString(merch!!.shownPrice))
         } else if (thisSign.signType == SignType.BUY_ONE) {
-            val singlePrice = merch!!.itemSellPrice(1)
+            val singlePrice = merch!!.itemBuyPrice(1)
             this.updateSignLine(signLocation, 2, "Buy One")
             this.updateSignLine(signLocation, 3, roundDoubleString(singlePrice))
         } else if (thisSign.signType == SignType.BUY_STACK) {
             this.updateSignLine(signLocation, 2, "Buy Stack")
-            val stackPrice = merch!!.itemSellPrice(merch.material.maxStackSize)
+            val stackPrice = merch!!.itemBuyPrice(merch.material.maxStackSize)
             this.updateSignLine(signLocation, 3, roundDoubleString(stackPrice))
         } else if (thisSign.signType == SignType.BUY_SHULKER_BOX) {
             this.updateSignLine(signLocation, 2, "Buy full Shulker")
             val shulkerMerch = Material.getMaterial("SHULKER_BOX")!!
             // Ideal price of shulker box because they're already buying upwards of 1728 items
             val shulkerPrice = getMerchandise(BaseMerchandise(shulkerMerch)).shownPrice
-            val filledPrice = merch!!.itemSellPrice(merch.material.maxStackSize * 27) + shulkerPrice
+            val filledPrice = merch!!.itemBuyPrice(merch.material.maxStackSize * 27) + shulkerPrice
             this.updateSignLine(signLocation, 3, roundDoubleString(filledPrice))
         }
 
