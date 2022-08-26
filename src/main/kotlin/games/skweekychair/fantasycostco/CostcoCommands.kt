@@ -739,6 +739,14 @@ object PayCommand : TabExecutor {
             lbl: String,
             args: Array<String>
     ): List<String> {
-        return listOf()
+        val completions = mutableListOf<String>()
+        if (args.size == 1) {
+            val items = Bukkit.getOnlinePlayers().map {it.name}
+            StringUtil.copyPartialMatches(args[0], items, completions)
+        } if (args.size == 1) {
+            completions.add("block coin symbol")
+        }
+        completions.sort()
+        return completions
     }
 }
