@@ -712,15 +712,15 @@ object PayCommand : TabExecutor {
             return false
         }
 
-        val amount = args[1].toDoubleOrNull()
+        var amount = args[1].toDoubleOrNull()
 
         if (amount == null) {
             sender.sendMessage("${RED}Not a valid amount")
             return false
         }
+        amount = roundDouble(amount)
 
         if (getWallet(payer) < amount) {
-            // ? tell player how much they have????
             sender.sendMessage("${RED}You can't afford to send that much.")
             sender.sendMessage(
                     "${RED}You have ${WHITE}${getWalletRounded(payer)}${RED} and tried to send ${WHITE}${roundDoubleString(amount)}"
