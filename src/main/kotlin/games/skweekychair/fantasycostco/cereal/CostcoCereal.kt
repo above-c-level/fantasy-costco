@@ -30,15 +30,33 @@ object Cereal {
     var signs = HashMap<Location, SignData>()
     var walletPath = File("wallets.json")
     var merchPath = File("merch.json")
+    var signsPath = File("signs.json")
 
     val walletsSerializer: KSerializer<Map<UUID, MembershipCard>> =
             MapSerializer(UuidSerializer, MembershipCardSerializer)
+
+    val signsSerializer: KSerializer<Map<Location, SignData>> =
+            MapSerializer(LocationSerializer, SignDataSerializer)
 
     /** Saves all user wallets to a file. */
     fun saveWallets() {
         val json = Json { allowStructuredMapKeys = true }
         val jsonString = json.encodeToString(walletsSerializer, wallets)
         walletPath.bufferedWriter().use { out -> out.write(jsonString) }
+    }
+
+    /** Saves all merch to a file. */
+    fun saveMerch() {
+        val json = Json { allowStructuredMapKeys = true }
+        val jsonString = json.encodeToString(merch)
+        merchPath.bufferedWriter().use { out -> out.write(jsonString) }
+    }
+
+    /** Saves all signs to a file so we can get sell points */
+    fun saveSigns() {
+        val json = Json { allowStructuredMapKeys = true }
+        val jsonString = json.encodeToString(signsSerializer, signs)
+        signsPath.bufferedWriter().use { out -> out.write(jsonString) }
     }
 
     /**
@@ -53,30 +71,31 @@ object Cereal {
         )
     }
 
-    /** Saves all merch to a file. */
-    fun saveMerch() {
-        val json = Json { allowStructuredMapKeys = true }
-        val jsonString = json.encodeToString(merch)
-        merchPath.bufferedWriter().use { out -> out.write(jsonString) }
-    }
-
     /**
      * Loads all merch from a file.
      * @return A map of merch to the amount contained in their inventories.
      */
     fun loadMerch(): HashMap<BaseMerchandise, Merchandise> {
-        val json = Json { allowStructuredMapKeys = true }
         val readFile = merchPath.bufferedReader().readText()
+        val json = Json { allowStructuredMapKeys = true }
         return HashMap(json.decodeFromString<Map<BaseMerchandise, Merchandise>>(readFile))
     }
 
-    /** Saves wallets and merch simultaneously. */
+    /** Loads all signs from a file. */
+    fun loadSigns(): HashMap<Location, SignData> {
+        val readFile = signsPath.bufferedReader().readText()
+        val json = Json { allowStructuredMapKeys = true }
+        return HashMap(json.decodeFromString<Map<Location, SignData>>(signsSerializer, readFile))
+    }
+
+    /** Saves all serialized json data */
     fun saveAll() {
         saveWallets()
         saveMerch()
+        saveSigns()
     }
 
-    /** Loads wallets and merch simultaneously. */
+    /** Loads all serialized json data */
     fun loadAll() {
         try {
             wallets = loadWallets()
@@ -102,6 +121,12 @@ object Cereal {
             }
         } catch (e: Throwable) {
             LogWarning("Failed to init purchase points: ${e.message}")
+        }
+        try {
+            signs = loadSigns()
+        } catch (e: Throwable) {
+            LogWarning("Failed to load signs: ${e.message}")
+            signs = HashMap<Location, SignData>()
         }
     }
 }
@@ -233,6 +258,36 @@ object LocationSerializer : KSerializer<Location> {
         val y = split[2].toDouble()
         val z = split[3].toDouble()
         return Location(world, x, y, z)
+    }
+}
+
+/**
+ * A serializer for SignData. This is necessary Kotlin requires a description of the way in which a
+ * SignData should be serialized.
+ */
+object SignDataSerializer : KSerializer<SignData> {
+    // Serializes the SignData's text to a string
+    override val descriptor: SerialDescriptor =
+            PrimitiveSerialDescriptor("SignData", PrimitiveKind.STRING)
+    /**
+     * Serializes a SignData to a string.
+     * @param encoder The encoder to use.
+     * @param value The SignData to serialize.
+     */
+    override fun serialize(encoder: Encoder, value: SignData) {
+        val json = Json { allowStructuredMapKeys = true }
+        encoder.encodeString(json.encodeToString(value))
+    }
+    /**
+     * Deserializes a SignData from a string.
+     * @param decoder The decoder to use.
+     * @return The SignData.
+     */
+    override fun deserialize(decoder: Decoder): SignData {
+        val decodedString = decoder.decodeString()
+        val json = Json { allowStructuredMapKeys = true }
+        val jsonElement = json.decodeFromString<SignData>(decodedString)
+        return jsonElement
     }
 }
 
