@@ -126,7 +126,7 @@ class CostcoListener : Listener {
         val ordainingSign = membershipCard.ordainingSign
         val block = event.getClickedBlock()
 
-        // If the block in question isn't a sign, do nothing
+        // If the block in question is air, do nothing
         if (block == null) {
             return
         }
@@ -164,12 +164,6 @@ class CostcoListener : Listener {
         val holdingAir = heldItemName == "AIR"
         val signFound = signData != null
 
-        // Hypothetically there are 16 cases to consider, two for ordaining, two for whether they're
-        // holding air, two for whether the sign clicked on has signData, and two for whether
-        // they're changing buy to sell/vice versa.
-        // Buuuuuuut the buy/sell swap only shows up when
-        // both ordainingSign and signFound are true, so we'll ignore those at this level and
-        // consider 8 cases.
 
         if (ordainingSign && holdingAir && signFound) {
             // Case 1
@@ -178,43 +172,32 @@ class CostcoListener : Listener {
                 player.sendMessage("${RED}There's no merch to sell")
                 return
             }
-            // If the sign is a buy sign
+            // If the sign is a sell sign
             if (signData!!.isSelling()) {
                 // There is a sign there, so cycle through sell options
                 signData.nextSellOption()
                 SignUtils.updateSign(signLocation, false)
                 return
             }
-            // If the sign is already ordained *but* the player is trying to ordain
-            // it as a buy sign and it was a sell sign, then remove the sign and ordain
-            // it as a buy sign
-
-            SignUtils.removeSignData(signLocation)
+            // If the sign was a buy sign, it should be associated with a merch
+            if (!SignUtils.removeSignFromMerch(signLocation)){
+                SignUtils.removeSignData(signLocation)
+            }
             // They're holding air, so it's a sell sign
             SignUtils.addSignData(signLocation, SignType.SELL_ONE)
             SignUtils.updateSign(signLocation, false)
         } else if (ordainingSign && holdingAir && !signFound) {
             // Case 2
-            if (ordainingSign && Cereal.merch.size == 0) {
-                // If the player is ordaining and there are no merch, let them know
-                player.sendMessage("${RED}There's no merch to sell")
-                return
-            }
             // There is not a sign there, so initialize it
             SignUtils.addSignData(signLocation, SignType.SELL_ONE)
             SignUtils.updateSign(signLocation, false)
         } else if (ordainingSign && !holdingAir && signFound) {
             // Case 3
-            if (itemStack == null) {
-                LogWarning("Null item stack for player ${player.name} while ordaining a buy sign")
-                return
-            }
-            val baseMerch = BaseMerchandise(itemStack.type, itemStack.enchantments)
+            val baseMerch = BaseMerchandise(itemStack!!.type, itemStack.enchantments)
             // If the sign is a buy sign
             if (signData!!.isBuying()) {
                 // There is a sign there, so cycle through sell options
                 signData.nextBuyOption()
-                logIfDebug("Rotating buy options")
                 SignUtils.updateSign(signLocation, merch = getMerchandise(baseMerch))
                 return
             }
@@ -223,9 +206,6 @@ class CostcoListener : Listener {
             // it as a buy sign and it was a sell sign, then remove the sign and ordain
             // it as a buy sign
             SignUtils.removeSignData(signLocation)
-            logIfDebug("Removing sign data")
-
-            logIfDebug("Creating new sign data")
             // They're holding an item, so it's a buy sign
 
             SignUtils.addSignToMerch(baseMerch, signLocation, SignType.BUY_ONE)
@@ -233,30 +213,15 @@ class CostcoListener : Listener {
         } else if (ordainingSign && !holdingAir && !signFound) {
             // Case 4
             // There is not a sign there, so initialize it
-            if (itemStack == null) {
-                LogWarning("Null item stack for player ${player.name} while ordaining a buy sign")
-                return
-            }
-            val baseMerch = BaseMerchandise(itemStack.type, itemStack.enchantments)
+            val baseMerch = BaseMerchandise(itemStack!!.type, itemStack.enchantments)
             SignUtils.addSignToMerch(baseMerch, signLocation, SignType.BUY_ONE)
             SignUtils.updateSign(signLocation, merch = getMerchandise(baseMerch))
-        } else if (!ordainingSign && holdingAir && signFound) {
+        } else if (!ordainingSign && signFound) {
             logIfDebug("Case 5")
-            // There is a sign there, so attempt to buy
-            // TODO: buy
+            // There is a sign there, so attempt to buy or sell
+            // TODO: buy/sell
             player.sendMessage("Pretend you're buying from the sign you clicked on")
             // Player is right clicking with an item
-        } else if (!ordainingSign && holdingAir && !signFound) {
-            logIfDebug("Case 6")
-            // There is not a costco sign there, so return
-        } else if (!ordainingSign && !holdingAir && signFound) {
-            logIfDebug("Case 7")
-            // There is a sign there, so attempt to sell
-            // TODO: sell
-            player.sendMessage("Pretend you're selling stuff here")
-        } else if (!ordainingSign && !holdingAir && !signFound) {
-            logIfDebug("Case 8")
-            // There is not a costco sign there, so return
         }
     }
 
