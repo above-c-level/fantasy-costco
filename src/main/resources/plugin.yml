@@ -51,7 +51,7 @@ commands:
   pay:
     description: Get the players with the most Blockcoins in the server.
     usage: /<command> [player (name)] [amount (a number)]
-    permission: fantasycostco.balance-top
+    permission: fantasycostco.pay
 permissions:
   fantasycostco.buy:
     default: op
@@ -70,4 +70,6 @@ permissions:
   fantasycostco.ordain-sign:
     default: op
   fantasycostco.balance-top:
+    default: true
+  fantasycostco.pay:
     default: true
