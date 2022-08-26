@@ -683,3 +683,62 @@ object BalanceTopCommand : TabExecutor {
         return listOf()
     }
 }
+
+object PayCommand : TabExecutor {
+    override fun onCommand(
+            sender: CommandSender,
+            cmd: Command,
+            lbl: String,
+            args: Array<String>
+    ): Boolean {
+        if (sender !is Player) {
+            sender.sendMessage("${RED}You have to be a player to use this command.")
+            return true
+        }
+
+        if (args.size != 2) {
+            sender.sendMessage("${RED}This command takes two arguments, the name of a player to pay and an amount to pay them")
+            return false
+        } 
+
+        val payer: Player = sender
+        val payed = Bukkit.getPlayer(args[0])
+
+        if (payed == null) {
+            sender.sendMessage("${RED}The named player could not be found, is it spelled correctly and are they online?")
+            return false
+        }
+
+        val amount = args[1].toDoubleOrNull()
+
+        if (amount == null) {
+            sender.sendMessage("${RED}Not a valid amount")
+            return false
+        }
+
+        if (getWallet(payer) < amount) {
+            // ? tell player how much they have????
+            sender.sendMessage("${RED}You can't afford to send that much.")
+            sender.sendMessage("${RED}You have ${WHITE}${getWalletRounded(payer)}${RED} and tried to send ${WHITE}${roundDoubleString(amount)}")
+            // returning true cuz they know how to use the command
+            return true
+        }
+
+        walletSubtract(payer, amount)
+        walletAdd(payed, amount)
+
+        sender.sendMessage("${GREEN}You payed ${WHITE}${roundDoubleString(amount)}${GREEN} to ${payed.name}")
+        payed.sendMessage("${GREEN}You were payed ${WHITE}${roundDoubleString(amount)}${GREEN} by ${payer.name}")
+        
+        return true
+    }
+
+    override fun onTabComplete(
+            sender: CommandSender,
+            cmd: Command,
+            lbl: String,
+            args: Array<String>
+    ): List<String> {
+        return listOf()
+    }
+}

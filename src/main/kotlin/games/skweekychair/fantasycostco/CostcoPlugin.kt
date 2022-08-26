@@ -52,6 +52,8 @@ class CostcoPlugin : JavaPlugin() {
         getCommand("ordain")?.setExecutor(OrdainCommand)
         getCommand("balance-top")?.setExecutor(BalanceTopCommand)
 
+        getCommand("pay")?.setExecutor(PayCommand)
+
         Cereal.loadAll()
 
         val scheduler = Bukkit.getServer().getScheduler()
