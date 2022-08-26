@@ -213,7 +213,6 @@ fun getMerchandise(baseMerch: BaseMerchandise): Merchandise {
         logIfDebug("${baseMerch.material.name} not in merch")
         val material = baseMerch.material
         if (CostcoGlobals.hasFixedPrice(material)) {
-            logIfDebug("    ${material.name} has fixed price")
             val bestGuessPrice = CostcoGlobals.fixedPrice(baseMerch.material)
             Cereal.merch[baseMerch] =
                     Merchandise(
@@ -223,13 +222,10 @@ fun getMerchandise(baseMerch: BaseMerchandise): Merchandise {
                             hasFixedPrice = true
                     )
         } else {
-            logIfDebug("    ${material.name} has varying price")
             val bestGuessPrice = CostcoGlobals.startingMerchPrice(baseMerch.material)
             Cereal.merch[baseMerch] =
                     Merchandise(baseMerch.material, CostcoGlobals.startingMass, bestGuessPrice)
         }
-    } else {
-        logIfDebug("${baseMerch.material.name} already in merch")
     }
 
     for (i in baseMerch.enchantments) {
