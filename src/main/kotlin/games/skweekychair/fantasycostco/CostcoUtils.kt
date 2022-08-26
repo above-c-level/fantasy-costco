@@ -4,7 +4,6 @@ import java.util.Locale
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import org.bukkit.Bukkit
-import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.Player
@@ -319,66 +318,6 @@ fun getItemEnchants(item: ItemStack): Map<Enchantment, Int> {
     return enchantments ?: HashMap<Enchantment, Int>()
 }
 
-/**
- * Removes a merchandise-sign association
- * @param location The location of the sign.
- * @return True if there was an association (which was then removed), false otherwise.
- */
-fun RemoveSignFromMerch(location: Location): Boolean {
-    if (location in Cereal.purchasePoints) {
-        // logIfDebug("Removing ${location.blockX} ${location.blockY} ${location.blockZ}")
-        // Grab the base merch associated with the location.
-        val baseMerchAtLocation = Cereal.purchasePoints[location]
-        // Get the old merch associated with the location.
-        val oldMerch = getMerchandise(baseMerchAtLocation!!)
-        // Remove the location from the list of purchase points
-        Cereal.purchasePoints.remove(location)
-        // Lastly, remove the location from the old merch
-        oldMerch.listOfSigns.remove(location)
-        Cereal.signs.remove(location)
-        return true
-    }
-    return false
-}
-
-/**
- * Adds a sign to the merchandise at the given location. If a sign already exists, it is
- * overwritten. Also removes the sign from the merchandise it was previously associated with.
- * @param baseMerch The BaseMerchandise to associate the sign with.
- * @param location The location of the sign.
- * @param signType The type of the sign.
- */
-fun AddSignToMerch(baseMerch: BaseMerchandise, location: Location, signType: SignType) {
-    // TODO: Check for null signs?
-    // First, check if the location already is catalogued, and if so, remove it.
-    RemoveSignFromMerch(location)
-    // Add the location to the purchase points and the merch.
-    Cereal.purchasePoints[location] = baseMerch
-    val merch = getMerchandise(baseMerch)
-    merch.listOfSigns.add(location)
-    Cereal.signs[location] = SignData(signType)
-    merch.updateSign(location)
-}
-
-/**
- * Removes the sign data from a location.
- * @param location The location of the sign.
- */
-fun RemoveSignData(location: Location) {
-    Cereal.signs.remove(location)
-}
-/**
- * Adds sign data to a given location. If a sign already exists, it is overwritten. Also removes the
- * sign from the location it was previously associated with.
- * @param location The location of the sign.
- * @param signType The type of the sign.
- */
-fun AddSignData(location: Location, signType: SignType) {
-    // First, check if the location already is catalogued, and if so, remove it.
-    RemoveSignData(location)
-    Cereal.signs[location] = SignData(signType)
-}
-
 /** Logs an info message to the console. */
 fun LogInfo(message: String) {
     return Bukkit.getServer().getLogger().info("[FantasyCostco] $message")
@@ -406,7 +345,7 @@ fun getMembershipCard(player: Player): MembershipCard {
  * @param places The number of decimal places to round to.
  * @return The rounded value.
  */
-fun roundDoubleString(value: Double, significantDigits: Int = 2): String {
+fun roundDoubleString(value: Double): String {
     return "₿${String.format(Locale("en", "US"), "%,.2f", value)}"
 }
 
@@ -448,4 +387,77 @@ fun binarySearchPrice(
     }
     amount = high - 1
     return Pair(amount, merchandise.itemBuyPrice(amount))
+}
+
+fun StartupSplashArt() {
+    // woooo ansi codes
+    val RED: String = "\u001B[31m"
+    val BLUE: String = "\u001B[34m"
+    // val RESET: String = "\u001B[0m"
+    // val BLACK: String = "\u001B[30m"
+    // val GREEN: String = "\u001B[32m"
+    // val YELLOW: String = "\u001B[33m"
+    // val PURPLE: String = "\u001B[35m"
+    // val CYAN: String = "\u001B[36m"
+    // val WHITE: String = "\u001B[37m"
+    fun log(x: String) = Bukkit.getServer().getLogger().info(x)
+    log("                      ${BLUE} #####- *#+  ##: *# ###### *#*   #*#  ##  ##=")
+    log("                      ${BLUE} *****  #*#  *** #* ****** **#  **#** #* +*#")
+    log("                      ${BLUE} **    ****  *** **  +*=  #***  **     *-*#")
+    log("                      ${BLUE} ****  *=**  ***=*#  #*   *+**  ****.  ***")
+    log("${RED}             -++-     ${BLUE}=*+.. **.#* -*:#**=  **  **.**    :**  #*")
+    log("${RED}         ############ ${BLUE}#*   +***** #* -**   ** -***** #*:.**  **")
+    log("${RED}       ############## ${BLUE}**   *#  =#:##  ##   *# ##  -#= ****   ##")
+    log("${RED}     ###############-")
+    log(
+            "${RED}    ################        *#####+            .#####*   ###############      =#####*         +#####*"
+    )
+    log(
+            "${RED}   #################     ############:       ###########+###############   -##########     ############-"
+    )
+    log(
+            "${RED}  ##################   ################    #############:##############*  ############   ################"
+    )
+    log(
+            "${RED} ##########-      ##  ##################  ############# ############### -#############  ##################"
+    )
+    log(
+            "${RED} #########         : ###################..#######::*### ###############:#############= ###################."
+    )
+    log(
+            "${RED}+########=          #########- -################        *=::#######:-+#########*  .## #########- -#########"
+    )
+    log(
+            "${RED}#########           #######.     ##################*       #######.   ########        #######:     ########"
+    )
+    log(
+            "${RED}#########          #######+       ####################     #######    #######        ########       #######"
+    )
+    log(
+            "${RED}##########        .#######       .#######.#############    #######   :#######        #######       .#######"
+    )
+    log(
+            "${RED}###########     :#########       #######-  ############+  #######-   ########        #######       #######="
+    )
+    log(
+            "${RED}*#################.########     ########      .########+  #######    *#######:     ..########     ########"
+    )
+    log(
+            "${RED} ################# #########+-*########: ##     #######   #######     #########**### #########+-*########="
+    )
+    log(
+            "${RED} -################ -################### ###############  *######+     ############## :###################"
+    )
+    log(
+            "${RED}  +###############  ##################  ##############   #######       #############  ##################"
+    )
+    log(
+            "${RED}    #############.   ###############   ##############    #######       .###########:   ###############"
+    )
+    log(
+            "${RED}      ###########      ###########     :###########     +#######         ##########      ###########"
+    )
+    log(
+            "${RED}                          :=+-.            .-+=:                            :==-.           :=+-."
+    )
 }
