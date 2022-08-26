@@ -49,7 +49,7 @@ commands:
     usage: /<command> [page (1..x) (optional)]
     permission: fantasycostco.balance-top
   pay:
-    description: Get the players with the most Blockcoins in the server.
+    description: Pay another player some Blockcoins.
     usage: /<command> [player (name)] [amount (a number)]
     permission: fantasycostco.pay
 permissions:
