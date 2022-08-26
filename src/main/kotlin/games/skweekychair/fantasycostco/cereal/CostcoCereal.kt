@@ -239,14 +239,14 @@ object LocationSerializer : KSerializer<Location> {
 /** An enum that gives all the ways a sign might be used. */
 @Serializable
 enum class SignType {
-    TRUE_PRICE,
     SELL_ONE,
     SELL_STACK,
     SELL_TYPE,
     SELL_ALL,
     BUY_ONE,
     BUY_STACK,
-    BUY_SHULKER_BOX
+    BUY_SHULKER_BOX,
+    TRUE_PRICE
 }
 
 /**
@@ -282,4 +282,20 @@ data class SignData(
             }
         }
     }
+    fun isSelling() =
+            signType in
+                    listOf(
+                            SignType.SELL_ONE,
+                            SignType.SELL_STACK,
+                            SignType.SELL_TYPE,
+                            SignType.SELL_ALL
+                    )
+    fun isBuying() =
+            signType in
+                    listOf(
+                            SignType.BUY_ONE,
+                            SignType.BUY_STACK,
+                            SignType.BUY_SHULKER_BOX,
+                            SignType.TRUE_PRICE
+                    )
 }
