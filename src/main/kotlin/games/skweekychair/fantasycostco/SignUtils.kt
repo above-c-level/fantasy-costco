@@ -46,45 +46,55 @@ object SignUtils {
             Cereal.signs[signLocation] = thisSign
         }
 
-        // The first ones here are the sell signs
-        if (thisSign.signType == SignType.SELL_ONE) {
-            this.clearSign(signLocation)
-            this.updateSignLine(signLocation, 1, "Sell One")
-            this.updateSignLine(signLocation, 2, "Item")
-        } else if (thisSign.signType == SignType.SELL_STACK) {
-            this.clearSign(signLocation)
-            this.updateSignLine(signLocation, 1, "Sell a stack")
-            this.updateSignLine(signLocation, 2, "of items")
-        } else if (thisSign.signType == SignType.SELL_TYPE) {
-            this.clearSign(signLocation)
-            this.updateSignLine(signLocation, 0, "Sell all")
-            this.updateSignLine(signLocation, 1, "of this type")
-            this.updateSignLine(signLocation, 2, "(in inventory)")
-        } else if (thisSign.signType == SignType.SELL_ALL) {
-            this.clearSign(signLocation)
-            this.updateSignLine(signLocation, 0, "Sell EVERYTHING")
-            this.updateSignLine(signLocation, 1, "(yes, your whole")
-            this.updateSignLine(signLocation, 2, "ENTIRE")
-            this.updateSignLine(signLocation, 3, "inventory)")
+        when (thisSign.signType) {
+            // The first ones here are the sell signs
+            SignType.SELL_ONE -> {
+                this.clearSign(signLocation)
+                this.updateSignLine(signLocation, 1, "Sell One")
+                this.updateSignLine(signLocation, 2, "Item")
+            }
+            SignType.SELL_STACK -> {
+                this.clearSign(signLocation)
+                this.updateSignLine(signLocation, 1, "Sell a stack")
+                this.updateSignLine(signLocation, 2, "of items")
+            }
+            SignType.SELL_TYPE -> {
+                this.clearSign(signLocation)
+                this.updateSignLine(signLocation, 0, "Sell all")
+                this.updateSignLine(signLocation, 1, "of this type")
+                this.updateSignLine(signLocation, 2, "(in inventory)")
+            }
+            SignType.SELL_ALL -> {
+                this.clearSign(signLocation)
+                this.updateSignLine(signLocation, 0, "Sell EVERYTHING")
+                this.updateSignLine(signLocation, 1, "(yes, your whole")
+                this.updateSignLine(signLocation, 2, "ENTIRE")
+                this.updateSignLine(signLocation, 3, "inventory)")
+            }
             // Here are the buy signs
-        } else if (thisSign.signType == SignType.TRUE_PRICE) {
-            this.updateSignLine(signLocation, 2, "Ideal Price:")
-            this.updateSignLine(signLocation, 3, roundDoubleString(merch!!.shownPrice))
-        } else if (thisSign.signType == SignType.BUY_ONE) {
-            val singlePrice = merch!!.itemBuyPrice(1)
-            this.updateSignLine(signLocation, 2, "Buy One")
-            this.updateSignLine(signLocation, 3, roundDoubleString(singlePrice))
-        } else if (thisSign.signType == SignType.BUY_STACK) {
-            this.updateSignLine(signLocation, 2, "Buy Stack")
-            val stackPrice = merch!!.itemBuyPrice(merch.material.maxStackSize)
-            this.updateSignLine(signLocation, 3, roundDoubleString(stackPrice))
-        } else if (thisSign.signType == SignType.BUY_SHULKER_BOX) {
-            this.updateSignLine(signLocation, 2, "Buy full Shulker")
-            val shulkerMerch = Material.getMaterial("SHULKER_BOX")!!
-            // Ideal price of shulker box because they're already buying upwards of 1728 items
-            val shulkerPrice = getMerchandise(BaseMerchandise(shulkerMerch)).shownPrice
-            val filledPrice = merch!!.itemBuyPrice(merch.material.maxStackSize * 27) + shulkerPrice
-            this.updateSignLine(signLocation, 3, roundDoubleString(filledPrice))
+            SignType.TRUE_PRICE -> {
+                this.updateSignLine(signLocation, 2, "Ideal Price:")
+                this.updateSignLine(signLocation, 3, roundDoubleString(merch!!.shownPrice))
+            }
+            SignType.BUY_ONE -> {
+                val singlePrice = merch!!.itemBuyPrice(1)
+                this.updateSignLine(signLocation, 2, "Buy One")
+                this.updateSignLine(signLocation, 3, roundDoubleString(singlePrice))
+            }
+            SignType.BUY_STACK -> {
+                this.updateSignLine(signLocation, 2, "Buy Stack")
+                val stackPrice = merch!!.itemBuyPrice(merch.material.maxStackSize)
+                this.updateSignLine(signLocation, 3, roundDoubleString(stackPrice))
+            }
+            SignType.BUY_SHULKER_BOX -> {
+                this.updateSignLine(signLocation, 2, "Buy full Shulker")
+                val shulkerMerch = Material.getMaterial("SHULKER_BOX")!!
+                // Ideal price of shulker box because they're already buying upwards of 1728 items
+                val shulkerPrice = getMerchandise(BaseMerchandise(shulkerMerch)).shownPrice
+                val filledPrice =
+                        merch!!.itemBuyPrice(merch.material.maxStackSize * 27) + shulkerPrice
+                this.updateSignLine(signLocation, 3, roundDoubleString(filledPrice))
+            }
         }
 
         return false
