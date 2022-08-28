@@ -707,7 +707,7 @@ object PayCommand : TabExecutor {
 
         if (payee == null) {
             sender.sendMessage(
-                    "${RED}The named player could not be found, is it spelled correctly and are they online?"
+                    "${RED}The named player could not be found. (Are they online? Is it spelled correctly?)"
             )
             return false
         }
@@ -750,9 +750,9 @@ object PayCommand : TabExecutor {
     ): List<String> {
         val completions = mutableListOf<String>()
         if (args.size == 1) {
-            val items = Bukkit.getOnlinePlayers().map {it.name}
+            val items = Bukkit.getOnlinePlayers().map { it.name }
             StringUtil.copyPartialMatches(args[0], items, completions)
-        } if (args.size == 1) {
+        } else if (args.size == 2) {
             completions.add("₿")
         }
         completions.sort()
