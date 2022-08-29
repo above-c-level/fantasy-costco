@@ -26,6 +26,7 @@ class CostcoPlugin : JavaPlugin() {
     override fun onEnable() {
         Bukkit.getServer().getPluginManager().registerEvents(CostcoListener(), this)
         saveDefaultConfig()
+
         var config = getConfig()
         CostcoGlobals.spigotConfig = config
         CostcoGlobals.merchPricesConfig = getResourcesConfig("merchprices")
@@ -63,7 +64,7 @@ class CostcoPlugin : JavaPlugin() {
                 CostcoGlobals.secondsBetweenPriceMotion,
                 CostcoGlobals.secondsBetweenPriceMotion
         )
-        StartupSplashArt()
+        scheduler.runTaskLater(this, StartupSplashArt(), 10)
     }
 
     /** Called when the plugin is disabled by the server. */
@@ -110,7 +111,7 @@ class CostcoListener : Listener {
      */
     @EventHandler(priority = EventPriority.NORMAL)
     fun onPlayerJoin(event: PlayerJoinEvent) {
-        ensureWallet(event.player)
+        MemberUtils.ensureWallet(event.player)
     }
 
     /**
@@ -124,7 +125,7 @@ class CostcoListener : Listener {
             return
         }
         val player = event.getPlayer()
-        val membershipCard = getMembershipCard(player)
+        val membershipCard = MemberUtils.getMembershipCard(player)
         val ordainingSign = membershipCard.ordainingSign
         val block = event.getClickedBlock()
 
@@ -152,7 +153,9 @@ class CostcoListener : Listener {
             block.setType(Material.AIR, true)
             return
         }
-        if (event.getAction() != Action.RIGHT_CLICK_BLOCK) {
+        if (event.getAction() != Action.RIGHT_CLICK_BLOCK &&
+                        event.getAction() != Action.LEFT_CLICK_BLOCK
+        ) {
             return
         }
 
@@ -160,12 +163,9 @@ class CostcoListener : Listener {
         val heldItemName = event.getMaterial().name
 
         // First, see whether there is already a sign with SignData there
-
         val signData: SignData? = Cereal.signs[signLocation]
-
         val holdingAir = heldItemName == "AIR"
         val signFound = signData != null
-
 
         if (ordainingSign && holdingAir && signFound) {
             // Case 1
@@ -177,12 +177,11 @@ class CostcoListener : Listener {
             // If the sign is a sell sign
             if (signData!!.isSelling()) {
                 // There is a sign there, so cycle through sell options
-                signData.nextSellOption()
-                SignUtils.updateSign(signLocation, false)
+                SignUtils.rotateSign(signLocation)
                 return
             }
             // If the sign was a buy sign, it should be associated with a merch
-            if (!SignUtils.removeSignFromMerch(signLocation)){
+            if (!SignUtils.removeSignFromMerch(signLocation)) {
                 SignUtils.removeSignData(signLocation)
             }
             // They're holding air, so it's a sell sign
@@ -199,8 +198,7 @@ class CostcoListener : Listener {
             // If the sign is a buy sign
             if (signData!!.isBuying()) {
                 // There is a sign there, so cycle through sell options
-                signData.nextBuyOption()
-                SignUtils.updateSign(signLocation, merch = getMerchandise(baseMerch))
+                SignUtils.rotateSign(signLocation)
                 return
             }
 
@@ -211,19 +209,64 @@ class CostcoListener : Listener {
             // They're holding an item, so it's a buy sign
 
             SignUtils.addSignToMerch(baseMerch, signLocation, SignType.BUY_ONE)
-            SignUtils.updateSign(signLocation, merch = getMerchandise(baseMerch))
+            SignUtils.updateSign(signLocation, merch = MerchUtils.getMerchandise(baseMerch))
         } else if (ordainingSign && !holdingAir && !signFound) {
             // Case 4
             // There is not a sign there, so initialize it
             val baseMerch = BaseMerchandise(itemStack!!.type, itemStack.enchantments)
             SignUtils.addSignToMerch(baseMerch, signLocation, SignType.BUY_ONE)
-            SignUtils.updateSign(signLocation, merch = getMerchandise(baseMerch))
-        } else if (!ordainingSign && signFound) {
-            logIfDebug("Case 5")
-            // There is a sign there, so attempt to buy or sell
-            // TODO: buy/sell
-            player.sendMessage("Pretend you're buying from the sign you clicked on")
-            // Player is right clicking with an item
+            SignUtils.updateSign(signLocation, merch = MerchUtils.getMerchandise(baseMerch))
+        }
+        // All the above cases should have taken care of ordaining, so we just need to rule out
+        // cases where there is no sign found
+        if (!signFound) {
+            return
+        }
+
+        // There is a sign here and this is a normal player or an op not ordaining
+        val buySign = signData!!.isBuying()
+        // Whether the player is sneaking/right clicking
+        val sneaking = player.isSneaking()
+        val rightClick = event.getAction() == Action.RIGHT_CLICK_BLOCK
+
+        if (buySign) {
+            if (sneaking || membershipCard.justLooking) {
+                // If the player is just looking for buying
+                player.sendMessage("Just looking at buying")
+                // TODO: Just looking
+            } else if (rightClick) {
+                if (membershipCard.useAmount) {
+                    // Buy using the player's buy target
+                    val amount = membershipCard.buyGoal
+                    val material = MerchUtils.getMerchandiseAtLocation(signLocation)
+                    player.sendMessage("Attempting to buy $amount")
+                    TransactionUtils.handleBuyAmount(player, material, amount)
+                } else {
+                    // Buy using the sign's buy target
+                    player.sendMessage("Attempting to buy sign buytarget")
+                    // TODO: Buy sign value
+                }
+            } else {
+                // The player is toggling the sign
+                player.sendMessage("Rotating sign")
+                SignUtils.rotateSign(signLocation)
+                // TODO: Verify this works
+            }
+        } else {
+            if (sneaking || membershipCard.justLooking) {
+                // If the player is just looking for buying
+                player.sendMessage("Just looking at selling")
+                // TODO: Just looking sell
+            } else if (rightClick) {
+                // Player selling using sign's sell target
+                // TODO: Sell using sign's sell target
+                player.sendMessage("Pretend you're selling to the sign you clicked on")
+            } else {
+                // If the sign is a sell sign, attempt to sell
+                player.sendMessage("Rotating sign")
+                SignUtils.rotateSign(signLocation)
+                // TODO: Verify this works
+            }
         }
     }
 
