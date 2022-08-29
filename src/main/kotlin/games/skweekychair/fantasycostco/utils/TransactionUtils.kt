@@ -15,6 +15,14 @@ object TransactionUtils {
     fun handleBuyAmount(player: Player, merchandise: Merchandise, initialAmount: Int) {
         var amount = initialAmount
         val material = merchandise.material
+        // Make sure amount requested is valid
+        if (amount < 0) {
+            player.sendMessage("${RED}I can't give you negative items dude :/")
+        } else if (amount == 0) {
+            player.sendMessage("${GREEN}Aight here's your 0 ${material.name}")
+        } else if (amount > CostcoGlobals.maxStacksPurchase * material.maxStackSize) {
+            player.sendMessage("${RED}You can't buy that many items.")
+        }
         val membershipCard = MemberUtils.getMembershipCard(player)
         // Deal with cases where the player just wants to see prices
         if (membershipCard.justLooking) {

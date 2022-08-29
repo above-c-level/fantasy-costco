@@ -57,20 +57,9 @@ object BuyCommand : TabExecutor {
             return false
         }
 
-        // Make sure amount requested is valid
-        if (amount < 0) {
-            sender.sendMessage("${RED}I can't give you negative items dude :/")
-            return true
-        } else if (amount == 0) {
-            sender.sendMessage("${GREEN}Aight here's your 0 ${material.name}")
-            return true
-        } else if (amount > CostcoGlobals.maxStacksPurchase * material.maxStackSize) {
-            sender.sendMessage("${RED}You can't buy that many items.")
-            return true
-        }
-
+        val merchandise = MerchUtils.getMerchandise(material)
         // Deal with actually purchasing items
-        TransactionUtils.handleBuyAmount(player, material, amount)
+        TransactionUtils.handleBuyAmount(player, merchandise, amount)
         return true
     }
 
