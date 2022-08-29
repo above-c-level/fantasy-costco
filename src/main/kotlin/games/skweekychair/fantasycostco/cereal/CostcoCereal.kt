@@ -140,7 +140,8 @@ data class MembershipCard(
         @SerialName("buyGoal") var buyGoal: Int = 0,
         @SerialName("buyMaxItems") var buyMaxItems: Boolean = false,
         @SerialName("justLooking") var justLooking: Boolean = false,
-        @SerialName("ordainingSign") var ordainingSign: Boolean = false
+        @SerialName("ordainingSign") var ordainingSign: Boolean = false,
+        @SerialName("useAmount") var useAmount: Boolean = false
 )
 
 object MembershipCardSerializer : KSerializer<MembershipCard> {
@@ -289,68 +290,4 @@ object SignDataSerializer : KSerializer<SignData> {
         val jsonElement = json.decodeFromString<SignData>(decodedString)
         return jsonElement
     }
-}
-
-/** An enum that gives all the ways a sign might be used. */
-@Serializable
-enum class SignType {
-    SELL_ONE,
-    SELL_STACK,
-    SELL_TYPE,
-    SELL_ALL,
-    BUY_ONE,
-    BUY_STACK,
-    BUY_SHULKER_BOX,
-    TRUE_PRICE
-}
-
-/**
- * A class that represents a sign. The sign has a location and some internal values which represent
- * whether it is a sell or buy sign, as well as the
- */
-@Serializable
-data class SignData(
-        var signType: SignType,
-) {
-    /** Cycleto the next sell option */
-    fun nextSellOption() {
-        when (signType) {
-            SignType.SELL_ONE -> signType = SignType.SELL_STACK
-            SignType.SELL_STACK -> signType = SignType.SELL_TYPE
-            SignType.SELL_TYPE -> signType = SignType.SELL_ALL
-            SignType.SELL_ALL -> signType = SignType.SELL_ONE
-            else -> {
-                signType = SignType.SELL_ONE
-            }
-        }
-    }
-
-    /** Cycle to the next buy option */
-    fun nextBuyOption() {
-        when (signType) {
-            SignType.BUY_ONE -> signType = SignType.BUY_STACK
-            SignType.BUY_STACK -> signType = SignType.BUY_SHULKER_BOX
-            SignType.BUY_SHULKER_BOX -> signType = SignType.TRUE_PRICE
-            SignType.TRUE_PRICE -> signType = SignType.BUY_ONE
-            else -> {
-                signType = SignType.BUY_ONE
-            }
-        }
-    }
-    fun isSelling() =
-            signType in
-                    listOf(
-                            SignType.SELL_ONE,
-                            SignType.SELL_STACK,
-                            SignType.SELL_TYPE,
-                            SignType.SELL_ALL
-                    )
-    fun isBuying() =
-            signType in
-                    listOf(
-                            SignType.BUY_ONE,
-                            SignType.BUY_STACK,
-                            SignType.BUY_SHULKER_BOX,
-                            SignType.TRUE_PRICE
-                    )
 }
