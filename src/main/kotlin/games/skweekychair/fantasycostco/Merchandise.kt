@@ -146,7 +146,7 @@ class Merchandise(
      * @return The rounded shown price
      */
     fun roundedPrice(): Double {
-        return roundDouble(this.shownPrice)
+        return MemberUtils.roundDouble(this.shownPrice)
     }
 
     /**
@@ -158,7 +158,9 @@ class Merchandise(
         if (this.hasFixedPrice) {
             return this.shownPrice
         }
-        return roundDouble(buyPrice(this.shownPrice, amount, this.material.getMaxStackSize()))
+        return MemberUtils.roundDouble(
+                EconomyUtils.buyPrice(this.shownPrice, amount, this.material.getMaxStackSize())
+        )
     }
 
     /**
@@ -170,7 +172,9 @@ class Merchandise(
         if (this.hasFixedPrice) {
             return this.shownPrice
         }
-        return roundDouble(sellPrice(this.shownPrice, amount, this.material.getMaxStackSize()))
+        return MemberUtils.roundDouble(
+                EconomyUtils.sellPrice(this.shownPrice, amount, this.material.getMaxStackSize())
+        )
     }
 
     /** Pseudo-randomly perturbs the price of the item without affecting the best-guess price. */
@@ -179,7 +183,7 @@ class Merchandise(
         // but just in case
         this.hiddenPrice = Math.abs(this.hiddenPrice)
         val massVar: Double =
-                lerp(
+                EconomyUtils.lerp(
                         this.mass,
                         0.0,
                         CostcoGlobals.massVarMin,
@@ -191,7 +195,7 @@ class Merchandise(
         this.hiddenPrice += gaussian
         val dist = Math.abs(this.hiddenPrice - this.shownPrice)
         val correctionGain =
-                lerpClamp(
+                EconomyUtils.lerpClamp(
                         dist,
                         this.hiddenPrice,
                         this.hiddenPrice / 2.0,
