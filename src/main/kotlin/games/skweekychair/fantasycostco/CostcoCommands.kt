@@ -131,7 +131,8 @@ object SellCommand : TabExecutor {
         }
 
         if (MemberUtils.getMembershipCard(player).justLooking) {
-            val newWallet = MemberUtils.roundDoubleString(price + MemberUtils.getWalletRounded(player))
+            val newWallet =
+                    MemberUtils.roundDoubleString(price + MemberUtils.getWalletRounded(player))
             val roundedPrice = MemberUtils.roundDoubleString(price)
             player.sendMessage(
                     "${GREEN}You would receive ${WHITE}${roundedPrice}${GREEN} in the sale and have ${WHITE}${newWallet}${GREEN} in your wallet, but for now you're just looking"
@@ -313,7 +314,6 @@ object BuyPossibleCommand : TabExecutor {
                     "true" -> true
                     "false" -> false
                     "get" -> membershipCard.buyMaxItems
-                    "toggle" -> !membershipCard.buyMaxItems
                     else -> {
                         return false
                     }
@@ -337,8 +337,7 @@ object BuyPossibleCommand : TabExecutor {
             lbl: String,
             args: Array<String>
     ): List<String> {
-        return if (args.size == 1) listOf<String>("true", "false", "get", "toggle")
-        else listOf<String>()
+        return if (args.size == 1) listOf<String>("true", "false", "get") else listOf<String>()
     }
 }
 
@@ -434,7 +433,6 @@ object JustLookingCommand : TabExecutor {
                     "true" -> true
                     "false" -> false
                     "get" -> membershipCard.justLooking
-                    "toggle" -> !membershipCard.justLooking
                     else -> {
                         return false
                     }
@@ -458,8 +456,7 @@ object JustLookingCommand : TabExecutor {
             lbl: String,
             args: Array<String>
     ): List<String> {
-        return if (args.size == 1) listOf<String>("true", "false", "get", "toggle")
-        else listOf<String>()
+        return if (args.size == 1) listOf<String>("true", "false", "get") else listOf<String>()
     }
 }
 
@@ -481,10 +478,6 @@ object OrdainCommand : TabExecutor {
 
         // Check args number
         if (args.size == 0) {
-            // TODO: Rework message? the usage from false might be good enough tho
-            // sender.sendMessage(
-            //         "${RED}You must specify whether you want to be ordaining signs or not"
-            // )
             return false
         } else if (args.size > 1) {
             sender.sendMessage("${RED}This command only takes one argument")
@@ -499,7 +492,6 @@ object OrdainCommand : TabExecutor {
                     "true" -> true
                     "false" -> false
                     "get" -> membershipCard.ordainingSign
-                    "toggle" -> !membershipCard.ordainingSign
                     else -> {
                         return false
                     }
@@ -523,8 +515,7 @@ object OrdainCommand : TabExecutor {
             lbl: String,
             args: Array<String>
     ): List<String> {
-        return if (args.size == 1) listOf<String>("true", "false", "get", "toggle")
-        else listOf<String>()
+        return if (args.size == 1) listOf<String>("true", "false", "get") else listOf<String>()
     }
 }
 
@@ -625,7 +616,13 @@ object PayCommand : TabExecutor {
             return false
         }
 
-        var amount = args[1].toDoubleOrNull()
+        // In case the player tab completes to have the blockcoin symbol
+        var argstring = args[1]
+        if (argstring.startsWith("₿")) {
+            // Strip out prefix
+            argstring = argstring.substring(1)
+        }
+        var amount = argstring.toDoubleOrNull()
 
         if (amount == null) {
             sender.sendMessage("${RED}Not a valid amount")
