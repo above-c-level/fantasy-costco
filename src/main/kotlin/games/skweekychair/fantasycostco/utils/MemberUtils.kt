@@ -5,7 +5,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import org.bukkit.entity.Player
 
-object MembershipUtils {
+object MemberUtils {
     /**
      * Gets the data associated with a player. Makes sure the player has an entry in the map before
      * returning it.
