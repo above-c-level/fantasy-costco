@@ -8,6 +8,70 @@ import org.bukkit.Material
 import org.bukkit.block.BlockState
 import org.bukkit.block.Sign
 
+/** An enum that gives all the ways a sign might be used. */
+@Serializable
+enum class SignType {
+    SELL_ONE,
+    SELL_STACK,
+    SELL_TYPE,
+    SELL_ALL,
+    BUY_ONE,
+    BUY_STACK,
+    BUY_SHULKER_BOX,
+    TRUE_PRICE
+}
+
+/**
+ * A class that represents a sign. The sign has a location and some internal values which represent
+ * whether it is a sell or buy sign, as well as the
+ */
+@Serializable
+data class SignData(
+        var signType: SignType,
+) {
+    /** Cycle to the next sell option */
+    fun nextSellOption() {
+        when (signType) {
+            SignType.SELL_ONE -> signType = SignType.SELL_STACK
+            SignType.SELL_STACK -> signType = SignType.SELL_TYPE
+            SignType.SELL_TYPE -> signType = SignType.SELL_ALL
+            SignType.SELL_ALL -> signType = SignType.SELL_ONE
+            else -> {
+                signType = SignType.SELL_ONE
+            }
+        }
+    }
+
+    /** Cycle to the next buy option */
+    fun nextBuyOption() {
+        when (signType) {
+            SignType.BUY_ONE -> signType = SignType.BUY_STACK
+            SignType.BUY_STACK -> signType = SignType.BUY_SHULKER_BOX
+            SignType.BUY_SHULKER_BOX -> signType = SignType.TRUE_PRICE
+            SignType.TRUE_PRICE -> signType = SignType.BUY_ONE
+            else -> {
+                signType = SignType.BUY_ONE
+            }
+        }
+    }
+    fun isSelling() =
+            signType in
+                    listOf(
+                            SignType.SELL_ONE,
+                            SignType.SELL_STACK,
+                            SignType.SELL_TYPE,
+                            SignType.SELL_ALL
+                    )
+    fun isBuying() =
+            signType in
+                    listOf(
+                            SignType.BUY_ONE,
+                            SignType.BUY_STACK,
+                            SignType.BUY_SHULKER_BOX,
+                            SignType.TRUE_PRICE
+                    )
+}
+
 object SignUtils {
     /** Updates the signs with the new prices. */
     fun updateAllSigns(merch: Merchandise) {
@@ -204,14 +268,14 @@ object SignUtils {
     private fun joinWords(wordsIn: List<String>): List<String> {
         var words: MutableList<String> = wordsIn.toMutableList()
         val lines = mutableListOf<String>()
-        // Join as many words as possible <= 15 chars
+        // Join as many words as possible <= 16 chars
         var line = ""
         while (words.size > 0) {
             val currentWord = words[0]
             words.removeAt(0)
 
-            // 14 chars + 1 space = 15 chars
-            if (line.length + currentWord.length > 14) {
+            // 15 chars + 1 space = 16 chars
+            if (line.length + currentWord.length > 15) {
                 lines.add(line)
                 line = ""
             }
@@ -303,5 +367,26 @@ object SignUtils {
         // First, check if the location already is catalogued, and if so, remove it.
         removeSignData(location)
         Cereal.signs[location] = SignData(signType)
+    }
+
+    /**
+     * Rotates the sign type at the given location.
+     * @param location The location of the sign.
+     * @return true if the sign was rotated, false if the sign could not be found
+     */
+    fun rotateSign(location: Location): Boolean {
+        val signData = Cereal.signs[location]
+        if (signData == null) {
+            return false
+        }
+        if (signData.isSelling()) {
+            signData.nextSellOption()
+            updateSign(location, false)
+        } else {
+            signData.nextBuyOption()
+            updateSign(location, true)
+        }
+
+        return true
     }
 }
