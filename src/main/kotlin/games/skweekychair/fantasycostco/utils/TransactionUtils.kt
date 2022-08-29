@@ -15,22 +15,22 @@ object TransactionUtils {
      */
     fun handleBuyAmount(player: Player, material: Material, initialAmount: Int) {
         var amount = initialAmount
-        val merchandise = getMerchandise(material)
-        val membershipCard = getMembershipCard(player)
+        val merchandise = MerchUtils.getMerchandise(material)
+        val membershipCard = MemberUtils.getMembershipCard(player)
         // Deal with cases where the player just wants to see prices
         if (membershipCard.justLooking) {
             handleJustLooking(player, merchandise, amount)
             return
         }
 
-        val playerFunds = getWalletRounded(player)
-        var price = roundDouble(merchandise.itemBuyPrice(amount))
+        val playerFunds = MemberUtils.getWalletRounded(player)
+        var price = MemberUtils.roundDouble(merchandise.itemBuyPrice(amount))
         // Make sure the player has enough money to buy the items
         if (price > playerFunds) {
-            if (!getBuyMaxItems(player)) {
+            if (!MemberUtils.getBuyMaxItems(player)) {
                 player.sendMessage("${RED}Honey, you ain't got the money fo' that.")
                 player.sendMessage(
-                        "${RED}You only have ${WHITE}${getWalletString(player)}${RED}, and you need ${WHITE}${roundDoubleString(price)}."
+                        "${RED}You only have ${WHITE}${MemberUtils.getWalletString(player)}${RED}, and you need ${WHITE}${MemberUtils.roundDoubleString(price)}."
                 )
                 return
             }
@@ -40,10 +40,10 @@ object TransactionUtils {
             amount = result.first
             price = result.second
             if (amount <= 0) {
-                val singleItemPrice = roundDoubleString(merchandise.itemBuyPrice(1))
+                val singleItemPrice = MemberUtils.roundDoubleString(merchandise.itemBuyPrice(1))
                 player.sendMessage("${RED}You can't buy any more of ${material.name}.")
                 player.sendMessage(
-                        "${RED}You only have ${WHITE}${getWalletString(player)}${RED}, and you need ${WHITE}${singleItemPrice}${RED} for 1."
+                        "${RED}You only have ${WHITE}${MemberUtils.getWalletString(player)}${RED}, and you need ${WHITE}${singleItemPrice}${RED} for 1."
                 )
                 return
             }
@@ -51,16 +51,16 @@ object TransactionUtils {
 
         val itemStack = ItemStack(material, amount)
 
-        walletSubtract(player, price)
+        MemberUtils.walletSubtract(player, price)
         merchandise.buy(amount.toDouble())
         val remaining = player.inventory.addItem(itemStack)
         if (remaining.isNotEmpty()) {
             placeRemainingItems(remaining, player)
         }
         player.sendMessage(
-                "${GREEN}You bought ${WHITE}${amount} ${material.name}${GREEN} for ${WHITE}${roundDoubleString(price)}"
+                "${GREEN}You bought ${WHITE}${amount} ${material.name}${GREEN} for ${WHITE}${MemberUtils.roundDoubleString(price)}"
         )
-        player.sendMessage("${GREEN}Your wallet now contains ${WHITE}${getWalletString(player)}")
+        player.sendMessage("${GREEN}Your wallet now contains ${WHITE}${MemberUtils.getWalletString(player)}")
     }
 
     /**
@@ -71,28 +71,28 @@ object TransactionUtils {
      */
     fun handleJustLooking(player: Player, merchandise: Merchandise, initialAmount: Int) {
         var amount = initialAmount
-        var price = roundDouble(merchandise.itemBuyPrice(amount))
+        var price = MemberUtils.roundDouble(merchandise.itemBuyPrice(amount))
         val material = merchandise.material
-        val playerFunds = getWalletRounded(player)
-        var newWallet = roundDouble(playerFunds - price)
+        val playerFunds = MemberUtils.getWalletRounded(player)
+        var newWallet = MemberUtils.roundDouble(playerFunds - price)
         var newWalletStr: String
         var roundedPrice: String
         if (newWallet < 0.0) {
-            newWalletStr = roundDoubleString(newWallet)
-            roundedPrice = roundDoubleString(price)
+            newWalletStr = MemberUtils.roundDoubleString(newWallet)
+            roundedPrice = MemberUtils.roundDoubleString(price)
             player.sendMessage(
                     "You wouldn't have enough money to buy that many ${material.name}s, since you have $newWalletStr and it costs $roundedPrice, but for now you're just looking"
             )
             val result = binarySearchPrice(amount, merchandise, playerFunds)
             amount = result.first
-            roundedPrice = roundDoubleString(result.second)
-            newWalletStr = roundDoubleString(playerFunds - result.second)
+            roundedPrice = MemberUtils.roundDoubleString(result.second)
+            newWalletStr = MemberUtils.roundDoubleString(playerFunds - result.second)
             player.sendMessage(
                     "You could buy up to ${amount} instead for ${roundedPrice} leaving you with $newWalletStr, but for now you're just looking"
             )
         } else {
-            newWalletStr = roundDoubleString(newWallet)
-            roundedPrice = roundDoubleString(price)
+            newWalletStr = MemberUtils.roundDoubleString(newWallet)
+            roundedPrice = MemberUtils.roundDoubleString(price)
             player.sendMessage(
                     "It would cost you ${roundedPrice} and you would have ${newWalletStr} remaining in your wallet, but for now you're just looking"
             )
@@ -104,7 +104,7 @@ object TransactionUtils {
      * @param remaining The remaining items in a hashmap of int:itemstack.
      * @param player The player who is buying.
      */
-    private fun placeRemainingItems(remaining: HashMap<Int!, ItemStack!>, player: Player) {
+    private fun placeRemainingItems(remaining: HashMap<Int, ItemStack>, player: Player) {
         for (entry in remaining) {
             // val argnum = entry.key
             // figure out how many items fit in one stack
