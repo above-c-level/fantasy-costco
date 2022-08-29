@@ -384,7 +384,7 @@ object SignUtils {
             updateSign(location, false)
         } else {
             signData.nextBuyOption()
-            updateSign(location, true)
+            updateSign(location, true, MerchUtils.getMerchandiseAtLocation(location))
         }
 
         return true
