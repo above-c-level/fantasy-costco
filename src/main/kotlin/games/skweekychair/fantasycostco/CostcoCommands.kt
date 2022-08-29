@@ -9,7 +9,6 @@ import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.command.TabExecutor
 import org.bukkit.entity.Player
-import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.Damageable
 import org.bukkit.util.StringUtil
 
@@ -65,99 +64,13 @@ object BuyCommand : TabExecutor {
         } else if (amount == 0) {
             sender.sendMessage("${GREEN}Aight here's your 0 ${material.name}")
             return true
-        } else if (amount > 27 * material.maxStackSize) {
+        } else if (amount > CostcoGlobals.maxStacksPurchase * material.maxStackSize) {
             sender.sendMessage("${RED}You can't buy that many items.")
             return true
         }
 
-        val merchandise = getMerchandise(material)
-        var price = roundDouble(merchandise.itemBuyPrice(amount))
-        val playerFunds = getWalletRounded(player)
-        val membershipCard = getMembershipCard(player)
-        // Deal with cases where the player just wants to see prices
-        if (membershipCard.justLooking) {
-            var newWallet = roundDouble(playerFunds - price)
-            var newWalletStr: String
-            var roundedPrice: String
-            if (newWallet < 0.0) {
-                newWalletStr = roundDoubleString(newWallet)
-                roundedPrice = roundDoubleString(price)
-                sender.sendMessage(
-                        "You wouldn't have enough money to buy that many ${material.name}s, since you have $newWalletStr and it costs $roundedPrice, but for now you're just looking"
-                )
-                val result = binarySearchPrice(amount, merchandise, playerFunds)
-                amount = result.first
-                roundedPrice = roundDoubleString(result.second)
-                newWalletStr = roundDoubleString(playerFunds - result.second)
-                sender.sendMessage(
-                        "You could buy up to ${amount} instead for ${roundedPrice} leaving you with $newWalletStr, but for now you're just looking"
-                )
-                return true
-            } else {
-                newWalletStr = roundDoubleString(newWallet)
-                roundedPrice = roundDoubleString(price)
-                player.sendMessage(
-                        "It would cost you ${roundedPrice} and you would have ${newWalletStr} remaining in your wallet, but for now you're just looking"
-                )
-            }
-            return true
-        }
-
-        // Make sure the player has enough money to buy the items
-        if (price > playerFunds) {
-            val buyMaxItems = getBuyMaxItems(player)
-            if (!buyMaxItems) {
-                sender.sendMessage("${RED}Honey, you ain't got the money fo' that.")
-                sender.sendMessage(
-                        "${RED}You only have ${WHITE}${getWalletString(player)}${RED}, and you need ${WHITE}${roundDoubleString(price)}."
-                )
-                return true
-            }
-            // Since the price is nonlinear, we can do binary search to find the largest number
-            // of items purchaseable.
-            val result = binarySearchPrice(amount, merchandise, playerFunds)
-            amount = result.first
-            price = result.second
-            if (amount <= 0) {
-                val singleItemPrice = roundDoubleString(merchandise.itemBuyPrice(1))
-                sender.sendMessage("${RED}You can't buy any more of ${material.name}.")
-                sender.sendMessage(
-                        "${RED}You only have ${WHITE}${getWalletString(player)}${RED}, and you need ${WHITE}${singleItemPrice}${RED} for 1."
-                )
-                return true
-            }
-        }
-
-        val itemStack = ItemStack(material, amount)
-
-        walletSubtract(player, price)
-        merchandise.buy(amount.toDouble())
-        val remaining = player.inventory.addItem(itemStack)
-        if (remaining.isNotEmpty()) {
-            for (entry in remaining) {
-                // val argnum = entry.key
-                // figure out how many items fit in one stack
-                val stackSize = entry.value.maxStackSize
-                // figure out how many full stacks there are in entry.value
-                val fullStacks = entry.value.amount / stackSize
-                // figure out how many items are left over
-                val leftover = entry.value.amount % stackSize
-                // drop the full stacks
-                val fullItemStack = ItemStack(entry.value.type, stackSize)
-                for (i in 0 until fullStacks) {
-                    player.world.dropItem(player.location, fullItemStack)
-                }
-                val leftoverItemStack = ItemStack(entry.value.type, leftover)
-                // drop the leftover items
-                if (leftover > 0) {
-                    player.world.dropItem(player.location, leftoverItemStack)
-                }
-            }
-        }
-        player.sendMessage(
-                "${GREEN}You bought ${WHITE}${amount} ${material.name}${GREEN} for ${WHITE}${roundDoubleString(price)}"
-        )
-        player.sendMessage("${GREEN}Your wallet now contains ${WHITE}${getWalletString(player)}")
+        // Deal with actually purchasing items
+        TransactionUtils.handleBuyAmount(player, material, amount)
         return true
     }
 
@@ -238,8 +151,8 @@ object SellCommand : TabExecutor {
                 "${GREEN}You now have ${WHITE}${getWalletString(player)}${GREEN} in your wallet"
         )
 
-        // tryDiscordBroadcast("TAX FRAUD 🚨🚨⚠️⚠️ **__A  L  E  R  T__** ⚠️⚠️🚨🚨")
-        // tryOnlyDiscord("https://tenor.com/view/burnt-demonic-demon-scream-screaming-gif-13844791")
+        // broadcastAll("TAX FRAUD 🚨🚨⚠️⚠️ **__A  L  E  R  T__** ⚠️⚠️🚨🚨")
+        // broadcastDiscord("https://tenor.com/view/burnt-demonic-demon-scream-screaming-gif-13844791")
 
         return true
     }
