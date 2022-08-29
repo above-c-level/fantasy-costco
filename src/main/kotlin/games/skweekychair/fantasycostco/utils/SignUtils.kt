@@ -138,26 +138,26 @@ object SignUtils {
             // Here are the buy signs
             SignType.TRUE_PRICE -> {
                 this.updateSignLine(signLocation, 2, "Ideal Price:")
-                this.updateSignLine(signLocation, 3, roundDoubleString(merch!!.shownPrice))
+                this.updateSignLine(signLocation, 3, MemberUtils.roundDoubleString(merch!!.shownPrice))
             }
             SignType.BUY_ONE -> {
                 val singlePrice = merch!!.itemBuyPrice(1)
                 this.updateSignLine(signLocation, 2, "Buy One")
-                this.updateSignLine(signLocation, 3, roundDoubleString(singlePrice))
+                this.updateSignLine(signLocation, 3, MemberUtils.roundDoubleString(singlePrice))
             }
             SignType.BUY_STACK -> {
                 this.updateSignLine(signLocation, 2, "Buy Stack")
                 val stackPrice = merch!!.itemBuyPrice(merch.material.maxStackSize)
-                this.updateSignLine(signLocation, 3, roundDoubleString(stackPrice))
+                this.updateSignLine(signLocation, 3, MemberUtils.roundDoubleString(stackPrice))
             }
             SignType.BUY_SHULKER_BOX -> {
                 this.updateSignLine(signLocation, 2, "Buy full Shulker")
                 val shulkerMerch = Material.getMaterial("SHULKER_BOX")!!
                 // Ideal price of shulker box because they're already buying upwards of 1728 items
-                val shulkerPrice = getMerchandise(BaseMerchandise(shulkerMerch)).shownPrice
+                val shulkerPrice = MerchUtils.getMerchandise(BaseMerchandise(shulkerMerch)).shownPrice
                 val filledPrice =
                         merch!!.itemBuyPrice(merch.material.maxStackSize * 27) + shulkerPrice
-                this.updateSignLine(signLocation, 3, roundDoubleString(filledPrice))
+                this.updateSignLine(signLocation, 3, MemberUtils.roundDoubleString(filledPrice))
             }
         }
 
@@ -320,7 +320,7 @@ object SignUtils {
             // Grab the base merch associated with the location.
             val baseMerchAtLocation = Cereal.purchasePoints[location]
             // Get the old merch associated with the location.
-            val oldMerch = getMerchandise(baseMerchAtLocation!!)
+            val oldMerch = MerchUtils.getMerchandise(baseMerchAtLocation!!)
             // Remove the location from the list of purchase points
             Cereal.purchasePoints.remove(location)
             // Lastly, remove the location from the old merch
@@ -344,10 +344,10 @@ object SignUtils {
         removeSignFromMerch(location)
         // Add the location to the purchase points and the merch.
         Cereal.purchasePoints[location] = baseMerch
-        val merch = getMerchandise(baseMerch)
+        val merch = MerchUtils.getMerchandise(baseMerch)
         merch.listOfSigns.add(location)
         Cereal.signs[location] = SignData(signType)
-        this.updateSign(location, merch = getMerchandise(baseMerch))
+        this.updateSign(location, merch = MerchUtils.getMerchandise(baseMerch))
     }
 
     /**
