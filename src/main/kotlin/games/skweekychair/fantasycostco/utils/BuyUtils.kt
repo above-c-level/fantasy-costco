@@ -8,7 +8,7 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.BlockStateMeta
 
-object TransactionUtils {
+object BuyUtils {
 
     /**
      * Handles the transaction of a player buying some number of items.
@@ -19,7 +19,7 @@ object TransactionUtils {
     fun handleBuyAmount(player: Player, merchandise: Merchandise, initialAmount: Int) {
         var amount = initialAmount
         val material = merchandise.material
-        if (!withinBounds(player, material, amount)) {
+        if (!withinBounds(player, merchandise, amount)) {
             return
         }
         val membershipCard = MemberUtils.getMembershipCard(player)
@@ -47,7 +47,7 @@ object TransactionUtils {
             price = result.second
             if (amount <= 0) {
                 val singleItemPrice = MemberUtils.roundDoubleString(merchandise.itemBuyPrice(1))
-                player.sendMessage("${RED}You can't buy any more of ${material.name}.")
+                player.sendMessage("${RED}You can't buy any more of ${merchandise.getName()}.")
                 player.sendMessage(
                         "${RED}You only have ${WHITE}${MemberUtils.getWalletString(player)}${RED}, and you need ${WHITE}${singleItemPrice}${RED} for 1."
                 )
@@ -64,13 +64,18 @@ object TransactionUtils {
             placeRemainingItems(remaining, player)
         }
         player.sendMessage(
-                "${GREEN}You bought ${WHITE}${amount} ${material.name}${GREEN} for ${WHITE}${MemberUtils.roundDoubleString(price)}"
+                "${GREEN}You bought ${WHITE}${amount} ${merchandise.getName()}${GREEN} for ${WHITE}${MemberUtils.roundDoubleString(price)}"
         )
         player.sendMessage(
                 "${GREEN}Your wallet now contains ${WHITE}${MemberUtils.getWalletString(player)}"
         )
     }
 
+    /**
+     * Handles the transaction of a player buying from a sign
+     * @param player The player selling the items.
+     * @param location The location of the sign
+     */
     fun handleBuyFromSign(player: Player, location: Location) {
         val merchandise = MerchUtils.getMerchandiseAtLocation(location)
         val material = merchandise.material
@@ -115,6 +120,43 @@ object TransactionUtils {
     }
 
     /**
+     * Handles the situation where a player is just looking or sneaking.
+     * @param player The player buying items
+     * @param location The location of the sign
+     */
+    fun handleJustLookingAtSign(player: Player, location: Location) {
+        val merchandise = MerchUtils.getMerchandiseAtLocation(location)
+        val material = merchandise.material
+        val signType = Cereal.signs[location]!!.signType
+        val membershipCard = MemberUtils.getMembershipCard(player)
+        var amount: Int
+        when (signType) {
+            SignType.BUY_ONE -> amount = 1
+            SignType.BUY_STACK -> amount = material.maxStackSize
+            SignType.BUY_SHULKER_BOX -> {
+                handleJustLookingShulker(player, merchandise)
+                return
+            }
+            SignType.TRUE_PRICE -> {
+                if (membershipCard.justLooking) {
+                    handleJustLooking(
+                            player,
+                            MerchUtils.getMerchandiseAtLocation(location),
+                            membershipCard.buyGoal // Since this is true price value
+                    )
+                } else {
+                    player.sendMessage(
+                            "${RED}You don't have ${WHITE}/useamount${RED} set to true to buy from this sign (maybe try toggling the sign)"
+                    )
+                }
+                return
+            }
+            else -> throw IllegalArgumentException("handleBuyFromSign called incorrectly")
+        }
+        handleJustLooking(player, merchandise, amount)
+    }
+
+    /**
      * Handle the situation where the player just wants to see their price.
      * @param player The player who is buying.
      * @param merchandise The merchandise being bought.
@@ -123,7 +165,49 @@ object TransactionUtils {
     fun handleJustLooking(player: Player, merchandise: Merchandise, initialAmount: Int) {
         var amount = initialAmount
         var price = MemberUtils.roundDouble(merchandise.itemBuyPrice(amount))
+        val playerFunds = MemberUtils.getWalletRounded(player)
+        var newWallet = MemberUtils.roundDouble(playerFunds - price)
+        var newWalletStr: String
+        var roundedPrice: String
+        if (!withinBounds(player, merchandise, amount)) {
+            return
+        }
+        if (newWallet < 0.0) {
+            newWalletStr = MemberUtils.roundDoubleString(newWallet)
+            roundedPrice = MemberUtils.roundDoubleString(price)
+            player.sendMessage(
+                    "You wouldn't have enough money to buy that many of ${merchandise.getName()}, since you have $newWalletStr and it costs $roundedPrice"
+            )
+            val result = binarySearchPrice(amount, merchandise, playerFunds)
+            amount = result.first
+            roundedPrice = MemberUtils.roundDoubleString(result.second)
+            newWalletStr = MemberUtils.roundDoubleString(playerFunds - result.second)
+            player.sendMessage(
+                    "You could buy up to ${amount} instead for ${roundedPrice} leaving you with $newWalletStr"
+            )
+        } else {
+            newWalletStr = MemberUtils.roundDoubleString(newWallet)
+            roundedPrice = MemberUtils.roundDoubleString(price)
+            player.sendMessage(
+                    "It would cost you ${roundedPrice} and you would have ${newWalletStr} remaining in your wallet"
+            )
+        }
+    }
+
+    /**
+     * Handle the situation where a player is just looking and right clicks on a sign selling
+     * shulker boxes containing items.
+     * @param player The player who is buying.
+     * @param merchandise The merchandise being bought.
+     */
+    private fun handleJustLookingShulker(player: Player, merchandise: Merchandise) {
         val material = merchandise.material
+        var amount = 27 * material.maxStackSize
+        val shulkerMaterial = Material.SHULKER_BOX
+        val shulkerMerch = MerchUtils.getMerchandise(shulkerMaterial)
+        var price =
+                MemberUtils.roundDouble(merchandise.itemBuyPrice(amount)) +
+                        MemberUtils.roundDouble(shulkerMerch.itemBuyPrice(1))
         val playerFunds = MemberUtils.getWalletRounded(player)
         var newWallet = MemberUtils.roundDouble(playerFunds - price)
         var newWalletStr: String
@@ -132,24 +216,22 @@ object TransactionUtils {
             newWalletStr = MemberUtils.roundDoubleString(newWallet)
             roundedPrice = MemberUtils.roundDoubleString(price)
             player.sendMessage(
-                    "You wouldn't have enough money to buy that many ${material.name}s, since you have $newWalletStr and it costs $roundedPrice, but for now you're just looking"
-            )
-            val result = binarySearchPrice(amount, merchandise, playerFunds)
-            amount = result.first
-            roundedPrice = MemberUtils.roundDoubleString(result.second)
-            newWalletStr = MemberUtils.roundDoubleString(playerFunds - result.second)
-            player.sendMessage(
-                    "You could buy up to ${amount} instead for ${roundedPrice} leaving you with $newWalletStr, but for now you're just looking"
+                    "You wouldn't have enough money to buy a shulker full of ${merchandise.getName()}, since you have $newWalletStr and it costs $roundedPrice"
             )
         } else {
             newWalletStr = MemberUtils.roundDoubleString(newWallet)
             roundedPrice = MemberUtils.roundDoubleString(price)
             player.sendMessage(
-                    "It would cost you ${roundedPrice} and you would have ${newWalletStr} remaining in your wallet, but for now you're just looking"
+                    "It would cost you ${roundedPrice} and you would have ${newWalletStr} remaining in your wallet"
             )
         }
     }
 
+    /**
+     * Handle the situation where a player is buying a shulker box full of items.
+     * @param player The player who is buying.
+     * @param merchandise The merchandise being bought.
+     */
     private fun handleBuyShulker(player: Player, merchandise: Merchandise) {
         val material = merchandise.material
         val shulkerMat = Material.getMaterial("SHULKER_BOX")!!
@@ -161,7 +243,7 @@ object TransactionUtils {
                         shulkerMerch.shownPrice
         if (MemberUtils.getWalletRounded(player) < filledPrice) {
             player.sendMessage(
-                    "${RED}You don't have enough money to buy a shulker box full of ${material.name}."
+                    "${RED}You don't have enough money to buy a shulker box full of ${merchandise.getName()}."
             )
             return
         }
@@ -169,26 +251,35 @@ object TransactionUtils {
         merchandise.buy(merchandise.material.maxStackSize * 27.0)
         shulkerMerch.buy(1.0)
         // Make the shulker box
-        var item = ItemStack(shulkerMat)
+        val shulkerItem = ItemStack(shulkerMat)
 
-        val im = item.getItemMeta() as BlockStateMeta
-        val shulkerbox = im.getBlockState() as ShulkerBox
+        val shulkerMeta = shulkerItem.getItemMeta() as BlockStateMeta
+        val shulkerBox = shulkerMeta.getBlockState() as ShulkerBox
 
-        shulkerbox.inventory.addItem(ItemStack(material, merchandise.material.maxStackSize * 27))
-        placeRemainingItems(player.inventory.addItem(item), player)
-        // TODO: Make sure this works
-
+        shulkerBox.inventory.addItem(ItemStack(material, merchandise.material.maxStackSize * 27))
+        shulkerMeta.setBlockState(shulkerBox)
+        shulkerItem.setItemMeta(shulkerMeta)
+        // The call to placeRemainingItems should handle the case where their inventory is already
+        // full
+        placeRemainingItems(player.inventory.addItem(shulkerItem), player)
     }
 
-    private fun withinBounds(player: Player, material: Material, amount: Int): Boolean {
+    /**
+     * Check whether the amount a player is buying is within the purchasing bounds.
+     * @param player The player who is buying.
+     * @param merchandise The merchandise being bought.
+     * @param amount The amount of items being bought.
+     * @return Whether the amount is within the bounds (and whether to return early.)
+     */
+    private fun withinBounds(player: Player, merchandise: Merchandise, amount: Int): Boolean {
         // Make sure amount requested is valid
         if (amount < 0) {
             player.sendMessage("${RED}I can't give you negative items dude :/")
             return false
         } else if (amount == 0) {
-            player.sendMessage("${GREEN}Aight here's your 0 ${material.name}")
+            player.sendMessage("${GREEN}Aight here's your 0 ${merchandise.getName()}")
             return false
-        } else if (amount > CostcoGlobals.maxStacksPurchase * material.maxStackSize) {
+        } else if (amount > CostcoGlobals.maxStacksPurchase * merchandise.material.maxStackSize) {
             player.sendMessage("${RED}You can't buy that many items.")
             return false
         }
