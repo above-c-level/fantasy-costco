@@ -1,7 +1,6 @@
 package games.skweekychair.fantasycostco
 
 import org.bukkit.ChatColor.*
-import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 
@@ -13,9 +12,9 @@ object TransactionUtils {
      * @param item The item being bought.
      * @param amount The amount of items being bought.
      */
-    fun handleBuyAmount(player: Player, material: Material, initialAmount: Int) {
+    fun handleBuyAmount(player: Player, merchandise: Merchandise, initialAmount: Int) {
         var amount = initialAmount
-        val merchandise = MerchUtils.getMerchandise(material)
+        val material = merchandise.material
         val membershipCard = MemberUtils.getMembershipCard(player)
         // Deal with cases where the player just wants to see prices
         if (membershipCard.justLooking) {
@@ -60,7 +59,9 @@ object TransactionUtils {
         player.sendMessage(
                 "${GREEN}You bought ${WHITE}${amount} ${material.name}${GREEN} for ${WHITE}${MemberUtils.roundDoubleString(price)}"
         )
-        player.sendMessage("${GREEN}Your wallet now contains ${WHITE}${MemberUtils.getWalletString(player)}")
+        player.sendMessage(
+                "${GREEN}Your wallet now contains ${WHITE}${MemberUtils.getWalletString(player)}"
+        )
     }
 
     /**
