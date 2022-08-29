@@ -28,6 +28,8 @@ enum class SignType {
 @Serializable
 data class SignData(
         var signType: SignType,
+        @Transient var lastUpdated: Long = 0L,
+        @Transient var lastUpdatedBy: String = ""
 ) {
     /** Cycle to the next sell option */
     fun nextSellOption() {
