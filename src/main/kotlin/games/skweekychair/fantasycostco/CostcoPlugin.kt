@@ -187,11 +187,13 @@ class CostcoListener : Listener {
             // They're holding air, so it's a sell sign
             SignUtils.addSignData(signLocation, SignType.SELL_ONE)
             SignUtils.updateSign(signLocation, false)
+            return
         } else if (ordainingSign && holdingAir && !signFound) {
             // Case 2
             // There is not a sign there, so initialize it
             SignUtils.addSignData(signLocation, SignType.SELL_ONE)
             SignUtils.updateSign(signLocation, false)
+            return
         } else if (ordainingSign && !holdingAir && signFound) {
             // Case 3
             val baseMerch = BaseMerchandise(itemStack!!.type, itemStack.enchantments)
@@ -210,18 +212,21 @@ class CostcoListener : Listener {
 
             SignUtils.addSignToMerch(baseMerch, signLocation, SignType.BUY_ONE)
             SignUtils.updateSign(signLocation, merch = MerchUtils.getMerchandise(baseMerch))
+            return
         } else if (ordainingSign && !holdingAir && !signFound) {
             // Case 4
             // There is not a sign there, so initialize it
             val baseMerch = BaseMerchandise(itemStack!!.type, itemStack.enchantments)
             SignUtils.addSignToMerch(baseMerch, signLocation, SignType.BUY_ONE)
             SignUtils.updateSign(signLocation, merch = MerchUtils.getMerchandise(baseMerch))
+            return
         }
         // All the above cases should have taken care of ordaining, so we just need to rule out
         // cases where there is no sign found
         if (!signFound) {
             return
         }
+        val merchandise = MerchUtils.getMerchandiseAtLocation(signLocation)
 
         // There is a sign here and this is a normal player or an op not ordaining
         val buySign = signData!!.isBuying()
@@ -232,15 +237,23 @@ class CostcoListener : Listener {
         if (buySign) {
             if (sneaking || membershipCard.justLooking) {
                 // If the player is just looking for buying
-                player.sendMessage("Just looking at buying")
+                if (membershipCard.useAmount) {
+                    // Buy using the player's buy target
+                    val amount = membershipCard.buyGoal
+                    TransactionUtils.handleJustLooking(player, merchandise, amount)
+                } else {
+                    // Buy using the sign's buy target
+                    player.sendMessage("Attempting to buy sign buytarget")
+                    // TODO: Buy sign value
+                }
+
                 // TODO: Just looking
             } else if (rightClick) {
                 if (membershipCard.useAmount) {
                     // Buy using the player's buy target
                     val amount = membershipCard.buyGoal
-                    val material = MerchUtils.getMerchandiseAtLocation(signLocation)
-                    player.sendMessage("Attempting to buy $amount")
-                    TransactionUtils.handleBuyAmount(player, material, amount)
+
+                    TransactionUtils.handleBuyAmount(player, merchandise, amount)
                 } else {
                     // Buy using the sign's buy target
                     player.sendMessage("Attempting to buy sign buytarget")
