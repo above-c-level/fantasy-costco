@@ -42,22 +42,15 @@ object MerchUtils {
         return Cereal.merch[baseMerch]!!
     }
 
-    fun getMerchandiseAtLocation(location: Location): Merchandise? {
-        val block = location.block
-        val blockState = block.state
-        if (blockState is InventoryHolder) {
-            val inventory = blockState.inventory
-            for (i in 0 until inventory.size) {
-                val item = inventory.getItem(i)
-                if (item != null) {
-                    val baseMerch = getBaseMerchandise(item)
-                    if (baseMerch != null) {
-                        return getMerchandise(baseMerch)
-                    }
-                }
-            }
-        }
-        return null
+    /**
+     * Gets the merchandise sold at the given location. If there is no merchandise at the location,
+     * a null reference exception is thrown.
+     * @param location The location to check.
+     * @return The merchandise at the location.
+     */
+    fun getMerchandiseAtLocation(location: Location): Merchandise {
+        val baseMerch = Cereal.purchasePoints[location]!!
+        return getMerchandise(baseMerch)
     }
 
     /**
@@ -87,22 +80,22 @@ object MerchUtils {
         return getMerchandise(baseMerch)
     }
     /**
- * Enchanted books store their information differently. This method gets the map of enchantments an
- * item has, regardless of whether it's an enchanted book. If there are no enchantments, returns an
- * empty Map<Enchantment, Int>
- * @param item The item to get the enchantments of.
- * @return The map of enchantments and levels.
- */
-fun getItemEnchants(item: ItemStack): Map<Enchantment, Int> {
-    var enchantments: Map<Enchantment, Int>? = null
-    if (item.type == Material.ENCHANTED_BOOK) {
-        val meta = item.itemMeta
-        if (meta is EnchantmentStorageMeta) {
-            enchantments = meta.getStoredEnchants()
+     * Enchanted books store their information differently. This method gets the map of enchantments
+     * an item has, regardless of whether it's an enchanted book. If there are no enchantments,
+     * returns an empty Map<Enchantment, Int>
+     * @param item The item to get the enchantments of.
+     * @return The map of enchantments and levels.
+     */
+    fun getItemEnchants(item: ItemStack): Map<Enchantment, Int> {
+        var enchantments: Map<Enchantment, Int>? = null
+        if (item.type == Material.ENCHANTED_BOOK) {
+            val meta = item.itemMeta
+            if (meta is EnchantmentStorageMeta) {
+                enchantments = meta.getStoredEnchants()
+            }
+        } else {
+            enchantments = item.enchantments
         }
-    } else {
-        enchantments = item.enchantments
+        return enchantments ?: HashMap<Enchantment, Int>()
     }
-    return enchantments ?: HashMap<Enchantment, Int>()
-}
 }
