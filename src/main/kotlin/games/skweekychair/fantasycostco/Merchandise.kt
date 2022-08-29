@@ -6,6 +6,7 @@ import java.util.Objects
 import java.util.Random
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
+import org.apache.commons.lang.WordUtils
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
@@ -263,5 +264,20 @@ class Merchandise(
         this.addMass()
         this.perturbPrice()
         SignUtils.updateAllSigns(this)
+    }
+
+    /**
+     * Formats the name of an item into a pretty capitalized string.
+     * @return A prettier string representation of the item's name.
+     */
+    fun getName(): String {
+        // We only care about name, and we want to fit whole words
+        // into chunks of 15 chars
+        var name = this.material.name.replace('_', ' ')
+        name = WordUtils.capitalizeFully(name)
+        if (this.enchantments.size > 0) {
+            return "Enchanted $name"
+        }
+        return name
     }
 }
