@@ -72,6 +72,9 @@ object CostcoGlobals {
         // It's important to multiply by 20 because minecraft has 20 ticks per second
         get() = spigotConfig.getLong("seconds-between-price-motion", 60L) * 20
 
+    val maxStacksPurchase
+        get() = spigotConfig.getInt("max-stacks-purchase", 27)
+
     val defaultMerchPrice
         get() = spigotConfig.getDouble("default-merch-price", 10.0)
 

@@ -28,6 +28,8 @@ clamp-multiplier: 0.5
 default-wallet: 100.0
 # How frequently prices should automatically update (in seconds)
 seconds-between-price-motion: 60
+# The maximum number of stacks of items that can be bought at once
+max-stacks-purchase: 27
 # The default price of a particular piece of merchandise if not found in mechprices.yml
 default-merch-price: 10.0
 # The default price of a particular type of enchantment if not found in enchantment.yml
