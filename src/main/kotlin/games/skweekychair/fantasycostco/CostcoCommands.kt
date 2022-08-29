@@ -50,7 +50,7 @@ object BuyCommand : TabExecutor {
         if (args.size == 2) {
             amount = args[1].toIntOrNull()
         } else {
-            amount = getMembershipCard(player).buyGoal
+            amount = MemberUtils.getMembershipCard(player).buyGoal
         }
         if (amount == null) {
             sender.sendMessage("${RED}Not an amount.")
@@ -114,7 +114,7 @@ object SellCommand : TabExecutor {
         val player: Player = sender
         val item = player.inventory.itemInMainHand
         val itemCount = item.amount
-        val merchandise = getMerchandise(item)
+        val merchandise = MerchUtils.getMerchandise(item)
         val price = merchandise.itemSellPrice(item.amount)
 
         if (merchandise.itemSellPrice(item.amount).isNaN()) {
@@ -130,25 +130,25 @@ object SellCommand : TabExecutor {
             return true
         }
 
-        if (getMembershipCard(player).justLooking) {
-            val newWallet = roundDoubleString(price + getWalletRounded(player))
-            val roundedPrice = roundDoubleString(price)
+        if (MemberUtils.getMembershipCard(player).justLooking) {
+            val newWallet = MemberUtils.roundDoubleString(price + MemberUtils.getWalletRounded(player))
+            val roundedPrice = MemberUtils.roundDoubleString(price)
             player.sendMessage(
                     "${GREEN}You would receive ${WHITE}${roundedPrice}${GREEN} in the sale and have ${WHITE}${newWallet}${GREEN} in your wallet, but for now you're just looking"
             )
             return true
         }
 
-        walletAdd(player, price)
-        val playerFunds = getWalletRounded(player)
+        MemberUtils.walletAdd(player, price)
+        val playerFunds = MemberUtils.getWalletRounded(player)
         player.sendMessage("${playerFunds}")
         player.inventory.setItemInMainHand(null)
         merchandise.sell(itemCount.toDouble())
         player.sendMessage(
-                "${GREEN}You received ${WHITE}${roundDoubleString(price)}${GREEN} in the sale"
+                "${GREEN}You received ${WHITE}${MemberUtils.roundDoubleString(price)}${GREEN} in the sale"
         )
         player.sendMessage(
-                "${GREEN}You now have ${WHITE}${getWalletString(player)}${GREEN} in your wallet"
+                "${GREEN}You now have ${WHITE}${MemberUtils.getWalletString(player)}${GREEN} in your wallet"
         )
 
         // broadcastAll("TAX FRAUD 🚨🚨⚠️⚠️ **__A  L  E  R  T__** ⚠️⚠️🚨🚨")
@@ -193,7 +193,7 @@ object GetWalletCommand : TabExecutor {
             return false
         }
         val player: Player = sender
-        player.sendMessage("${GREEN}You have ${WHITE}${getWalletString(player)}")
+        player.sendMessage("${GREEN}You have ${WHITE}${MemberUtils.getWalletString(player)}")
         return true
     }
 
@@ -255,7 +255,7 @@ object SetWalletCommand : TabExecutor {
             return false
         }
         // Set wallet with amount
-        setWallet(player, amount)
+        MemberUtils.setWallet(player, amount)
         if (player == sender) {
             sender.sendMessage("${GREEN}You have set your wallet to ${WHITE}${amount}")
         } else {
@@ -305,7 +305,7 @@ object BuyPossibleCommand : TabExecutor {
             return false
         }
 
-        val membershipCard = getMembershipCard(sender)
+        val membershipCard = MemberUtils.getMembershipCard(sender)
 
         // Get argument
         val status =
@@ -368,7 +368,7 @@ object AmountCommand : TabExecutor {
             return false
         }
 
-        val membershipCard = getMembershipCard(sender)
+        val membershipCard = MemberUtils.getMembershipCard(sender)
 
         // Make sure argument is an int
         var amount = args[0].toIntOrNull()
@@ -426,7 +426,7 @@ object JustLookingCommand : TabExecutor {
             return false
         }
 
-        val membershipCard = getMembershipCard(sender)
+        val membershipCard = MemberUtils.getMembershipCard(sender)
 
         // Get argument
         val status =
@@ -491,7 +491,7 @@ object OrdainCommand : TabExecutor {
             return false
         }
 
-        val membershipCard = getMembershipCard(sender)
+        val membershipCard = MemberUtils.getMembershipCard(sender)
 
         // Get argument
         val status =
@@ -579,7 +579,7 @@ object BalanceTopCommand : TabExecutor {
                 break
             }
             sender.sendMessage(
-                    "${place+1}. ${Bukkit.getOfflinePlayer(card.first).name}: ${roundDoubleString(card.second.balance)}"
+                    "${place+1}. ${Bukkit.getOfflinePlayer(card.first).name}: ${MemberUtils.roundDoubleString(card.second.balance)}"
             )
         }
 
@@ -631,25 +631,25 @@ object PayCommand : TabExecutor {
             sender.sendMessage("${RED}Not a valid amount")
             return false
         }
-        amount = roundDouble(amount)
+        amount = MemberUtils.roundDouble(amount)
 
-        if (getWallet(payer) < amount) {
+        if (MemberUtils.getWallet(payer) < amount) {
             sender.sendMessage("${RED}You can't afford to send that much.")
             sender.sendMessage(
-                    "${RED}You have ${WHITE}${getWalletRounded(payer)}${RED} and tried to send ${WHITE}${roundDoubleString(amount)}"
+                    "${RED}You have ${WHITE}${MemberUtils.getWalletRounded(payer)}${RED} and tried to send ${WHITE}${MemberUtils.roundDoubleString(amount)}"
             )
             // returning true cuz they know how to use the command
             return true
         }
 
-        walletSubtract(payer, amount)
-        walletAdd(payee, amount)
+        MemberUtils.walletSubtract(payer, amount)
+        MemberUtils.walletAdd(payee, amount)
 
         sender.sendMessage(
-                "${GREEN}You paid ${WHITE}${roundDoubleString(amount)}${GREEN} to ${payee.name}"
+                "${GREEN}You paid ${WHITE}${MemberUtils.roundDoubleString(amount)}${GREEN} to ${payee.name}"
         )
         payee.sendMessage(
-                "${GREEN}You were paid ${WHITE}${roundDoubleString(amount)}${GREEN} by ${payer.name}"
+                "${GREEN}You were paid ${WHITE}${MemberUtils.roundDoubleString(amount)}${GREEN} by ${payer.name}"
         )
 
         return true
