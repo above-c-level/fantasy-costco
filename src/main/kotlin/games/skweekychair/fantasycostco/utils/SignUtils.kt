@@ -140,7 +140,11 @@ object SignUtils {
             // Here are the buy signs
             SignType.TRUE_PRICE -> {
                 this.updateSignLine(signLocation, 2, "Ideal Price:")
-                this.updateSignLine(signLocation, 3, MemberUtils.roundDoubleString(merch!!.shownPrice))
+                this.updateSignLine(
+                        signLocation,
+                        3,
+                        MemberUtils.roundDoubleString(merch!!.shownPrice)
+                )
             }
             SignType.BUY_ONE -> {
                 val singlePrice = merch!!.itemBuyPrice(1)
@@ -156,7 +160,8 @@ object SignUtils {
                 this.updateSignLine(signLocation, 2, "Buy full Shulker")
                 val shulkerMerch = Material.getMaterial("SHULKER_BOX")!!
                 // Ideal price of shulker box because they're already buying upwards of 1728 items
-                val shulkerPrice = MerchUtils.getMerchandise(BaseMerchandise(shulkerMerch)).shownPrice
+                val shulkerPrice =
+                        MerchUtils.getMerchandise(BaseMerchandise(shulkerMerch)).shownPrice
                 val filledPrice =
                         merch!!.itemBuyPrice(merch.material.maxStackSize * 27) + shulkerPrice
                 this.updateSignLine(signLocation, 3, MemberUtils.roundDoubleString(filledPrice))
