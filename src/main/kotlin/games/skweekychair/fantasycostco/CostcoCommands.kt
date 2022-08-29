@@ -59,7 +59,7 @@ object BuyCommand : TabExecutor {
 
         val merchandise = MerchUtils.getMerchandise(material)
         // Deal with actually purchasing items
-        TransactionUtils.handleBuyAmount(player, merchandise, amount)
+        BuyUtils.handleBuyAmount(player, merchandise, amount)
         return true
     }
 
