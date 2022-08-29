@@ -226,7 +226,7 @@ class CostcoListener : Listener {
         if (!signFound) {
             return
         }
-        val merchandise = MerchUtils.getMerchandiseAtLocation(signLocation)
+
 
         // There is a sign here and this is a normal player or an op not ordaining
         val buySign = signData!!.isBuying()
@@ -235,50 +235,52 @@ class CostcoListener : Listener {
         val rightClick = event.getAction() == Action.RIGHT_CLICK_BLOCK
 
         if (buySign) {
+            val merchandise = MerchUtils.getMerchandiseAtLocation(signLocation)
             if (sneaking || membershipCard.justLooking) {
                 // If the player is just looking for buying
                 if (membershipCard.useAmount) {
                     // Buy using the player's buy target
                     val amount = membershipCard.buyGoal
-                    TransactionUtils.handleJustLooking(player, merchandise, amount)
+                    player.sendMessage("Just looking")
+                    BuyUtils.handleJustLooking(player, merchandise, amount)
+                    // TODO: verify this works
                 } else {
                     // Buy using the sign's buy target
-                    player.sendMessage("Attempting to buy sign buytarget")
-                    // TODO: Buy sign value
+                    player.sendMessage("Attempting to look at sign buytarget")
+                    BuyUtils.handleJustLookingAtSign(player, signLocation)
+                    // TODO: verify this works
                 }
-
-                // TODO: Just looking
             } else if (rightClick) {
                 if (membershipCard.useAmount) {
                     // Buy using the player's buy target
                     val amount = membershipCard.buyGoal
-
-                    TransactionUtils.handleBuyAmount(player, merchandise, amount)
+                    player.sendMessage("Buy with useAmount")
+                    BuyUtils.handleBuyAmount(player, merchandise, amount)
+                    // TODO: verify this works
                 } else {
                     // Buy using the sign's buy target
-                    player.sendMessage("Attempting to buy sign buytarget")
-                    // TODO: Buy sign value
+                    player.sendMessage("useAmount false, buying with sign's value")
+                    BuyUtils.handleBuyFromSign(player, signLocation)
+                    // TODO: verify this works
                 }
             } else {
                 // The player is toggling the sign
-                player.sendMessage("Rotating sign")
                 SignUtils.rotateSign(signLocation)
-                // TODO: Verify this works
+                //* This works
             }
         } else {
             if (sneaking || membershipCard.justLooking) {
                 // If the player is just looking for buying
                 player.sendMessage("Just looking at selling")
-                // TODO: Just looking sell
+                // TODO: verify this works
             } else if (rightClick) {
                 // Player selling using sign's sell target
-                // TODO: Sell using sign's sell target
                 player.sendMessage("Pretend you're selling to the sign you clicked on")
+                // TODO: Sell using sign's sell target
             } else {
                 // If the sign is a sell sign, attempt to sell
-                player.sendMessage("Rotating sign")
                 SignUtils.rotateSign(signLocation)
-                // TODO: Verify this works
+                //* This works
             }
         }
     }
