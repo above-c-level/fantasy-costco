@@ -36,8 +36,7 @@ data class SignData(
         when (signType) {
             SignType.SELL_ONE -> signType = SignType.SELL_STACK
             SignType.SELL_STACK -> signType = SignType.SELL_TYPE
-            SignType.SELL_TYPE -> signType = SignType.SELL_ALL
-            SignType.SELL_ALL -> signType = SignType.SELL_ONE
+            SignType.SELL_TYPE -> signType = SignType.SELL_ONE
             else -> {
                 signType = SignType.SELL_ONE
             }
