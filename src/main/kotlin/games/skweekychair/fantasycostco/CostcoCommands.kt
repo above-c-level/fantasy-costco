@@ -351,6 +351,63 @@ object AmountCommand : TabExecutor {
     }
 }
 
+object UseAmountCommand : TabExecutor {
+    override fun onCommand(
+            sender: CommandSender,
+            cmd: Command,
+            lbl: String,
+            args: Array<String>
+    ): Boolean {
+        if (sender !is Player) {
+            sender.sendMessage("${RED}You have to be a player to use this command.")
+            return true
+        }
+
+        // Check args number
+        if (args.size == 0) {
+            return false
+        } else if (args.size > 1) {
+            sender.sendMessage("${RED}This command only takes one argument")
+            return false
+        }
+
+        val membershipCard = MemberUtils.getMembershipCard(sender)
+
+        // Get argument
+        val status =
+                when (args[0]) {
+                    "true" -> true
+                    "false" -> false
+                    "get" -> membershipCard.useAmount
+                    "t" -> true
+                    "f" -> false
+                    else -> {
+                        return false
+                    }
+                }
+
+        membershipCard.useAmount = status
+        if (membershipCard.justLooking) {
+            sender.sendMessage(
+                    "You are ${if (args[0] == "get") "currently" else "now" } ${GREEN}using${WHITE} the amount you set to override sign amounts"
+            )
+        } else {
+            sender.sendMessage(
+                    "You are ${RED}${if (args[0] == "get") "not" else "no longer" }${WHITE}using the amount you set to override sign amounts"
+            )
+        }
+        return true
+    }
+    override fun onTabComplete(
+            sender: CommandSender,
+            cmd: Command,
+            lbl: String,
+            args: Array<String>
+    ): List<String> {
+        return if (args.size == 1) listOf<String>("true", "false", "get") else listOf<String>()
+    }
+}
+
 /**
  * Gets or changes the value of whether a player is "Just Looking" so that they don't actually
  * buy/sell anything, but can see the prices based on how many they're buying or selling.
