@@ -347,7 +347,8 @@ object AmountCommand : TabExecutor {
             lbl: String,
             args: Array<String>
     ): List<String> {
-        return if (args.size == 1) listOf<String>("get", "0..1728") else listOf<String>()
+        // TODO: Can we maybe add a different approach, like "get" and "10 items" and "12 stacks"?
+        return if (args.size == 1) listOf<String>("get", "0..2304") else listOf<String>()
     }
 }
 
