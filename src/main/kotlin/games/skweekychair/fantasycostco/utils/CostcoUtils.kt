@@ -1,14 +1,8 @@
 package games.skweekychair.fantasycostco
 
-import java.util.Locale
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import org.bukkit.Bukkit
-import org.bukkit.Material
-import org.bukkit.enchantments.Enchantment
-import org.bukkit.entity.Player
-import org.bukkit.inventory.ItemStack
-import org.bukkit.inventory.meta.EnchantmentStorageMeta
 
 /**
  * Broadcasts a message to all players on both the minecraft server and to the discord server.
@@ -45,8 +39,6 @@ fun logIfDebug(message: String) {
     }
 }
 
-
-
 /** Logs an info message to the console. */
 fun LogInfo(message: String) {
     return Bukkit.getServer().getLogger().info("[FantasyCostco] $message")
@@ -56,7 +48,6 @@ fun LogInfo(message: String) {
 fun LogWarning(message: String) {
     return Bukkit.getServer().getLogger().warning("[FantasyCostco] $message")
 }
-
 
 /**
  * Worst case scenario is the player wants a full inventory, so even if we increase the amount a
