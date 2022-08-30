@@ -280,4 +280,12 @@ class Merchandise(
         }
         return name
     }
+
+    /**
+     * Gets the base merchandise of this merch
+     * @return The base merchandise
+     */
+    fun baseMerch(): BaseMerchandise {
+        return BaseMerchandise(this.material, this.enchantments)
+    }
 }
