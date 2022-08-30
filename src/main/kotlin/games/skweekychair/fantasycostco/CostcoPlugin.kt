@@ -54,6 +54,7 @@ class CostcoPlugin : JavaPlugin() {
         getCommand("balance-top")?.setExecutor(BalanceTopCommand)
 
         getCommand("pay")?.setExecutor(PayCommand)
+        getCommand("use-amount")?.setExecutor(UseAmountCommand)
 
         Cereal.loadAll()
 
