@@ -16,7 +16,7 @@ object CostcoGlobals {
 
     // Starting amount in wallet
     val defaultWallet
-        get() = spigotConfig.getDouble("default-wallet", 500.0)
+        get() = spigotConfig.getDouble("default-wallet", 420.69)
 
     // Mass to add to each transaction
     val massPerTransaction
@@ -73,7 +73,7 @@ object CostcoGlobals {
         get() = spigotConfig.getLong("seconds-between-price-motion", 60L) * 20
 
     val maxStacksPurchase
-        get() = spigotConfig.getInt("max-stacks-purchase", 27)
+        get() = spigotConfig.getInt("max-stacks-purchase", 36)
 
     val defaultMerchPrice
         get() = spigotConfig.getDouble("default-merch-price", 10.0)
