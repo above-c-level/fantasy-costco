@@ -90,7 +90,7 @@ object SellUtils {
             return
         }
         val priceToAdd = merchandise.itemSellPrice(amount)
-        MemberUtils.walletAdd(player, priceToAdd)
+        performSale(player, priceToAdd, amount, merchandise)
     }
 
     /**
