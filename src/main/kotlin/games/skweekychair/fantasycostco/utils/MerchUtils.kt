@@ -18,7 +18,6 @@ object MerchUtils {
     fun getMerchandise(baseMerch: BaseMerchandise): Merchandise {
 
         if (baseMerch !in Cereal.merch) {
-            logIfDebug("${baseMerch.material.name} not in merch")
             val material = baseMerch.material
             if (CostcoGlobals.hasFixedPrice(material)) {
                 val bestGuessPrice = CostcoGlobals.fixedPrice(baseMerch.material)
