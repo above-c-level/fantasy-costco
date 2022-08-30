@@ -223,7 +223,6 @@ object EnchantmentSerializer : KSerializer<Enchantment> {
      * @return The Enchantment.
      */
     override fun deserialize(decoder: Decoder): Enchantment {
-        // TODO: Does this cause an uh-oh? a fucky wucky? We'll have to see!
         return Enchantment.getByKey(NamespacedKey.fromString(decoder.decodeString()))!!
     }
 }
