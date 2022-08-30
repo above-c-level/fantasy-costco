@@ -396,6 +396,10 @@ object SellUtils {
         val shulkerMeta = shulkerItem.getItemMeta() as BlockStateMeta
         val shulkerBox = shulkerMeta.getBlockState() as ShulkerBox
         val inventory = shulkerBox.inventory
+        // Check whether the shulker box is also buyable
+        if (!isAccepted(player, shulkerItem, sendMessages)) {
+            return
+        }
 
         if (inventory.isEmpty) {
             val shulkerMerch = MerchUtils.getMerchandise(shulkerItem)
@@ -442,6 +446,7 @@ object SellUtils {
                             "${GREEN} in your wallet"
             )
         }
+        SignUtils.updateAllShulkerSigns()
     }
 
     /**
@@ -459,7 +464,10 @@ object SellUtils {
         val shulkerMeta = shulkerItem.getItemMeta() as BlockStateMeta
         val shulkerBox = shulkerMeta.getBlockState() as ShulkerBox
         val inventory = shulkerBox.inventory
-
+        // Check whether the shulker box is also buyable
+        if (!isAccepted(player, shulkerItem, sendMessages)) {
+            return
+        }
         if (inventory.isEmpty) {
             val shulkerMerch = MerchUtils.getMerchandise(shulkerItem)
             val sellPrice = shulkerMerch.itemSellPrice(1)
