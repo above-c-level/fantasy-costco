@@ -47,6 +47,7 @@ object SellUtils {
         if (price.isNaN()) {
             player.sendMessage("Don't sell air man!")
         }
+        performSale(player, price, amount, merchandise)
     }
 
     /**
@@ -379,6 +380,13 @@ object SellUtils {
         val shulkerBox = shulkerMeta.getBlockState() as ShulkerBox
         val inventory = shulkerBox.inventory
 
+        if (inventory.isEmpty) {
+            val shulkerMerch = MerchUtils.getMerchandise(shulkerItem)
+            val sellPrice = shulkerMerch.itemSellPrice(1)
+            performSale(player, sellPrice, 1, shulkerMerch)
+            return
+
+        }
         var sellAmounts = HashMap<Merchandise, Int>()
         for (i in 0 until inventory.size) {
             val item = inventory.getItem(i)
@@ -398,6 +406,7 @@ object SellUtils {
             }
             inventory.setItem(i, null)
         }
+
         var totalPrice = 0.0
         for ((merchandise, amount) in sellAmounts) {
             val price = merchandise.itemSellPrice(amount)
