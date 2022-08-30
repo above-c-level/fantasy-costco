@@ -199,9 +199,15 @@ class CostcoListener : Listener {
             // Case 3
             val baseMerch = BaseMerchandise(itemStack!!.type, itemStack.enchantments)
             // If the sign is a buy sign
-            if (signData!!.isBuying()) {
+            val baseMerchAtSign = MerchUtils.getMerchandiseAtLocation(signLocation).baseMerch()
+            if (signData!!.isBuying() && baseMerchAtSign == baseMerch) {
                 // There is a sign there, so cycle through sell options
                 SignUtils.rotateSign(signLocation)
+                return
+            }
+            // Check to make sure merch is valid
+            if (CostcoGlobals.isNotAccepted(baseMerch.material)) {
+                player.sendMessage("${RED}We aren't trading ${baseMerch.material.name}")
                 return
             }
 
@@ -218,6 +224,11 @@ class CostcoListener : Listener {
             // Case 4
             // There is not a sign there, so initialize it
             val baseMerch = BaseMerchandise(itemStack!!.type, itemStack.enchantments)
+            // Check to make sure merch is valid
+            if (CostcoGlobals.isNotAccepted(baseMerch.material)) {
+                player.sendMessage("${RED}We aren't trading ${baseMerch.material.name}")
+                return
+            }
             SignUtils.addSignToMerch(baseMerch, signLocation, SignType.BUY_ONE)
             SignUtils.updateSign(signLocation, merch = MerchUtils.getMerchandise(baseMerch))
             return
