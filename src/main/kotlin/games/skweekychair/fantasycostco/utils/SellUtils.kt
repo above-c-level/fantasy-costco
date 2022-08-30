@@ -84,7 +84,7 @@ object SellUtils {
             return
         }
         val merchandise = MerchUtils.getMerchandise(itemInHand)
-        val amount = getSellAmountFromInventory(player, itemInHand)
+        val amount = getSellAmountFromInventory(player, itemInHand, true)
         if (amount < 0) {
             return
         }
