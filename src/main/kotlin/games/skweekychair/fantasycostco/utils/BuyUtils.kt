@@ -22,13 +22,6 @@ object BuyUtils {
         if (!withinBounds(player, merchandise, amount)) {
             return
         }
-        val membershipCard = MemberUtils.getMembershipCard(player)
-        // Deal with cases where the player just wants to see prices
-        if (membershipCard.justLooking) {
-            handleJustLooking(player, merchandise, amount)
-            return
-        }
-
         val playerFunds = MemberUtils.getWalletRounded(player)
         var price = MemberUtils.roundDouble(merchandise.itemBuyPrice(amount))
         // Make sure the player has enough money to buy the items
@@ -96,26 +89,14 @@ object BuyUtils {
                 return
             }
             SignType.TRUE_PRICE -> {
-                if (membershipCard.justLooking) {
-                    handleJustLooking(
-                            player,
-                            MerchUtils.getMerchandiseAtLocation(location),
-                            membershipCard.buyGoal // Since this is true price value
-                    )
-                } else {
-                    player.sendMessage(
-                            "${RED}You don't have ${WHITE}/useamount${RED} set to true to buy from this sign (maybe try toggling the sign)"
-                    )
-                }
+                player.sendMessage(
+                        "${RED}You don't have ${WHITE}/useamount${RED} set to true to buy from this sign (maybe try toggling the sign)"
+                )
                 return
             }
             else -> throw IllegalArgumentException("handleBuyFromSign called incorrectly")
         }
 
-        if (membershipCard.justLooking) {
-            handleJustLooking(player, merchandise, amount)
-            return
-        }
         handleBuyAmount(player, merchandise, amount)
     }
 
