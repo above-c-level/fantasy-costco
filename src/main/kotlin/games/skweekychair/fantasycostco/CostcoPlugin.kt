@@ -246,7 +246,6 @@ class CostcoListener : Listener {
                 } else {
                     // Buy using the sign's buy target
                     BuyUtils.handleJustLookingAtSign(player, signLocation)
-                    // * This works
                 }
             } else if (rightClick) {
                 if (membershipCard.useAmount) {
@@ -257,30 +256,23 @@ class CostcoListener : Listener {
                     // TODO: verify this works (after implementing /use-amount)
                 } else {
                     // Buy using the sign's buy target
-                    player.sendMessage("useAmount false, buying with sign's value")
                     BuyUtils.handleBuyFromSign(player, signLocation)
-                    // TODO: verify this works
                 }
             } else {
                 // The player is toggling the sign
                 SignUtils.rotateSign(signLocation)
-                // * This works
             }
         } else {
             if (sneaking || membershipCard.justLooking) {
                 // If the player is just looking for buying
                 player.sendMessage("Just looking at selling")
                 SellUtils.handleJustLookingAtSign(player, signLocation)
-                // TODO: verify this works
             } else if (rightClick) {
                 // Player selling using sign's sell target
-                player.sendMessage("Pretend you're selling to the sign you clicked on")
                 SellUtils.handleSellToSign(player, signLocation)
-                // TODO: verify this works
             } else {
                 // If the sign is a sell sign, attempt to sell
                 SignUtils.rotateSign(signLocation)
-                // * This works
             }
         }
     }
