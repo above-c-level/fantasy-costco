@@ -390,15 +390,19 @@ object SignUtils {
             updateSign(location, false)
         } else {
             signData.nextBuyOption()
-            updateSign(location, true, MerchUtils.getMerchandiseAtLocation(location))
+            val merch = MerchUtils.getMerchandiseAtLocation(location)
+            if (signData.signType == SignType.BUY_STACK && merch.material.maxStackSize == 1) {
+                signData.nextBuyOption()
+            }
+            updateSign(location, false, merch)
         }
 
         return true
     }
 
     /**
-     * Updates all signs currently set to selling shulker boxes of items to have the correct value. Should be called
-     * when a shulker box is sold.
+     * Updates all signs currently set to selling shulker boxes of items to have the correct value.
+     * Should be called when a shulker box is sold.
      */
     fun updateAllShulkerSigns() {
         for ((location, signData) in Cereal.signs) {
