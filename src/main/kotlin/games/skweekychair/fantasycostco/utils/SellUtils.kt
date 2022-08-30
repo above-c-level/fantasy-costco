@@ -16,7 +16,6 @@ object SellUtils {
      * @param location The location of the sign.
      */
     fun handleSellToSign(player: Player, location: Location) {
-        // TODO: Check to make sure the item (if not air) is not a shulker box containing items
         val signType = Cereal.signs[location]!!.signType
         when (signType) {
             SignType.SELL_ONE -> handleSellSingle(player)
@@ -302,7 +301,7 @@ object SellUtils {
      * @return True if the player is allowed to sell `item` and false otherwise.
      */
     private fun isAccepted(player: Player, item: ItemStack, sendMessages: Boolean = true): Boolean {
-        // TODO: If we ever accept enchanted items, deal with that
+        // TODO: When enchantment support is added, deal with enchantments
         if (item.enchantments.isNotEmpty()) {
             if (sendMessages) {
                 player.sendMessage("Enchantments are not yet supported")
