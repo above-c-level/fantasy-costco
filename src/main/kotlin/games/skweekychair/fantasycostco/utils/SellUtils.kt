@@ -34,7 +34,7 @@ object SellUtils {
         val item = itemInHand.type
         val merchandise = MerchUtils.getMerchandise(item)
         val amount = 1
-        if (!isAccepted(player, itemInHand, merchandise)) {
+        if (!isAccepted(player, itemInHand)) {
             return
         }
         val price = merchandise.itemSellPrice(amount)
@@ -48,7 +48,7 @@ object SellUtils {
         val item = itemInHand.type
         val merchandise = MerchUtils.getMerchandise(item)
         val amount = itemInHand.amount
-        if (!isAccepted(player, itemInHand, merchandise)) {
+        if (!isAccepted(player, itemInHand)) {
             return
         }
         val price = merchandise.itemSellPrice(amount)
@@ -71,7 +71,7 @@ object SellUtils {
         val inventory = player.inventory
         // Inventory has 36 items excluding armor slots and offhand
         var sellAmount = 0
-        if (!isAccepted(player, itemInHand, merchandise)) {
+        if (!isAccepted(player, itemInHand)) {
             return
         }
         for (i in 0 until 36) {
@@ -97,10 +97,12 @@ object SellUtils {
             if (item == null) {
                 continue
             }
-            val baseMerch = MerchUtils.getMerchandise(item).baseMerch()
-            if (baseMerch.enchantments.isNotEmpty()) {
+
+            if (!isAccepted(player, item, false)) {
                 continue
             }
+
+            val baseMerch = MerchUtils.getMerchandise(item).baseMerch()
             if (!sellAmounts.containsKey(baseMerch)) {
                 sellAmounts[baseMerch] = item.amount
             } else {
@@ -161,7 +163,7 @@ object SellUtils {
         val inventory = player.inventory
         // Inventory has 36 items excluding armor slots and offhand
         var sellAmount = 0
-        if (!isAccepted(player, itemInHand, merchandise)) {
+        if (!isAccepted(player, itemInHand)) {
             return
         }
         for (i in 0 until 36) {
@@ -185,10 +187,10 @@ object SellUtils {
             if (item == null) {
                 continue
             }
-            val baseMerch = MerchUtils.getMerchandise(item).baseMerch()
-            if (baseMerch.enchantments.isNotEmpty()) {
+            if (!isAccepted(player, item, false)) {
                 continue
             }
+            val baseMerch = MerchUtils.getMerchandise(item).baseMerch()
             if (!sellAmounts.containsKey(baseMerch)) {
                 sellAmounts[baseMerch] = item.amount
             } else {
@@ -219,23 +221,31 @@ object SellUtils {
         )
     }
 
-    private fun isAccepted(player: Player, item: ItemStack, merchandise: Merchandise): Boolean {
+    private fun isAccepted(player: Player, item: ItemStack, sendMessages: Boolean = true): Boolean {
         // TODO: If we ever accept enchanted items, deal with that
-        if (merchandise.enchantments.isNotEmpty()) {
-            player.sendMessage("Enchantments are not yet supported")
+        if (item.enchantments.isNotEmpty()) {
+            if (sendMessages) {
+                player.sendMessage("Enchantments are not yet supported")
+            }
             return false
         }
         if (item.type == Material.AIR) {
-            player.sendMessage("Don't sell air man!")
+            if (sendMessages) {
+                player.sendMessage("Don't sell air man!")
+            }
             return false
         }
         // TODO: If we ever accept damaged items, deal with that
         val damageable = item.getItemMeta() as Damageable
         if (damageable.hasDamage()) {
-            player.sendMessage("Sorry, but we can't accept damaged goods :/")
+            if (sendMessages) {
+                player.sendMessage("Sorry, but we can't accept damaged goods :/")
+            }
             return false
         } else if (CostcoGlobals.isNotAccepted(item.type)) {
-            player.sendMessage("Sorry, but we don't accept that item :/")
+            if (sendMessages) {
+                player.sendMessage("Sorry, but we don't accept that item :/")
+            }
             return false
         }
         return true
