@@ -233,6 +233,7 @@ class CostcoListener : Listener {
         val sneaking = player.isSneaking()
         val rightClick = event.getAction() == Action.RIGHT_CLICK_BLOCK
 
+        // TODO: Do some testing of buyMaxItems with new sign system
         if (buySign) {
             val merchandise = MerchUtils.getMerchandiseAtLocation(signLocation)
             if (sneaking || membershipCard.justLooking) {
