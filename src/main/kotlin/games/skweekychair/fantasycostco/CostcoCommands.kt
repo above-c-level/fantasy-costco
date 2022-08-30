@@ -9,7 +9,6 @@ import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.command.TabExecutor
 import org.bukkit.entity.Player
-import org.bukkit.inventory.meta.Damageable
 import org.bukkit.util.StringUtil
 
 /** Allows the player to purchase items in exchange for money */
@@ -58,6 +57,11 @@ object BuyCommand : TabExecutor {
         }
 
         val merchandise = MerchUtils.getMerchandise(material)
+        val membershipCard = MemberUtils.getMembershipCard(player)
+        if (membershipCard.justLooking) {
+            BuyUtils.handleJustLooking(player, merchandise, amount)
+            return true
+        }
         // Deal with actually purchasing items
         BuyUtils.handleBuyAmount(player, merchandise, amount)
         return true
@@ -101,49 +105,12 @@ object SellCommand : TabExecutor {
             return false
         }
         val player: Player = sender
-        val item = player.inventory.itemInMainHand
-        val itemCount = item.amount
-        val merchandise = MerchUtils.getMerchandise(item)
-        val price = merchandise.itemSellPrice(item.amount)
-
-        if (merchandise.itemSellPrice(item.amount).isNaN()) {
-            player.sendMessage("Don't sell air man!")
-            return false
-        }
-        val damageable = item.getItemMeta() as Damageable
-        if (damageable.hasDamage()) {
-            player.sendMessage("Sorry, but we can't accept damaged goods :/")
-            return true
-        } else if (CostcoGlobals.isNotAccepted(item.type)) {
-            player.sendMessage("Sorry, but we don't accept that item :/")
+        val membershipCard = MemberUtils.getMembershipCard(player)
+        if (membershipCard.justLooking) {
+            SellUtils.handleJustLookingStack(player)
             return true
         }
-
-        if (MemberUtils.getMembershipCard(player).justLooking) {
-            val newWallet =
-                    MemberUtils.roundDoubleString(price + MemberUtils.getWalletRounded(player))
-            val roundedPrice = MemberUtils.roundDoubleString(price)
-            player.sendMessage(
-                    "${GREEN}You would receive ${WHITE}${roundedPrice}${GREEN} in the sale and have ${WHITE}${newWallet}${GREEN} in your wallet, but for now you're just looking"
-            )
-            return true
-        }
-
-        MemberUtils.walletAdd(player, price)
-        val playerFunds = MemberUtils.getWalletRounded(player)
-        player.sendMessage("${playerFunds}")
-        player.inventory.setItemInMainHand(null)
-        merchandise.sell(itemCount.toDouble())
-        player.sendMessage(
-                "${GREEN}You received ${WHITE}${MemberUtils.roundDoubleString(price)}${GREEN} in the sale"
-        )
-        player.sendMessage(
-                "${GREEN}You now have ${WHITE}${MemberUtils.getWalletString(player)}${GREEN} in your wallet"
-        )
-
-        // broadcastAll("TAX FRAUD 🚨🚨⚠️⚠️ **__A  L  E  R  T__** ⚠️⚠️🚨🚨")
-        // broadcastDiscord("https://tenor.com/view/burnt-demonic-demon-scream-screaming-gif-13844791")
-
+        SellUtils.handleSellStack(player)
         return true
     }
 
