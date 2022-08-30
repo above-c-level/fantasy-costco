@@ -396,11 +396,15 @@ object SignUtils {
         return true
     }
 
+    /**
+     * Updates all signs currently set to selling shulker boxes of items to have the correct value. Should be called
+     * when a shulker box is sold.
+     */
     fun updateAllShulkerSigns() {
-        val shulkerMat = Material.getMaterial("SHULKER_BOX")!!
         for ((location, signData) in Cereal.signs) {
             if (signData.signType == SignType.BUY_SHULKER_BOX) {
-                updateSign(location, false, shulkerMat)
+                val merch = MerchUtils.getMerchandiseAtLocation(location)
+                updateSign(location, false, merch)
             }
         }
     }
