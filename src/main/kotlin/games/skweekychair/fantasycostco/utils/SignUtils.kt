@@ -395,4 +395,13 @@ object SignUtils {
 
         return true
     }
+
+    fun updateAllShulkerSigns() {
+        val shulkerMat = Material.getMaterial("SHULKER_BOX")!!
+        for ((location, signData) in Cereal.signs) {
+            if (signData.signType == SignType.BUY_SHULKER_BOX) {
+                updateSign(location, false, shulkerMat)
+            }
+        }
+    }
 }
