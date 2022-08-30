@@ -3,36 +3,19 @@ package games.skweekychair.fantasycostco
 import org.bukkit.ChatColor.*
 import org.bukkit.Location
 import org.bukkit.Material
-import org.bukkit.block.ShulkerBox
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
-import org.bukkit.inventory.meta.BlockStateMeta
 import org.bukkit.inventory.meta.Damageable
 
 object SellUtils {
-    fun handleSellAmount(player: Player, amount: Int): Boolean {
-        if (MemberUtils.getMembershipCard(player).justLooking) {
-            val newWallet =
-                    MemberUtils.roundDoubleString(price + MemberUtils.getWalletRounded(player))
-            val roundedPrice = MemberUtils.roundDoubleString(price)
-            player.sendMessage(
-                    "${GREEN}You would receive ${WHITE}${roundedPrice}${GREEN} in the sale and have ${WHITE}${newWallet}${GREEN} in your wallet, but for now you're just looking"
-            )
-            return true
-        }
-    }
-
     /**
      * Handles the transaction of a player selling to a sign
      * @param player The player selling the items.
      * @param location The location of the sign.
      */
     fun handleSellToSign(player: Player, location: Location) {
-        val itemInHand = player.inventory.itemInMainHand
         // TODO: Check to make sure the item (if not air) is not a shulker box containing items
         val signType = Cereal.signs[location]!!.signType
-        val membershipCard = MemberUtils.getMembershipCard(player)
-        var amount: Int
         when (signType) {
             SignType.SELL_ONE -> handleSellSingle(player)
             SignType.SELL_STACK -> handleSellStack(player)
@@ -42,7 +25,10 @@ object SellUtils {
         }
     }
 
-
+    /**
+     * Handles the transaction of a player selling a single item.
+     * @param player The player selling the item.
+     */
     fun handleSellSingle(player: Player) {
         val itemInHand = player.inventory.itemInMainHand
         val item = itemInHand.type
@@ -57,13 +43,13 @@ object SellUtils {
         }
     }
 
-    fun handleSellStack(player: Player): Boolean {
+    fun handleSellStack(player: Player) {
         val itemInHand = player.inventory.itemInMainHand
         val item = itemInHand.type
         val merchandise = MerchUtils.getMerchandise(item)
         val amount = itemInHand.amount
         if (!isAccepted(player, itemInHand, merchandise)) {
-            return true
+            return
         }
         val price = merchandise.itemSellPrice(amount)
         if (price.isNaN()) {
@@ -80,7 +66,7 @@ object SellUtils {
     private fun handleSellType(player: Player) {
         val itemInHand = player.inventory.itemInMainHand
         val merchandise = MerchUtils.getMerchandise(itemInHand)
-        // TODO: If enchantment support is added, update this to handle them
+        // TODO: When enchantment support is added, update this to handle them
         val enchantments = itemInHand.enchantments
         val inventory = player.inventory
         // Inventory has 36 items excluding armor slots and offhand
@@ -111,122 +97,126 @@ object SellUtils {
             if (item == null) {
                 continue
             }
-            val merchandise = MerchUtils.getMerchandise(item)
-            if (item.type == itemInHand.type) {
-                sellAmount += item.amount
-                inventory.setItem(i, null)
+            val baseMerch = MerchUtils.getMerchandise(item).baseMerch()
+            if (baseMerch.enchantments.isNotEmpty()) {
+                continue
             }
+            if (!sellAmounts.containsKey(baseMerch)) {
+                sellAmounts[baseMerch] = item.amount
+            } else {
+                sellAmounts[baseMerch] = sellAmounts[baseMerch]!! + item.amount
+            }
+            inventory.setItem(i, null)
         }
-        val priceToAdd = merchandise.itemSellPrice(sellAmount)
-        MemberUtils.walletAdd(player, priceToAdd)
-    }
-
-    /**
-     * Handles the situation where a player is just looking or sneaking.
-     * @param player The player buying items
-     * @param location The location of the sign
-     */
-    fun handleJustLookingAtSign(player: Player, location: Location) {
-        val merchandise = MerchUtils.getMerchandiseAtLocation(location)
-        val material = merchandise.material
-        val signType = Cereal.signs[location]!!.signType
-        val membershipCard = MemberUtils.getMembershipCard(player)
-        var amount: Int
-        when (signType) {
-            SignType.BUY_ONE -> amount = 1
-            SignType.BUY_STACK -> amount = material.maxStackSize
-            SignType.BUY_SHULKER_BOX -> {
-                handleJustLookingShulker(player, merchandise)
-                return
-            }
-            SignType.TRUE_PRICE -> {
-                if (membershipCard.justLooking) {
-                    handleJustLooking(
-                            player,
-                            MerchUtils.getMerchandiseAtLocation(location),
-                            membershipCard.buyGoal // Since this is true price value
-                    )
-                } else {
-                    player.sendMessage(
-                            "${RED}You don't have ${WHITE}/useamount${RED} set to true to buy from this sign (maybe try toggling the sign)"
-                    )
-                }
-                return
-            }
-            else -> throw IllegalArgumentException("handleBuyFromSign called incorrectly")
+        var totalPrice = 0.0
+        for ((baseMerch, amount) in sellAmounts) {
+            val merchandise = MerchUtils.getMerchandise(baseMerch)
+            val price = merchandise.itemSellPrice(amount)
+            MemberUtils.walletAdd(player, price)
+            val playerFunds = MemberUtils.getWalletRounded(player)
+            player.sendMessage("${playerFunds}")
+            player.inventory.setItemInMainHand(null)
+            merchandise.sell(amount.toDouble())
+            totalPrice += price
         }
-        handleJustLooking(player, merchandise, amount)
+        player.sendMessage(
+                "${GREEN}You received ${WHITE}${MemberUtils.roundDoubleString(totalPrice)}${GREEN} in the sale"
+        )
+        player.sendMessage(
+                "${GREEN}You now have ${WHITE}${MemberUtils.getWalletString(player)}${GREEN} in your wallet"
+        )
     }
 
     /**
      * Handle the situation where the player just wants to see their price.
-     * @param player The player who is buying.
-     * @param merchandise The merchandise being bought.
-     * @param amount The amount of items being bought.
+     * @param player The player who is selling the items.
      */
-    fun handleJustLooking(player: Player, merchandise: Merchandise, initialAmount: Int) {
-        var amount = initialAmount
-        var price = MemberUtils.roundDouble(merchandise.itemBuyPrice(amount))
-        val playerFunds = MemberUtils.getWalletRounded(player)
-        var newWallet = MemberUtils.roundDouble(playerFunds - price)
-        var newWalletStr: String
-        var roundedPrice: String
-        if (!withinBounds(player, merchandise)) {
-            return
-        }
-        if (newWallet < 0.0) {
-            newWalletStr = MemberUtils.roundDoubleString(newWallet)
-            roundedPrice = MemberUtils.roundDoubleString(price)
-            player.sendMessage(
-                    "You wouldn't have enough money to buy that many of ${merchandise.getName()}, since you have $newWalletStr and it costs $roundedPrice"
-            )
-            val result = binarySearchPrice(amount, merchandise, playerFunds)
-            amount = result.first
-            roundedPrice = MemberUtils.roundDoubleString(result.second)
-            newWalletStr = MemberUtils.roundDoubleString(playerFunds - result.second)
-            player.sendMessage(
-                    "You could buy up to ${amount} instead for ${roundedPrice} leaving you with $newWalletStr"
-            )
-        } else {
-            newWalletStr = MemberUtils.roundDoubleString(newWallet)
-            roundedPrice = MemberUtils.roundDoubleString(price)
-            player.sendMessage(
-                    "It would cost you ${roundedPrice} and you would have ${newWalletStr} remaining in your wallet"
-            )
+    fun handleJustLookingAtSign(player: Player, location: Location) {
+        // TODO: Check to make sure the item (if not air) is not a shulker box containing items
+        val signType = Cereal.signs[location]!!.signType
+        when (signType) {
+            SignType.SELL_ONE -> handleJustLookingSingle(player)
+            SignType.SELL_STACK -> handleJustLookingStack(player)
+            SignType.SELL_TYPE -> handleJustLookingType(player)
+            SignType.SELL_ALL -> handleJustLookingAll(player)
+            else -> throw IllegalArgumentException("handleBuyFromSign called incorrectly")
         }
     }
 
-    /**
-     * Handle the situation where a player is just looking and right clicks on a sign selling
-     * shulker boxes containing items.
-     * @param player The player who is buying.
-     * @param merchandise The merchandise being bought.
-     */
-    private fun handleJustLookingShulker(player: Player, merchandise: Merchandise) {
-        val material = merchandise.material
-        var amount = 27 * material.maxStackSize
-        val shulkerMaterial = Material.SHULKER_BOX
-        val shulkerMerch = MerchUtils.getMerchandise(shulkerMaterial)
-        var price =
-                MemberUtils.roundDouble(merchandise.itemBuyPrice(amount)) +
-                        MemberUtils.roundDouble(shulkerMerch.itemBuyPrice(1))
-        val playerFunds = MemberUtils.getWalletRounded(player)
-        var newWallet = MemberUtils.roundDouble(playerFunds - price)
-        var newWalletStr: String
-        var roundedPrice: String
-        if (newWallet < 0.0) {
-            newWalletStr = MemberUtils.roundDoubleString(newWallet)
-            roundedPrice = MemberUtils.roundDoubleString(price)
-            player.sendMessage(
-                    "You wouldn't have enough money to buy a shulker full of ${merchandise.getName()}, since you have $newWalletStr and it costs $roundedPrice"
-            )
-        } else {
-            newWalletStr = MemberUtils.roundDoubleString(newWallet)
-            roundedPrice = MemberUtils.roundDoubleString(price)
-            player.sendMessage(
-                    "It would cost you ${roundedPrice} and you would have ${newWalletStr} remaining in your wallet"
-            )
+    fun handleJustLookingSingle(player: Player) {
+        handleJustLookingAmount(player, 1)
+    }
+
+    fun handleJustLookingStack(player: Player) {
+        val itemInHand = player.inventory.itemInMainHand
+        val amount = itemInHand.amount
+        handleJustLookingAmount(player, amount)
+    }
+
+    fun handleJustLookingType(player: Player) {
+        val itemInHand = player.inventory.itemInMainHand
+        val merchandise = MerchUtils.getMerchandise(itemInHand)
+        // TODO: When enchantment support is added, update this to handle them
+        val enchantments = itemInHand.enchantments
+        val inventory = player.inventory
+        // Inventory has 36 items excluding armor slots and offhand
+        var sellAmount = 0
+        if (!isAccepted(player, itemInHand, merchandise)) {
+            return
         }
+        for (i in 0 until 36) {
+            val item = inventory.getItem(i)
+            if (item == null) {
+                continue
+            }
+            if (item.type == itemInHand.type && item.enchantments == enchantments) {
+                sellAmount += item.amount
+            }
+        }
+        handleJustLookingAmount(player, sellAmount)
+    }
+
+    fun handleJustLookingAll(player: Player) {
+        val inventory = player.inventory
+        // Inventory has 36 items excluding armor slots and offhand
+        var sellAmounts = HashMap<BaseMerchandise, Int>()
+        for (i in 0 until 36) {
+            val item = inventory.getItem(i)
+            if (item == null) {
+                continue
+            }
+            val baseMerch = MerchUtils.getMerchandise(item).baseMerch()
+            if (baseMerch.enchantments.isNotEmpty()) {
+                continue
+            }
+            if (!sellAmounts.containsKey(baseMerch)) {
+                sellAmounts[baseMerch] = item.amount
+            } else {
+                sellAmounts[baseMerch] = sellAmounts[baseMerch]!! + item.amount
+            }
+        }
+        var totalValue = 0.0
+        for ((baseMerch, amount) in sellAmounts) {
+            val merchandise = MerchUtils.getMerchandise(baseMerch)
+            val value = merchandise.itemSellPrice(amount)
+            totalValue += value
+        }
+        var newWallet = MemberUtils.getWalletRounded(player) + totalValue
+
+        player.sendMessage(
+                "${GREEN}You would receive ${WHITE}${MemberUtils.roundDoubleString(totalValue)}${GREEN} in the sale, resulting in ${WHITE}${MemberUtils.roundDoubleString(newWallet)}${GREEN} in your wallet"
+        )
+    }
+
+    fun handleJustLookingAmount(player: Player, amount: Int) {
+        val item = player.inventory.itemInMainHand
+        val merchandise = MerchUtils.getMerchandise(item)
+        val price = merchandise.itemSellPrice(amount)
+        val newWallet = MemberUtils.roundDoubleString(price + MemberUtils.getWalletRounded(player))
+        val roundedPrice = MemberUtils.roundDoubleString(price)
+        player.sendMessage(
+                "${GREEN}You would receive ${WHITE}${roundedPrice}${GREEN} in the sale and have ${WHITE}${newWallet}${GREEN} in your wallet"
+        )
     }
 
     private fun isAccepted(player: Player, item: ItemStack, merchandise: Merchandise): Boolean {
@@ -251,7 +241,7 @@ object SellUtils {
         return true
     }
 
-    private fun performSale (player: Player, price: Double, amount: Int, merchandise: Merchandise) {
+    private fun performSale(player: Player, price: Double, amount: Int, merchandise: Merchandise) {
         MemberUtils.walletAdd(player, price)
         val playerFunds = MemberUtils.getWalletRounded(player)
         player.sendMessage("${playerFunds}")
