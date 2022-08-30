@@ -109,6 +109,11 @@ object SellUtils {
         val enchantments = itemInHand.enchantments
         val inventory = player.inventory
         // Inventory has 36 items excluding armor slots and offhand
+        if (isShulkerInv(itemInHand)) {
+            sellShulkerInv(player, itemInHand)
+            return -1
+        }
+
         var sellAmount = 0
         if (!isAccepted(player, itemInHand)) {
             return -1
@@ -143,7 +148,8 @@ object SellUtils {
                 continue
             }
             if (isShulkerInv(item)) {
-                sellShulkerInv(player, item, false)
+                // sellShulkerInv(player, item, false)
+                // For now, require player to sell shulker boxes individually
                 continue
             }
             if (!isAccepted(player, item, false)) {
@@ -170,10 +176,12 @@ object SellUtils {
             totalPrice += price
         }
         player.sendMessage(
-                "${GREEN}You received ${WHITE}${MemberUtils.roundDoubleString(totalPrice)}${GREEN} in the sale"
+                "${GREEN}You received ${WHITE}${MemberUtils.roundDoubleString(totalPrice)}" +
+                        "${GREEN} in the sale"
         )
         player.sendMessage(
-                "${GREEN}You now have ${WHITE}${MemberUtils.getWalletString(player)}${GREEN} in your wallet"
+                "${GREEN}You now have ${WHITE}${MemberUtils.getWalletString(player)}" +
+                        "${GREEN} in your wallet"
         )
     }
 
@@ -182,7 +190,6 @@ object SellUtils {
      * @param player The player who is selling the items.
      */
     fun handleJustLookingAtSign(player: Player, location: Location) {
-        // TODO: Check to make sure the item (if not air) is not a shulker box containing items
         val signType = Cereal.signs[location]!!.signType
         when (signType) {
             SignType.SELL_ONE -> handleJustLookingSingle(player)
@@ -258,7 +265,9 @@ object SellUtils {
         var newWallet = MemberUtils.getWalletRounded(player) + totalValue
 
         player.sendMessage(
-                "${GREEN}You would receive ${WHITE}${MemberUtils.roundDoubleString(totalValue)}${GREEN} in the sale, resulting in ${WHITE}${MemberUtils.roundDoubleString(newWallet)}${GREEN} in your wallet"
+                "${GREEN}You would receive ${WHITE}${MemberUtils.roundDoubleString(totalValue)}" +
+                        "${GREEN} in the sale, resulting in ${WHITE}" +
+                        "${MemberUtils.roundDoubleString(newWallet)}${GREEN} in your wallet"
         )
     }
 
@@ -270,12 +279,18 @@ object SellUtils {
      */
     private fun handleJustLookingAmount(player: Player, amount: Int) {
         val item = player.inventory.itemInMainHand
+        if (isShulkerInv(item)) {
+            justLookingSellShulker(player, item)
+            return
+        }
+
         val merchandise = MerchUtils.getMerchandise(item)
         val price = merchandise.itemSellPrice(amount)
         val newWallet = MemberUtils.roundDoubleString(price + MemberUtils.getWalletRounded(player))
         val roundedPrice = MemberUtils.roundDoubleString(price)
         player.sendMessage(
-                "${GREEN}You would receive ${WHITE}${roundedPrice}${GREEN} in the sale and have ${WHITE}${newWallet}${GREEN} in your wallet"
+                "${GREEN}You would receive ${WHITE}${roundedPrice}${GREEN} in the sale and " +
+                        "have ${WHITE}${newWallet}${GREEN} in your wallet"
         )
     }
 
@@ -304,7 +319,8 @@ object SellUtils {
         if (merchandise.listOfSigns.isEmpty()) {
             if (sendMessages) {
                 player.sendMessage(
-                        "${RED}Sorry, we don't currently sell or accept ${merchandise.getName()}. Try bugging us if you think we should."
+                        "${RED}Sorry, we don't currently sell or accept ${merchandise.getName()}." +
+                                " Try bugging us if you think we should."
                 )
             }
             return false
@@ -340,10 +356,12 @@ object SellUtils {
         player.inventory.setItemInMainHand(null)
         merchandise.sell(amount.toDouble())
         player.sendMessage(
-                "${GREEN}You received ${WHITE}${MemberUtils.roundDoubleString(price)}${GREEN} in the sale"
+                "${GREEN}You received ${WHITE}${MemberUtils.roundDoubleString(price)}" +
+                        "${GREEN} in the sale"
         )
         player.sendMessage(
-                "${GREEN}You now have ${WHITE}${MemberUtils.getWalletString(player)}${GREEN} in your wallet"
+                "${GREEN}You now have ${WHITE}${MemberUtils.getWalletString(player)}" +
+                        "${GREEN} in your wallet"
         )
     }
 
@@ -385,7 +403,6 @@ object SellUtils {
             val sellPrice = shulkerMerch.itemSellPrice(1)
             performSale(player, sellPrice, 1, shulkerMerch)
             return
-
         }
         var sellAmounts = HashMap<Merchandise, Int>()
         for (i in 0 until inventory.size) {
@@ -418,10 +435,75 @@ object SellUtils {
         shulkerItem.setItemMeta(shulkerMeta)
         if (sendMessages) {
             player.sendMessage(
-                    "${GREEN}You received ${WHITE}${MemberUtils.roundDoubleString(totalPrice)}${GREEN} in the sale"
+                    "${GREEN}You received ${WHITE}${MemberUtils.roundDoubleString(totalPrice)}" +
+                            "${GREEN} in the sale"
             )
             player.sendMessage(
-                    "${GREEN}You now have ${WHITE}${MemberUtils.getWalletString(player)}${GREEN} in your wallet"
+                    "${GREEN}You now have ${WHITE}${MemberUtils.getWalletString(player)}" +
+                            "${GREEN} in your wallet"
+            )
+        }
+    }
+
+    /**
+     * Let the player know how much tehy would make from selling the contents of a shulker box.
+     * @param player The player who is (just looking at) selling their items.
+     * @param shulkerItem The shulker box item
+     * @param sendMessages Whether to send messages to the player about how much they would receive
+     * in the sale
+     */
+    private fun justLookingSellShulker(
+            player: Player,
+            shulkerItem: ItemStack,
+            sendMessages: Boolean = true
+    ) {
+        val shulkerMeta = shulkerItem.getItemMeta() as BlockStateMeta
+        val shulkerBox = shulkerMeta.getBlockState() as ShulkerBox
+        val inventory = shulkerBox.inventory
+
+        if (inventory.isEmpty) {
+            val shulkerMerch = MerchUtils.getMerchandise(shulkerItem)
+            val sellPrice = shulkerMerch.itemSellPrice(1)
+            player.sendMessage(
+                    "${GREEN}You would receive ${WHITE}" +
+                            "${MemberUtils.roundDoubleString(sellPrice)}${GREEN} in the sale, " +
+                            "and would have ${WHITE}${MemberUtils.getWalletString(player)}" +
+                            "${GREEN} in your wallet"
+            )
+            return
+        }
+
+        var sellAmounts = HashMap<Merchandise, Int>()
+        for (i in 0 until inventory.size) {
+            val item = inventory.getItem(i)
+            if (item == null) {
+                continue
+            }
+
+            if (!isAccepted(player, item, false)) {
+                continue
+            }
+
+            val merchandise = MerchUtils.getMerchandise(item)
+            if (!sellAmounts.containsKey(merchandise)) {
+                sellAmounts[merchandise] = item.amount
+            } else {
+                sellAmounts[merchandise] = sellAmounts[merchandise]!! + item.amount
+            }
+        }
+
+        var totalPrice = 0.0
+        for ((merchandise, amount) in sellAmounts) {
+            val price = merchandise.itemSellPrice(amount)
+            totalPrice += price
+        }
+        val playerWallet = MemberUtils.getWalletRounded(player) + totalPrice
+        if (sendMessages) {
+            player.sendMessage(
+                    "${GREEN}You would receive ${WHITE}" +
+                            "${MemberUtils.roundDoubleString(totalPrice)}${GREEN} in the sale" +
+                            ", with and would have ${WHITE}" +
+                            "${MemberUtils.roundDoubleString(playerWallet)}${GREEN} in your wallet"
             )
         }
     }
