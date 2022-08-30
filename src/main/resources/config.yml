@@ -25,11 +25,11 @@ surcharge-curve-epsilon: 0.0001
 # Affects how much the price should try to correct towards the best-guess price. Higher values make corrections more aggressive.
 clamp-multiplier: 0.5
 # The default amount of money a player has in their wallet before buying/selling
-default-wallet: 100.0
+default-wallet: 420.69
 # How frequently prices should automatically update (in seconds)
 seconds-between-price-motion: 60
 # The maximum number of stacks of items that can be bought at once
-max-stacks-purchase: 27
+max-stacks-purchase: 36
 # The default price of a particular piece of merchandise if not found in mechprices.yml
 default-merch-price: 10.0
 # The default price of a particular type of enchantment if not found in enchantment.yml
