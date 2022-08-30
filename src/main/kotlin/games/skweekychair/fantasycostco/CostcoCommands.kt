@@ -252,10 +252,6 @@ object BuyPossibleCommand : TabExecutor {
 
         // Check args number
         if (args.size == 0) {
-            // TODO: Rework message? the usage from false might be good enough tho
-            // sender.sendMessage(
-            //         "${RED}You must specify whether you want to be just looking or not"
-            // )
             return false
         } else if (args.size > 1) {
             sender.sendMessage("${RED}This command only takes one argument")
@@ -270,6 +266,8 @@ object BuyPossibleCommand : TabExecutor {
                     "true" -> true
                     "false" -> false
                     "get" -> membershipCard.buyMaxItems
+                    "t" -> true
+                    "f" -> false
                     else -> {
                         return false
                     }
@@ -371,10 +369,6 @@ object JustLookingCommand : TabExecutor {
 
         // Check args number
         if (args.size == 0) {
-            // TODO: Rework message? the usage from false might be good enough tho
-            // sender.sendMessage(
-            //         "${RED}You must specify whether you want to be just looking or not"
-            // )
             return false
         } else if (args.size > 1) {
             sender.sendMessage("${RED}This command only takes one argument")
@@ -389,6 +383,8 @@ object JustLookingCommand : TabExecutor {
                     "true" -> true
                     "false" -> false
                     "get" -> membershipCard.justLooking
+                    "t" -> true
+                    "f" -> false
                     else -> {
                         return false
                     }
@@ -448,6 +444,8 @@ object OrdainCommand : TabExecutor {
                     "true" -> true
                     "false" -> false
                     "get" -> membershipCard.ordainingSign
+                    "t" -> true
+                    "f" -> false
                     else -> {
                         return false
                     }
