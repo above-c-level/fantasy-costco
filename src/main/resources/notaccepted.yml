@@ -1,3 +1,7 @@
 # yaml files are maps of key/value pairs, so we need to have *something* paired with the key
 CHIPPED_ANVIL: 0
 DAMAGED_ANVIL: 0
+POTION: 0
+SUSPICIOUS_STEW: 0
+LINGERING_POTION: 0
+TIPPED_ARROW: 0
