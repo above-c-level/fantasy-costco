@@ -227,7 +227,6 @@ class CostcoListener : Listener {
             return
         }
 
-
         // There is a sign here and this is a normal player or an op not ordaining
         val buySign = signData!!.isBuying()
         // Whether the player is sneaking/right clicking
@@ -243,12 +242,11 @@ class CostcoListener : Listener {
                     val amount = membershipCard.buyGoal
                     player.sendMessage("Just looking")
                     BuyUtils.handleJustLooking(player, merchandise, amount)
-                    // TODO: verify this works
+                    // TODO: verify this works (after implementing /use-amount)
                 } else {
                     // Buy using the sign's buy target
-                    player.sendMessage("Attempting to look at sign buytarget")
                     BuyUtils.handleJustLookingAtSign(player, signLocation)
-                    // TODO: verify this works
+                    // * This works
                 }
             } else if (rightClick) {
                 if (membershipCard.useAmount) {
@@ -256,7 +254,7 @@ class CostcoListener : Listener {
                     val amount = membershipCard.buyGoal
                     player.sendMessage("Buy with useAmount")
                     BuyUtils.handleBuyAmount(player, merchandise, amount)
-                    // TODO: verify this works
+                    // TODO: verify this works (after implementing /use-amount)
                 } else {
                     // Buy using the sign's buy target
                     player.sendMessage("useAmount false, buying with sign's value")
@@ -266,21 +264,23 @@ class CostcoListener : Listener {
             } else {
                 // The player is toggling the sign
                 SignUtils.rotateSign(signLocation)
-                //* This works
+                // * This works
             }
         } else {
             if (sneaking || membershipCard.justLooking) {
                 // If the player is just looking for buying
                 player.sendMessage("Just looking at selling")
+                SellUtils.handleJustLookingAtSign(player, signLocation)
                 // TODO: verify this works
             } else if (rightClick) {
                 // Player selling using sign's sell target
                 player.sendMessage("Pretend you're selling to the sign you clicked on")
-                // TODO: Sell using sign's sell target
+                SellUtils.handleSellToSign(player, signLocation)
+                // TODO: verify this works
             } else {
                 // If the sign is a sell sign, attempt to sell
                 SignUtils.rotateSign(signLocation)
-                //* This works
+                // * This works
             }
         }
     }
