@@ -3,6 +3,8 @@ package games.skweekychair.fantasycostco
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import org.apache.commons.lang.WordUtils
+import org.bukkit.ChatColor
+import org.bukkit.ChatColor.*
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.block.BlockState
@@ -104,6 +106,7 @@ object SignUtils {
         if (blockState !is Sign) {
             return true
         }
+        logIfDebug("Updating sign at ${signLocation}")
 
         var thisSign: SignData? = Cereal.signs[signLocation]
         if (thisSign == null) {
@@ -117,17 +120,20 @@ object SignUtils {
                 this.clearSign(signLocation)
                 this.updateSignLine(signLocation, 1, "Sell One")
                 this.updateSignLine(signLocation, 2, "Item")
+                this.colorFormat(signLocation, false)
             }
             SignType.SELL_STACK -> {
                 this.clearSign(signLocation)
                 this.updateSignLine(signLocation, 1, "Sell a stack")
                 this.updateSignLine(signLocation, 2, "of items")
+                this.colorFormat(signLocation, false)
             }
             SignType.SELL_TYPE -> {
                 this.clearSign(signLocation)
                 this.updateSignLine(signLocation, 0, "Sell all")
                 this.updateSignLine(signLocation, 1, "of this type")
                 this.updateSignLine(signLocation, 2, "(in inventory)")
+                this.colorFormat(signLocation, false)
             }
             SignType.SELL_ALL -> {
                 this.clearSign(signLocation)
@@ -135,6 +141,7 @@ object SignUtils {
                 this.updateSignLine(signLocation, 1, "(yes, your whole")
                 this.updateSignLine(signLocation, 2, "ENTIRE")
                 this.updateSignLine(signLocation, 3, "inventory)")
+                this.colorFormat(signLocation, false)
             }
             // Here are the buy signs
             SignType.TRUE_PRICE -> {
@@ -144,16 +151,21 @@ object SignUtils {
                         3,
                         MemberUtils.roundDoubleString(merch!!.shownPrice)
                 )
+                this.colorFormat(signLocation, true)
             }
             SignType.BUY_ONE -> {
                 val singlePrice = merch!!.itemBuyPrice(1)
                 this.updateSignLine(signLocation, 2, "Buy One")
                 this.updateSignLine(signLocation, 3, MemberUtils.roundDoubleString(singlePrice))
+                this.colorFormat(signLocation, true)
+                logIfDebug("    Updated buy one sign at ${signLocation}")
             }
             SignType.BUY_STACK -> {
                 this.updateSignLine(signLocation, 2, "Buy Stack")
                 val stackPrice = merch!!.itemBuyPrice(merch.material.maxStackSize)
                 this.updateSignLine(signLocation, 3, MemberUtils.roundDoubleString(stackPrice))
+                this.colorFormat(signLocation, true)
+                logIfDebug("    Updated buy stack sign at ${signLocation}")
             }
             SignType.BUY_SHULKER_BOX -> {
                 this.updateSignLine(signLocation, 2, "Buy full Shulker")
@@ -164,6 +176,7 @@ object SignUtils {
                 val filledPrice =
                         merch!!.itemBuyPrice(merch.material.maxStackSize * 27) + shulkerPrice
                 this.updateSignLine(signLocation, 3, MemberUtils.roundDoubleString(filledPrice))
+                this.colorFormat(signLocation, true)
             }
         }
 
@@ -200,6 +213,30 @@ object SignUtils {
         if (updateName) {
             this.updateSignName(signLocation, merch)
         }
+    }
+
+    /**
+     * Formats the color of a sign to fit a standard design.
+     * @param signLocation The location of the sign to format.
+     * @param isBuySign Whether the sign is a buy sign.
+     */
+    fun colorFormat(signLocation: Location, isBuySign: Boolean) {
+        val sign: BlockState = signLocation.getBlock().state
+        if (sign !is Sign) {
+            return
+        }
+        sign.setGlowingText(false)
+        var colors: List<String>
+        if (isBuySign) {
+            colors = listOf("§#0000FF", "§#0000FF", "${BLACK}", "${BLACK}")
+        } else {
+            colors = listOf("${BLACK}", "${BLACK}", "${BLACK}", "${BLACK}")
+        }
+
+        for (i in 0 until sign.lines.size) {
+            sign.setLine(i, colors[i] + ChatColor.stripColor(sign.getLine(i)))
+        }
+        sign.update()
     }
 
     /**
@@ -388,6 +425,7 @@ object SignUtils {
         if (signData.isSelling()) {
             signData.nextSellOption()
             updateSign(location, false)
+            colorFormat(location, false)
         } else {
             signData.nextBuyOption()
             val merch = MerchUtils.getMerchandiseAtLocation(location)
@@ -395,6 +433,7 @@ object SignUtils {
                 signData.nextBuyOption()
             }
             updateSign(location, false, merch)
+            colorFormat(location, true)
         }
 
         return true
