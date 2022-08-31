@@ -140,8 +140,8 @@ data class MembershipCard(
         @SerialName("buyGoal") var buyGoal: Int = 0,
         @SerialName("buyMaxItems") var buyMaxItems: Boolean = false,
         @SerialName("justLooking") var justLooking: Boolean = false,
-        @SerialName("ordainingSign") var ordainingSign: Boolean = false,
-        @SerialName("useAmount") var useAmount: Boolean = false
+        @SerialName("useAmount") var useAmount: Boolean = false,
+        @Transient var ordainingSign: Boolean = false
 )
 
 object MembershipCardSerializer : KSerializer<MembershipCard> {
