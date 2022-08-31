@@ -184,15 +184,15 @@ class Merchandise(
         // but just in case
         this.hiddenPrice = Math.abs(this.hiddenPrice)
         val massVar: Double =
-                EconomyUtils.lerp(
+                EconomyUtils.boundedLerp(
                         this.mass,
-                        0.0,
+                        CostcoGlobals.startingMass,
                         CostcoGlobals.massVarMin,
                         CostcoGlobals.maximumMass,
                         CostcoGlobals.massVarMax
                 )
-        val variation: Double = this.hiddenPrice * CostcoGlobals.varMultiplier * massVar
-        val gaussian: Double = Random().nextGaussian() * variation
+        val variation: Double = this.hiddenPrice * CostcoGlobals.varMultiplier
+        val gaussian: Double = Random().nextGaussian() * variation * massVar
         this.hiddenPrice += gaussian
         val dist = Math.abs(this.hiddenPrice - this.shownPrice)
         val correctionGain =
@@ -217,7 +217,16 @@ class Merchandise(
         val dist: Double = Math.abs(this.shownPrice - this.hiddenPrice) + 1.0
         val sqrtPrice: Double = Math.sqrt(this.shownPrice)
         val multItems: Double = CostcoGlobals.purchaseSizeMultiplier
-        return Math.sqrt(multItems / this.mass * dist * sqrtPrice) * numItems
+        val push = Math.sqrt(multItems / this.mass * dist * sqrtPrice) * numItems
+        val mult =
+                EconomyUtils.boundedLerp(
+                        this.mass,
+                        CostcoGlobals.startingMass,
+                        CostcoGlobals.massPushMinMult,
+                        CostcoGlobals.maximumMass,
+                        CostcoGlobals.massPushMaxMult
+                )
+        return push * mult
     }
 
     /** First smooths changes to price, then perturbs the price. */
@@ -253,6 +262,7 @@ class Merchandise(
     /**
      * Updates our best guess at the price of the item by selling, smooths the price, adds mass, and
      * perturbs the price.
+     * @param numItems The number of items in the transaction
      */
     fun sell(numItems: Double) {
         // Return early to fix price
