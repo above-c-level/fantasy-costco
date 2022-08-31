@@ -29,7 +29,9 @@ object BuyUtils {
             if (!MemberUtils.getBuyMaxItems(player)) {
                 player.sendMessage("${RED}Honey, you ain't got the money fo' that.")
                 player.sendMessage(
-                        "${RED}You only have ${WHITE}${MemberUtils.getWalletString(player)}${RED}, and you need ${WHITE}${MemberUtils.roundDoubleString(price)}."
+                        "${RED}You only have ${WHITE}${MemberUtils.getWalletString(player)}" +
+                                "${RED}, and you need ${WHITE}" +
+                                "${MemberUtils.roundDoubleString(price)}."
                 )
                 return
             }
@@ -42,7 +44,8 @@ object BuyUtils {
                 val singleItemPrice = MemberUtils.roundDoubleString(merchandise.itemBuyPrice(1))
                 player.sendMessage("${RED}You can't buy any more of ${merchandise.getName()}.")
                 player.sendMessage(
-                        "${RED}You only have ${WHITE}${MemberUtils.getWalletString(player)}${RED}, and you need ${WHITE}${singleItemPrice}${RED} for 1."
+                        "${RED}You only have ${WHITE}${MemberUtils.getWalletString(player)}" +
+                                "${RED}, and you need ${WHITE}${singleItemPrice}${RED} for 1."
                 )
                 return
             }
@@ -57,7 +60,8 @@ object BuyUtils {
             placeRemainingItems(remaining, player)
         }
         player.sendMessage(
-                "${GREEN}You bought ${WHITE}${amount} ${merchandise.getName()}${GREEN} for ${WHITE}${MemberUtils.roundDoubleString(price)}"
+                "${GREEN}You bought ${WHITE}${amount} ${merchandise.getName()}${GREEN} " +
+                        "for ${WHITE}${MemberUtils.roundDoubleString(price)}"
         )
         player.sendMessage(
                 "${GREEN}Your wallet now contains ${WHITE}${MemberUtils.getWalletString(player)}"
@@ -90,7 +94,8 @@ object BuyUtils {
             }
             SignType.TRUE_PRICE -> {
                 player.sendMessage(
-                        "${RED}You don't have ${WHITE}/useamount${RED} set to true to buy from this sign (maybe try toggling the sign)"
+                        "${RED}You don't have ${WHITE}/useamount${RED} set to true to buy " +
+                                "from this sign (maybe try toggling the sign)"
                 )
                 return
             }
@@ -127,7 +132,8 @@ object BuyUtils {
                     )
                 } else {
                     player.sendMessage(
-                            "${RED}You don't have ${WHITE}/useamount${RED} set to true to buy from this sign (maybe try toggling the sign)"
+                            "${RED}You don't have ${WHITE}/useamount${RED} set to true to buy" +
+                                    " from this sign (maybe try toggling the sign)"
                     )
                 }
                 return
@@ -157,20 +163,24 @@ object BuyUtils {
             newWalletStr = MemberUtils.roundDoubleString(newWallet)
             roundedPrice = MemberUtils.roundDoubleString(price)
             player.sendMessage(
-                    "You wouldn't have enough money to buy that many of ${merchandise.getName()}, since you have $newWalletStr and it costs $roundedPrice"
+                    "You wouldn't have enough money to buy that many of " +
+                            "${merchandise.getName()}, since you have $newWalletStr and" +
+                            " it costs $roundedPrice"
             )
             val result = binarySearchPrice(amount, merchandise, playerFunds)
             amount = result.first
             roundedPrice = MemberUtils.roundDoubleString(result.second)
             newWalletStr = MemberUtils.roundDoubleString(playerFunds - result.second)
             player.sendMessage(
-                    "You could buy up to ${amount} instead for ${roundedPrice} leaving you with $newWalletStr"
+                    "You could buy up to ${amount} instead for ${roundedPrice} leaving you " +
+                            "with $newWalletStr"
             )
         } else {
             newWalletStr = MemberUtils.roundDoubleString(newWallet)
             roundedPrice = MemberUtils.roundDoubleString(price)
             player.sendMessage(
-                    "It would cost you ${roundedPrice} and you would have ${newWalletStr} remaining in your wallet"
+                    "It would cost you ${roundedPrice} and you would have ${newWalletStr} " +
+                            "remaining in your wallet"
             )
         }
     }
@@ -197,13 +207,16 @@ object BuyUtils {
             newWalletStr = MemberUtils.roundDoubleString(newWallet)
             roundedPrice = MemberUtils.roundDoubleString(price)
             player.sendMessage(
-                    "You wouldn't have enough money to buy a shulker full of ${merchandise.getName()}, since you have $newWalletStr and it costs $roundedPrice"
+                    "You wouldn't have enough money to buy a shulker full of " +
+                            "${merchandise.getName()}, since you have $newWalletStr " +
+                            "and it costs $roundedPrice"
             )
         } else {
             newWalletStr = MemberUtils.roundDoubleString(newWallet)
             roundedPrice = MemberUtils.roundDoubleString(price)
             player.sendMessage(
-                    "It would cost you ${roundedPrice} and you would have ${newWalletStr} remaining in your wallet"
+                    "It would cost you ${roundedPrice} and you would have ${newWalletStr} " +
+                            "remaining in your wallet"
             )
         }
     }
@@ -246,9 +259,12 @@ object BuyUtils {
         // full
         val remaining = player.inventory.addItem(shulkerItem)
         if (remaining.isNotEmpty()) {
-            logIfDebug("    ${player.name}'s inventory is full, so placing remaining items at their feet")
+            logIfDebug(
+                    "    ${player.name}'s inventory is full, so placing " +
+                            "remaining items at their feet"
+            )
+            placeRemainingItems(remaining, player)
         }
-        placeRemainingItems(remaining, player)
     }
 
     /**
@@ -281,7 +297,10 @@ object BuyUtils {
     private fun placeRemainingItems(remaining: HashMap<Int, ItemStack>, player: Player) {
         logIfDebug("placeRemainingItems called for ${player.name}")
         for (entry in remaining) {
-            logIfDebug("    placing ${entry.value.amount} ${entry.value.type} for ${player.name} at ${player.location}")
+            logIfDebug(
+                    "    placing ${entry.value.amount} ${entry.value.type} for " +
+                            "${player.name} at ${player.location}"
+            )
             // val argnum = entry.key
             // figure out how many items fit in one stack
             val stackSize = entry.value.maxStackSize
