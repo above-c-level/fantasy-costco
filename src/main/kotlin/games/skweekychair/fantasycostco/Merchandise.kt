@@ -216,8 +216,8 @@ class Merchandise(
     private fun pushAmount(numItems: Double): Double {
         val dist: Double = Math.abs(this.shownPrice - this.hiddenPrice) + 1.0
         val sqrtPrice: Double = Math.sqrt(this.shownPrice)
-        val multItems: Double = Math.sqrt(numItems) * CostcoGlobals.purchaseSizeMultiplier
-        return Math.sqrt(multItems / this.mass * dist * sqrtPrice)
+        val multItems: Double = CostcoGlobals.purchaseSizeMultiplier
+        return Math.sqrt(multItems / this.mass * dist * sqrtPrice) * numItems
     }
 
     /** First smooths changes to price, then perturbs the price. */
@@ -271,8 +271,6 @@ class Merchandise(
      * @return A prettier string representation of the item's name.
      */
     fun getName(): String {
-        // We only care about name, and we want to fit whole words
-        // into chunks of 15 chars
         var name = this.material.name.replace('_', ' ')
         name = WordUtils.capitalizeFully(name)
         if (this.enchantments.size > 0) {
