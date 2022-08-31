@@ -5,14 +5,19 @@ mass-per-transaction: 5.0
 # The starting mass of an item
 starting-mass: 5.0
 # The highest value that mass can reach
-maximum-mass: 10000.0
+maximum-mass: 100000.0
 # The maximum percentage a price can change per update (including transactions)
 max-pct-change: 0.05
 # A multiplier which influences how much a price can vary from its best-guess price. Higher values make prices more volatile.
 var-multiplier: 0.02
 # How much mass affects the price of an item. Higher values make prices more volatile.
 mass-var-min: 1.0
-mass-var-max: 0.005
+mass-var-max: 0.00001
+# How much mass affects the pushAmount of an item when it is bought. Higher values make prices more volatile.
+# Basically gets the current mass of the item, interpolates, then multiplies pushAmount by the interpolated value.
+# min refers to minimum mass, max refers to maximum mass.
+mass-push-min-mult: 1.0
+mass-push-max-mult: 0.01
 # Depending on the surcharge-curve-epsilon, the price-spread below will need to be different. A couple values are:
 # For surcharge-curve-epsilon = 0, any non-negative price spread works
 # For surcharge-curve-epsilon = 0.1, price spread should be >= 0.195

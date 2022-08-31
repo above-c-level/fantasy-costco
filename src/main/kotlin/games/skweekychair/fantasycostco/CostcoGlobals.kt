@@ -29,7 +29,7 @@ object CostcoGlobals {
     // This limits how high the mass of a commodity can go. This means that
     // selling/buying can always modify price a little bit
     val maximumMass
-        get() = spigotConfig.getDouble("maximum-mass", 10000.0)
+        get() = spigotConfig.getDouble("maximum-mass", 100000.0)
 
     // This prevents the shown price from changing *too* quickly
     val maxPctChange
@@ -46,7 +46,12 @@ object CostcoGlobals {
     val massVarMin
         get() = spigotConfig.getDouble("mass-var-min", 1.0)
     val massVarMax
-        get() = spigotConfig.getDouble("mass-var-max", 0.005)
+        get() = spigotConfig.getDouble("mass-var-max", 0.00001)
+
+    val massPushMinMult
+        get() = spigotConfig.getDouble("mass-push-min-mult", 1.0)
+    val massPushMaxMult
+        get() = spigotConfig.getDouble("mass-push-max-mult", 0.1)
 
     // 0.05 is a spread of 5% at the most ideal price
     val priceSpread
