@@ -194,7 +194,7 @@ object SetWalletCommand : TabExecutor {
         } else if (args.size == 2) {
 
             // Get player
-            val playerArg: String = args[0]
+            val playerArg: String = args[1]
             player = Bukkit.getPlayer(playerArg)
             if (player == null) {
                 sender.sendMessage("${RED}Player ${WHITE}${playerArg}${RED} not found")
