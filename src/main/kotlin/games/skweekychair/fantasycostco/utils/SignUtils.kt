@@ -106,7 +106,6 @@ object SignUtils {
         if (blockState !is Sign) {
             return true
         }
-        logIfDebug("Updating sign at ${signLocation}")
 
         var thisSign: SignData? = Cereal.signs[signLocation]
         if (thisSign == null) {
@@ -158,14 +157,12 @@ object SignUtils {
                 this.updateSignLine(signLocation, 2, "Buy One")
                 this.updateSignLine(signLocation, 3, MemberUtils.roundDoubleString(singlePrice))
                 this.colorFormat(signLocation, true)
-                logIfDebug("    Updated buy one sign at ${signLocation}")
             }
             SignType.BUY_STACK -> {
                 this.updateSignLine(signLocation, 2, "Buy Stack")
                 val stackPrice = merch!!.itemBuyPrice(merch.material.maxStackSize)
                 this.updateSignLine(signLocation, 3, MemberUtils.roundDoubleString(stackPrice))
                 this.colorFormat(signLocation, true)
-                logIfDebug("    Updated buy stack sign at ${signLocation}")
             }
             SignType.BUY_SHULKER_BOX -> {
                 this.updateSignLine(signLocation, 2, "Buy full Shulker")
