@@ -214,6 +214,7 @@ object BuyUtils {
      * @param merchandise The merchandise being bought.
      */
     private fun handleBuyShulker(player: Player, merchandise: Merchandise) {
+        logIfDebug("handleBuyShulker called for ${player.name}")
         val material = merchandise.material
         val shulkerMat = Material.getMaterial("SHULKER_BOX")!!
         // Ideal price of shulker box because they're already buying upwards of 1728 items
@@ -228,6 +229,7 @@ object BuyUtils {
             )
             return
         }
+        logIfDebug("    ${player.name} has enough money")
         MemberUtils.walletSubtract(player, filledPrice)
         merchandise.buy(merchandise.material.maxStackSize * 27.0)
         shulkerMerch.buy(1.0)
@@ -242,7 +244,11 @@ object BuyUtils {
         shulkerItem.setItemMeta(shulkerMeta)
         // The call to placeRemainingItems should handle the case where their inventory is already
         // full
-        placeRemainingItems(player.inventory.addItem(shulkerItem), player)
+        val remaining = player.inventory.addItem(shulkerItem)
+        if (remaining.isNotEmpty()) {
+            logIfDebug("    ${player.name}'s inventory is full, so placing remaining items at their feet")
+        }
+        placeRemainingItems(remaining, player)
     }
 
     /**
@@ -273,7 +279,9 @@ object BuyUtils {
      * @param player The player who is buying.
      */
     private fun placeRemainingItems(remaining: HashMap<Int, ItemStack>, player: Player) {
+        logIfDebug("placeRemainingItems called for ${player.name}")
         for (entry in remaining) {
+            logIfDebug("    placing ${entry.value.amount} ${entry.value.type} for ${player.name} at ${player.location}")
             // val argnum = entry.key
             // figure out how many items fit in one stack
             val stackSize = entry.value.maxStackSize
