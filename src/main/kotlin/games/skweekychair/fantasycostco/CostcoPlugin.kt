@@ -199,11 +199,14 @@ class CostcoListener : Listener {
             // Case 3
             val baseMerch = BaseMerchandise(itemStack!!.type, itemStack.enchantments)
             // If the sign is a buy sign
-            val baseMerchAtSign = MerchUtils.getMerchandiseAtLocation(signLocation).baseMerch()
-            if (signData!!.isBuying() && baseMerchAtSign == baseMerch) {
-                // There is a sign there, so cycle through sell options
-                SignUtils.rotateSign(signLocation)
-                return
+
+            if (signData!!.isBuying()) {
+                val baseMerchAtSign = MerchUtils.getMerchandiseAtLocation(signLocation).baseMerch()
+                if (baseMerchAtSign == baseMerch) {
+                    // There is a buy sign here, so cycle through the buy options
+                    SignUtils.rotateSign(signLocation)
+                    return
+                }
             }
             // Check to make sure merch is valid
             if (CostcoGlobals.isNotAccepted(baseMerch.material)) {
@@ -219,6 +222,10 @@ class CostcoListener : Listener {
 
             SignUtils.addSignToMerch(baseMerch, signLocation, SignType.BUY_ONE)
             SignUtils.updateSign(signLocation, merch = MerchUtils.getMerchandise(baseMerch))
+            SignUtils.colorFormat(signLocation, true)
+
+            // Add/update glow item frame directly underneath the sign
+            FrameUtils.addOrUpdateFrame(signLocation.clone().add(0.0, -1.0, 0.0), baseMerch)
             return
         } else if (ordainingSign && !holdingAir && !signFound) {
             // Case 4
@@ -231,6 +238,9 @@ class CostcoListener : Listener {
             }
             SignUtils.addSignToMerch(baseMerch, signLocation, SignType.BUY_ONE)
             SignUtils.updateSign(signLocation, merch = MerchUtils.getMerchandise(baseMerch))
+            SignUtils.colorFormat(signLocation, true)
+            // Add/update glow item frame directly underneath the sign
+            FrameUtils.addOrUpdateFrame(signLocation.clone().add(0.0, -1.0, 0.0), baseMerch)
             return
         }
         // All the above cases should have taken care of ordaining, so we just need to rule out
@@ -245,7 +255,6 @@ class CostcoListener : Listener {
         val sneaking = player.isSneaking()
         val rightClick = event.getAction() == Action.RIGHT_CLICK_BLOCK
 
-        // TODO: Do some testing of buyMaxItems with new sign system
         if (buySign) {
             val merchandise = MerchUtils.getMerchandiseAtLocation(signLocation)
             if (sneaking || membershipCard.justLooking) {
@@ -255,7 +264,6 @@ class CostcoListener : Listener {
                     val amount = membershipCard.buyGoal
                     player.sendMessage("Just looking")
                     BuyUtils.handleJustLooking(player, merchandise, amount)
-                    // TODO: verify this works (after implementing /use-amount)
                 } else {
                     // Buy using the sign's buy target
                     BuyUtils.handleJustLookingAtSign(player, signLocation)
@@ -266,7 +274,6 @@ class CostcoListener : Listener {
                     val amount = membershipCard.buyGoal
                     player.sendMessage("Buy with useAmount")
                     BuyUtils.handleBuyAmount(player, merchandise, amount)
-                    // TODO: verify this works (after implementing /use-amount)
                 } else {
                     // Buy using the sign's buy target
                     BuyUtils.handleBuyFromSign(player, signLocation)
