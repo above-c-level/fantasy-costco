@@ -53,6 +53,30 @@ object EconomyUtils {
     }
 
     /**
+     * Exactly the same s lerp, but limits output to hte range [y0, y1].
+     * @param x The x value to interpolate.
+     * @param x0 The x value of the first point.
+     * @param y0 The y value of the first point.
+     * @param x1 The x value of the second point.
+     * @param y1 The y value of the second point.
+     * @return The y value of the interpolated point.
+     */
+    fun boundedLerp(x: Double, x0: Double, y0: Double, x1: Double, y1: Double): Double {
+        // Literally just the formula for linear interpolation
+        // if you have a function `func` that goes between 0 and 1, you can also
+        // interpolate with that function by replacing it with
+        // (y1 - y0) * func((x - x0) / (x1 - x0)) + y0
+        // For more, see here: https://www.desmos.com/calculator/6wh1xdmhc5
+        if (x > x1) {
+            return y1
+        } else if (x < x0) {
+            return y0
+        } else {
+            return (y1 - y0) * ((x - x0) / (x1 - x0)) + y0
+        }
+    }
+
+    /**
      * Smoothly interpolates `x` between the points (0, 0) and (1, 1)
      * https://en.wikipedia.org/wiki/Smoothstep
      * @param x The x value to interpolate.
