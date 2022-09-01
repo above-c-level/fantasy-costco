@@ -42,23 +42,41 @@ object FrameUtils {
             if (location.getBlock().getType() == Material.AIR) {
                 val world = location.world!!
                 val frame = world.spawnEntity(location, EntityType.GLOW_ITEM_FRAME) as GlowItemFrame
-                frame.setItem(ItemStack(baseMerch.material))
+                val itemCopy = ItemStack(baseMerch.material)
+                val itemMeta = itemCopy.itemMeta!!
+                itemMeta.setDisplayName(MerchUtils.getMerchandise(baseMerch).getName())
+                itemCopy.itemMeta = itemMeta
+                frame.setItem(itemCopy)
                 frame.setCustomName(MerchUtils.getMerchandise(baseMerch).getName())
                 // Make sure that only creative players can break the frame
                 frame.setInvulnerable(true)
                 // Also make sure that no items drop from frame
                 frame.setItemDropChance(0.0F)
+                frame.setVisible(CostcoGlobals.visibleFrames)
             }
         } else {
             // There is a glow item frame there, so get it
             val entities = getEntitiesByLocation(location)
             val frame = entities.first { it is GlowItemFrame } as GlowItemFrame
             // Update the frame with the new item
-            frame.setItem(ItemStack(baseMerch.material))
-            frame.setCustomName(MerchUtils.getMerchandise(baseMerch).getName())
+            val itemCopy = ItemStack(baseMerch.material)
+            val itemMeta = itemCopy.itemMeta!!
+            itemMeta.setDisplayName(MerchUtils.getMerchandise(baseMerch).getName())
+            itemCopy.itemMeta = itemMeta
+            frame.setItem(itemCopy)
+            frame.setVisible(CostcoGlobals.visibleFrames)
         }
     }
 
+    /**
+     * Removes the glow item frame at the given location.
+     * @param location The location of the glow item frame.
+     */
+    fun removeFrame(location: Location) {
+        val entities = getEntitiesByLocation(location)
+        val frame = entities.first { it is GlowItemFrame } as GlowItemFrame
+        frame.remove()
+    }
     /**
      * A helper method that gets a list of all entities within a block, with an offset accounts for
      * rounding to nearest even since that's what it looks like minecraft does.
