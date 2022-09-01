@@ -105,7 +105,7 @@ object SellUtils {
             setItemToNull: Boolean
     ): Int {
         // TODO: When enchantment support is added, update this to handle them
-        val enchantments = itemInHand.enchantments
+        val enchantments = MerchUtils.getItemEnchants(itemInHand)
         val inventory = player.inventory
         // Inventory has 36 items excluding armor slots and offhand
         if (isShulkerInv(itemInHand)) {
@@ -122,7 +122,7 @@ object SellUtils {
             if (item == null) {
                 continue
             }
-            if (item.type == itemInHand.type && item.enchantments == enchantments) {
+            if (item.type == itemInHand.type && MerchUtils.getItemEnchants(item) == enchantments) {
                 sellAmount += item.amount
                 if (setItemToNull) {
                     inventory.setItem(i, null)
@@ -301,10 +301,9 @@ object SellUtils {
      * @return True if the player is allowed to sell `item` and false otherwise.
      */
     private fun isAccepted(player: Player, item: ItemStack, sendMessages: Boolean = true): Boolean {
-        // TODO: When enchantment support is added, deal with enchantments
-        if (item.enchantments.isNotEmpty()) {
+        if (item.type != Material.ENCHANTED_BOOK && MerchUtils.getItemEnchants(item).isNotEmpty()) {
             if (sendMessages) {
-                player.sendMessage("Enchantments are not yet supported")
+                player.sendMessage("We only support enchanted book trading")
             }
             return false
         }
