@@ -1,11 +1,29 @@
-# A multiplier that affects how much price is affected by bigger purchases
-purchase-size-multiplier: 1.0
+# The default amount of money a player has in their wallet before buying/selling
+default-wallet: 420.69
+# Whether the frames containing items should be shown
+visible-frames: true
+# How frequently prices should automatically update (in seconds)
+seconds-between-price-motion: 60
+# The maximum number of stacks of items that can be bought at once
+max-stacks-purchase: 36
+
+
+# Whether to send additional debug messages to the console.
+debug-messages: false
+
+
 # How much mass is added per transaction (affects how hard it is to change the price of an item)
 mass-per-transaction: 5.0
 # The starting mass of an item
 starting-mass: 5.0
 # The highest value that mass can reach
 maximum-mass: 100000.0
+# The default price of a particular piece of merchandise if not found in mechprices.yml
+default-merch-price: 10.0
+# The default price of a particular type of enchantment if not found in enchantment.yml
+default-enchantment-price: 100.0
+# A multiplier that affects how much price is affected by bigger purchases
+purchase-size-multiplier: 1.0
 # The maximum percentage a price can change per update (including transactions)
 max-pct-change: 0.05
 # A multiplier which influences how much a price can vary from its best-guess price. Higher values make prices more volatile.
@@ -29,17 +47,3 @@ price-spread: 0.05
 surcharge-curve-epsilon: 0.0001
 # Affects how much the price should try to correct towards the best-guess price. Higher values make corrections more aggressive.
 clamp-multiplier: 0.5
-# The default amount of money a player has in their wallet before buying/selling
-default-wallet: 420.69
-# How frequently prices should automatically update (in seconds)
-seconds-between-price-motion: 60
-# The maximum number of stacks of items that can be bought at once
-max-stacks-purchase: 36
-# The default price of a particular piece of merchandise if not found in mechprices.yml
-default-merch-price: 10.0
-# The default price of a particular type of enchantment if not found in enchantment.yml
-# TODO: Implement this?
-default-enchantment-price: 100.0
-
-# Whether to send additional debug messages to the console.
-debug-messages: false
