@@ -9,6 +9,7 @@ import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.block.BlockState
 import org.bukkit.block.Sign
+import org.bukkit.enchantments.Enchantment
 
 /** An enum that gives all the ways a sign might be used. */
 @Serializable
@@ -184,9 +185,18 @@ object SignUtils {
      * Updates the name listed on a sign.
      * @param signLocation The location of the sign.
      */
-    private fun updateSignName(signLocation: Location, merch: Merchandise? = null) {
+    private fun updateSignName(signLocation: Location, merch: Merchandise?) {
         // This shouldn't be called with any null merch
-        var signText: List<String> = this.nameFormat(merch!!.material.name)
+        if (merch == null) {
+            logIfDebug("Merch is null in updateSignName for sign at $signLocation")
+            return
+        }
+        var signText: List<String>
+        if (merch.material == Material.ENCHANTED_BOOK) {
+            signText = this.enchantedBookName(merch)
+        } else {
+            signText = this.nameFormat(merch.material.name)
+        }
         // Add blank string until signText has length 2
         while (signText.size < 2) {
             signText = signText.plus("")
@@ -194,6 +204,84 @@ object SignUtils {
         for (i in 0 until signText.size) {
             this.updateSignLine(signLocation, i, signText[i])
         }
+    }
+
+    private fun enchantedBookName(merch: Merchandise): List<String> {
+        val enchantments = merch.enchantments
+        // Should only ever be one single enchantment
+        if (enchantments.size == 0) {
+            logIfDebug("No enchantments in enchanted book merch")
+            return listOf("Enchanted Book")
+        }
+        val enchantment = enchantments.keys.first()
+        val level = enchantments[enchantment]!!
+        val enchantmentName = enchantedBookString(enchantment, level)
+        val signText = nameFormat(enchantmentName)
+        return signText
+    }
+
+    fun enchantedBookNameString(merch: Merchandise): String {
+        val enchantments = merch.enchantments
+        // Should only ever be one single enchantment
+        if (enchantments.size == 0) {
+            logIfDebug("No enchantments in enchanted book merch")
+            return "Enchanted Book"
+        }
+        val enchantment = enchantments.keys.first()
+        val level = enchantments[enchantment]!!
+        val enchantmentName = enchantedBookString(enchantment, level)
+        val signText = nameFormat(enchantmentName).joinToString(" ")
+        return signText
+    }
+
+    private fun enchantedBookString(enchantment: Enchantment, level: Int): String {
+        val enchantName = enchantment.key.toString()
+        val name =
+                when (enchantName) {
+                    "minecraft:fire_protection" -> "Fire Protection"
+                    "minecraft:sharpness" -> "Sharpness"
+                    "minecraft:flame" -> "Flame"
+                    "minecraft:soul_speed" -> "Soul Speed"
+                    "minecraft:aqua_affinity" -> "Aqua Affinity"
+                    "minecraft:punch" -> "Punch"
+                    "minecraft:loyalty" -> "Loyalty"
+                    "minecraft:depth_strider" -> "Depth Strider"
+                    "minecraft:vanishing_curse" -> "Curse of Vanishing"
+                    "minecraft:unbreaking" -> "Unbreaking"
+                    "minecraft:knockback" -> "Knockback"
+                    "minecraft:luck_of_the_sea" -> "Luck of the Sea"
+                    "minecraft:binding_curse" -> "Curse of Binding"
+                    "minecraft:fortune" -> "Fortune"
+                    "minecraft:protection" -> "Protection"
+                    "minecraft:efficiency" -> "Efficiency"
+                    "minecraft:mending" -> "Mending"
+                    "minecraft:frost_walker" -> "Frost Walker"
+                    "minecraft:lure" -> "Lure"
+                    "minecraft:looting" -> "Looting"
+                    "minecraft:piercing" -> "Piercing"
+                    "minecraft:blast_protection" -> "Blast Protection"
+                    "minecraft:smite" -> "Smite"
+                    "minecraft:multishot" -> "Multishot"
+                    "minecraft:fire_aspect" -> "Fire Aspect"
+                    "minecraft:channeling" -> "Channeling"
+                    "minecraft:sweeping" -> "Sweeping"
+                    "minecraft:thorns" -> "Thorns"
+                    "minecraft:bane_of_arthropods" -> "Bane of Arthropods"
+                    "minecraft:respiration" -> "Respiration"
+                    "minecraft:riptide" -> "Riptide"
+                    "minecraft:silk_touch" -> "Silk Touch"
+                    "minecraft:quick_charge" -> "Quick Charge"
+                    "minecraft:projectile_protection" -> "Projectile Protection"
+                    "minecraft:impaling" -> "Impaling"
+                    "minecraft:feather_falling" -> "Feather Falling"
+                    "minecraft:power" -> "Power"
+                    "minecraft:infinity" -> "Infinity"
+                    else -> enchantName
+                }
+        if (enchantment.maxLevel == 1) {
+            return name
+        }
+        return "$name $level"
     }
 
     /**
@@ -311,7 +399,15 @@ object SignUtils {
         // Join as many words as possible <= 16 chars
         var line = ""
         while (words.size > 0) {
-            val currentWord = words[0]
+            val currentWord =
+                    when (words[0]) {
+                        "1" -> "I"
+                        "2" -> "II"
+                        "3" -> "III"
+                        "4" -> "IV"
+                        "5" -> "V"
+                        else -> words[0]
+                    }
             words.removeAt(0)
 
             // 15 chars + 1 space = 16 chars
