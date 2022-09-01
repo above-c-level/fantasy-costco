@@ -239,6 +239,7 @@ object SetWalletCommand : TabExecutor {
         } else if (args.size == 2) {
             return Bukkit.getOnlinePlayers().map { player -> player.name }
         }
+        return listOf<String>()
     }
 }
 // endregion
