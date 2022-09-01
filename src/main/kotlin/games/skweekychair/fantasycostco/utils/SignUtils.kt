@@ -544,4 +544,13 @@ object SignUtils {
             }
         }
     }
+
+    /**
+     * Simple helper function to determine whether a location contains a sign.
+     * @param location The location to check.
+     * @return True if the location contains a sign, false otherwise.
+     */
+    fun isSignBlock(location: Location): Boolean {
+        return "SIGN" in location.block.type.toString()
+    }
 }

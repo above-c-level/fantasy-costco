@@ -168,7 +168,7 @@ class CostcoListener : Listener {
         val holdingAir = heldItemName == "AIR"
         val signFound = signData != null
         val frameLocation = signLocation.clone().add(0.0, -1.0, 0.0)
-
+        val altFrameLocation = signLocation.clone().add(0.0, 1.0, 0.0)
         if (ordainingSign && holdingAir && signFound) {
             // Case 1
             if (ordainingSign && Cereal.merch.size == 0) {
@@ -188,6 +188,8 @@ class CostcoListener : Listener {
             }
             if (FrameUtils.isGlowItemFrame(frameLocation)) {
                 FrameUtils.removeFrame(frameLocation)
+            } else if (FrameUtils.isGlowItemFrame(altFrameLocation)) {
+                FrameUtils.removeFrame(altFrameLocation)
             }
             // They're holding air, so it's a sell sign
             SignUtils.addSignData(signLocation, SignType.SELL_ONE)
@@ -197,6 +199,8 @@ class CostcoListener : Listener {
             // Case 2
             if (FrameUtils.isGlowItemFrame(frameLocation)) {
                 FrameUtils.removeFrame(frameLocation)
+            } else if (FrameUtils.isGlowItemFrame(altFrameLocation)) {
+                FrameUtils.removeFrame(altFrameLocation)
             }
             // There is not a sign there, so initialize it
             SignUtils.addSignData(signLocation, SignType.SELL_ONE)
@@ -230,8 +234,13 @@ class CostcoListener : Listener {
             SignUtils.updateSign(signLocation, merch = MerchUtils.getMerchandise(baseMerch))
             SignUtils.colorFormat(signLocation, true)
 
-            // Add/update glow item frame directly underneath the sign
-            FrameUtils.addOrUpdateFrame(frameLocation, baseMerch)
+            if (!SignUtils.isSignBlock(frameLocation)) {
+                // Add/update glow item frame directly underneath the sign
+                FrameUtils.addOrUpdateFrame(frameLocation, baseMerch)
+            } else if (!SignUtils.isSignBlock(altFrameLocation)) {
+                // Add/update glow item frame directly above the sign
+                FrameUtils.addOrUpdateFrame(altFrameLocation, baseMerch)
+            }
             return
         } else if (ordainingSign && !holdingAir && !signFound) {
             // Case 4
@@ -245,8 +254,13 @@ class CostcoListener : Listener {
             SignUtils.addSignToMerch(baseMerch, signLocation, SignType.BUY_ONE)
             SignUtils.updateSign(signLocation, merch = MerchUtils.getMerchandise(baseMerch))
             SignUtils.colorFormat(signLocation, true)
-            // Add/update glow item frame directly underneath the sign
-            FrameUtils.addOrUpdateFrame(frameLocation, baseMerch)
+            if (!SignUtils.isSignBlock(frameLocation)) {
+                // Add/update glow item frame directly underneath the sign
+                FrameUtils.addOrUpdateFrame(frameLocation, baseMerch)
+            } else if (!SignUtils.isSignBlock(altFrameLocation)) {
+                // Add/update glow item frame directly above the sign
+                FrameUtils.addOrUpdateFrame(altFrameLocation, baseMerch)
+            }
             return
         }
         // All the above cases should have taken care of ordaining, so we just need to rule out
