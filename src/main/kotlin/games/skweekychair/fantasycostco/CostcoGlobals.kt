@@ -18,6 +18,10 @@ object CostcoGlobals {
     val defaultWallet
         get() = spigotConfig.getDouble("default-wallet", 420.69)
 
+    // Whether the frames containing items should be shown
+    val visibleFrames
+        get() = spigotConfig.getBoolean("visible-frames", true)
+
     // Mass to add to each transaction
     val massPerTransaction
         get() = spigotConfig.getDouble("mass-per-transaction", 5.0)
