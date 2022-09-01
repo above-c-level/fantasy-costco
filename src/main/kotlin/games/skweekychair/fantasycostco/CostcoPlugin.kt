@@ -167,6 +167,7 @@ class CostcoListener : Listener {
         val signData: SignData? = Cereal.signs[signLocation]
         val holdingAir = heldItemName == "AIR"
         val signFound = signData != null
+        val frameLocation = signLocation.clone().add(0.0, -1.0, 0.0)
 
         if (ordainingSign && holdingAir && signFound) {
             // Case 1
@@ -185,19 +186,25 @@ class CostcoListener : Listener {
             if (!SignUtils.removeSignFromMerch(signLocation)) {
                 SignUtils.removeSignData(signLocation)
             }
+            if (FrameUtils.isGlowItemFrame(frameLocation)) {
+                FrameUtils.removeFrame(frameLocation)
+            }
             // They're holding air, so it's a sell sign
             SignUtils.addSignData(signLocation, SignType.SELL_ONE)
             SignUtils.updateSign(signLocation, false)
             return
         } else if (ordainingSign && holdingAir && !signFound) {
             // Case 2
+            if (FrameUtils.isGlowItemFrame(frameLocation)) {
+                FrameUtils.removeFrame(frameLocation)
+            }
             // There is not a sign there, so initialize it
             SignUtils.addSignData(signLocation, SignType.SELL_ONE)
             SignUtils.updateSign(signLocation, false)
             return
         } else if (ordainingSign && !holdingAir && signFound) {
             // Case 3
-            val baseMerch = BaseMerchandise(itemStack!!.type, itemStack.enchantments)
+            val baseMerch = BaseMerchandise(itemStack!!.type, MerchUtils.getItemEnchants(itemStack))
             // If the sign is a buy sign
 
             if (signData!!.isBuying()) {
@@ -213,7 +220,6 @@ class CostcoListener : Listener {
                 player.sendMessage("${RED}We aren't trading ${baseMerch.material.name}")
                 return
             }
-
             // If the sign is already ordained *but* the player is trying to ordain
             // it as a buy sign and it was a sell sign, then remove the sign and ordain
             // it as a buy sign
@@ -225,12 +231,12 @@ class CostcoListener : Listener {
             SignUtils.colorFormat(signLocation, true)
 
             // Add/update glow item frame directly underneath the sign
-            FrameUtils.addOrUpdateFrame(signLocation.clone().add(0.0, -1.0, 0.0), baseMerch)
+            FrameUtils.addOrUpdateFrame(frameLocation, baseMerch)
             return
         } else if (ordainingSign && !holdingAir && !signFound) {
             // Case 4
             // There is not a sign there, so initialize it
-            val baseMerch = BaseMerchandise(itemStack!!.type, itemStack.enchantments)
+            val baseMerch = BaseMerchandise(itemStack!!.type, MerchUtils.getItemEnchants(itemStack))
             // Check to make sure merch is valid
             if (CostcoGlobals.isNotAccepted(baseMerch.material)) {
                 player.sendMessage("${RED}We aren't trading ${baseMerch.material.name}")
@@ -240,7 +246,7 @@ class CostcoListener : Listener {
             SignUtils.updateSign(signLocation, merch = MerchUtils.getMerchandise(baseMerch))
             SignUtils.colorFormat(signLocation, true)
             // Add/update glow item frame directly underneath the sign
-            FrameUtils.addOrUpdateFrame(signLocation.clone().add(0.0, -1.0, 0.0), baseMerch)
+            FrameUtils.addOrUpdateFrame(frameLocation, baseMerch)
             return
         }
         // All the above cases should have taken care of ordaining, so we just need to rule out
