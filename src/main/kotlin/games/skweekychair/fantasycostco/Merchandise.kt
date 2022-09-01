@@ -85,6 +85,20 @@ class Merchandise(
     /**
      * The constructor for a new merchandise item.
      * @param material The material of the item.
+     * @param enchantments The enchantments on the item.
+     * @param mass The `mass` of our point in the gradient descent algorithm.
+     * @param startingPrice Our best guess as to the ideal starting price of the item.
+     */
+    constructor(
+            material: Material,
+            enchantments: Map<Enchantment, Int>,
+            mass: Double,
+            startingPrice: Double
+    ) : this(material, mass, startingPrice, startingPrice, enchantments)
+
+    /**
+     * The constructor for a new merchandise item.
+     * @param material The material of the item.
      * @param mass The `mass` of our point in the gradient descent algorithm.
      * @param startingPrice Our best guess as to the ideal starting price of the item.
      * @param hasFixedPrice Whether or not this item has a fixed price.
@@ -283,8 +297,8 @@ class Merchandise(
     fun getName(): String {
         var name = this.material.name.replace('_', ' ')
         name = WordUtils.capitalizeFully(name)
-        if (this.enchantments.size > 0) {
-            return "Enchanted $name"
+        if (this.material == Material.ENCHANTED_BOOK) {
+            return SignUtils.enchantedBookNameString(this)
         }
         return name
     }
