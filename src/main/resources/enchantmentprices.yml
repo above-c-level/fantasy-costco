@@ -1,0 +1,150 @@
+# Each enchantment level is in order of enchantment level
+# calculated as 200*2.1^(level-maxlevel)
+minecraft:fire_protection:
+  - 21.5959399632869
+  - 45.35147392290249
+  - 95.23809523809523
+  - 200.0
+minecraft:sharpness:
+  - 10.283780934898523
+  - 21.5959399632869
+  - 45.35147392290249
+  - 95.23809523809523
+  - 200.0
+minecraft:flame:
+  - 200.0
+minecraft:soul_speed:
+  - 45.35147392290249
+  - 95.23809523809523
+  - 200.0
+minecraft:aqua_affinity:
+  - 200.0
+minecraft:punch:
+  - 95.23809523809523
+  - 200.0
+minecraft:loyalty:
+  - 45.35147392290249
+  - 95.23809523809523
+  - 200.0
+minecraft:depth_strider:
+  - 45.35147392290249
+  - 95.23809523809523
+  - 200.0
+minecraft:vanishing_curse:
+  - 200.0
+minecraft:unbreaking:
+  - 45.35147392290249
+  - 95.23809523809523
+  - 200.0
+minecraft:knockback:
+  - 95.23809523809523
+  - 200.0
+minecraft:luck_of_the_sea:
+  - 45.35147392290249
+  - 95.23809523809523
+  - 200.0
+minecraft:binding_curse:
+  - 200.0
+minecraft:fortune:
+  - 45.35147392290249
+  - 95.23809523809523
+  - 200.0
+minecraft:protection:
+  - 21.5959399632869
+  - 45.35147392290249
+  - 95.23809523809523
+  - 200.0
+minecraft:efficiency:
+  - 10.283780934898523
+  - 21.5959399632869
+  - 45.35147392290249
+  - 95.23809523809523
+  - 200.0
+minecraft:mending:
+  - 200.0
+minecraft:frost_walker:
+  - 95.23809523809523
+  - 200.0
+minecraft:lure:
+  - 45.35147392290249
+  - 95.23809523809523
+  - 200.0
+minecraft:looting:
+  - 45.35147392290249
+  - 95.23809523809523
+  - 200.0
+minecraft:piercing:
+  - 21.5959399632869
+  - 45.35147392290249
+  - 95.23809523809523
+  - 200.0
+minecraft:blast_protection:
+  - 21.5959399632869
+  - 45.35147392290249
+  - 95.23809523809523
+  - 200.0
+minecraft:smite:
+  - 10.283780934898523
+  - 21.5959399632869
+  - 45.35147392290249
+  - 95.23809523809523
+  - 200.0
+minecraft:multishot:
+  - 200.0
+minecraft:fire_aspect:
+  - 95.23809523809523
+  - 200.0
+minecraft:channeling:
+  - 200.0
+minecraft:sweeping:
+  - 45.35147392290249
+  - 95.23809523809523
+  - 200.0
+minecraft:thorns:
+  - 45.35147392290249
+  - 95.23809523809523
+  - 200.0
+minecraft:bane_of_arthropods:
+  - 10.283780934898523
+  - 21.5959399632869
+  - 45.35147392290249
+  - 95.23809523809523
+  - 200.0
+minecraft:respiration:
+  - 45.35147392290249
+  - 95.23809523809523
+  - 200.0
+minecraft:riptide:
+  - 45.35147392290249
+  - 95.23809523809523
+  - 200.0
+minecraft:silk_touch:
+  - 200.0
+minecraft:quick_charge:
+  - 45.35147392290249
+  - 95.23809523809523
+  - 200.0
+minecraft:projectile_protection:
+  - 21.5959399632869
+  - 45.35147392290249
+  - 95.23809523809523
+  - 200.0
+minecraft:impaling:
+  - 10.283780934898523
+  - 21.5959399632869
+  - 45.35147392290249
+  - 95.23809523809523
+  - 200.0
+minecraft:feather_falling:
+  - 21.5959399632869
+  - 45.35147392290249
+  - 95.23809523809523
+  - 200.0
+minecraft:power:
+  - 10.283780934898523
+  - 21.5959399632869
+  - 45.35147392290249
+  - 95.23809523809523
+  - 200.0
+minecraft:infinity:
+  - 200.0
