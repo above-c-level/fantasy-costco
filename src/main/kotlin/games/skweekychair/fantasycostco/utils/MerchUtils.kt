@@ -16,6 +16,33 @@ object MerchUtils {
      * @return The merchandise.
      */
     fun getMerchandise(baseMerch: BaseMerchandise): Merchandise {
+        if (baseMerch.material == Material.ENCHANTED_BOOK) {
+            val enchantments = baseMerch.enchantments
+            var bestBook: BaseMerchandise? = null
+            var bestPrice: Double = 0.0
+            for ((enchantment, level) in enchantments) {
+                val singleEnchantment = mapOf(enchantment to level)
+                val singleBook = BaseMerchandise(Material.ENCHANTED_BOOK, singleEnchantment)
+                // Ensure that each enchanted book exists
+                if (singleBook !in Cereal.merch) {
+                    val bestGuessPrice = CostcoGlobals.startingEnchantmentPrice(enchantment, level)
+                    Cereal.merch[singleBook] =
+                            Merchandise(
+                                    baseMerch.material,
+                                    singleEnchantment,
+                                    CostcoGlobals.startingMass,
+                                    bestGuessPrice
+                            )
+                }
+                val singleBookPrice = Cereal.merch[singleBook]!!.shownPrice
+                if (singleBookPrice > bestPrice) {
+                    bestPrice = singleBookPrice
+                    bestBook = singleBook
+                }
+            }
+            val best = Cereal.merch[bestBook!!]
+            return best!!
+        }
 
         if (baseMerch !in Cereal.merch) {
             val material = baseMerch.material
@@ -35,9 +62,6 @@ object MerchUtils {
             }
         }
 
-        for (i in baseMerch.enchantments) {
-            logIfDebug("This ${baseMerch.material.name} has enchantments ${i}")
-        }
         return Cereal.merch[baseMerch]!!
     }
 
@@ -86,15 +110,14 @@ object MerchUtils {
      * @return The map of enchantments and levels.
      */
     fun getItemEnchants(item: ItemStack): Map<Enchantment, Int> {
-        var enchantments: Map<Enchantment, Int>? = null
         if (item.type == Material.ENCHANTED_BOOK) {
             val meta = item.itemMeta
-            if (meta is EnchantmentStorageMeta) {
-                enchantments = meta.getStoredEnchants()
+            if (meta !is EnchantmentStorageMeta) {
+                return HashMap()
             }
+            return meta.storedEnchants
         } else {
-            enchantments = item.enchantments
+            return item.enchantments
         }
-        return enchantments ?: HashMap<Enchantment, Int>()
     }
 }
