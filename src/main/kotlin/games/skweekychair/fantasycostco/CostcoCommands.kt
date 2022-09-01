@@ -205,8 +205,13 @@ object SetWalletCommand : TabExecutor {
             return false
         }
 
-        // Get amount
-        val amount = args[0].toDoubleOrNull()
+        // In case the player tab completes to have the blockcoin symbol
+        var argstring = args[1]
+        if (argstring.startsWith("₿")) {
+            // Strip out prefix
+            argstring = argstring.substring(1)
+        }
+        val amount = argstring.toDoubleOrNull()
         if (amount == null) {
             sender.sendMessage("${RED}Not a valid amount.")
             return false
@@ -229,7 +234,11 @@ object SetWalletCommand : TabExecutor {
             lbl: String,
             args: Array<String>
     ): List<String> {
-        return listOf<String>()
+        if (args.size == 1) {
+            return listOf<String>("₿")
+        } else if (args.size == 2) {
+            return Bukkit.getOnlinePlayers().map { player -> player.name }
+        }
     }
 }
 // endregion
