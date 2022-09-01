@@ -112,10 +112,13 @@ object CostcoGlobals {
      * @param enchantment The enchantment to get the price of.
      * @return The starting price of the enchantment.
      */
-    fun startingEnchantmentPrice(enchantment: Enchantment): Double {
-        val price =
-                enchantmentPricesConfig.getDouble(enchantment.toString(), defaultEnchantmentPrice)
-        return price
+    fun startingEnchantmentPrice(enchantment: Enchantment, level: Int): Double {
+        val priceList = enchantmentPricesConfig.getList(enchantment.getKey().toString())
+        if (priceList == null) {
+            return defaultEnchantmentPrice
+        } else {
+            return priceList[level - 1] as Double
+        }
     }
 
     /**
