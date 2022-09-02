@@ -691,3 +691,53 @@ object PayCommand : TabExecutor {
         return completions
     }
 }
+
+object UpdateFramesCommand : TabExecutor {
+    override fun onCommand(
+            sender: CommandSender,
+            cmd: Command,
+            lbl: String,
+            args: Array<String>
+    ): Boolean {
+        if (args.size != 0) {
+            sender.sendMessage("${RED}This command takes no arguments")
+            return false
+        }
+        // Iterate through all the sign locations and types
+        for ((location, signType) in Cereal.signs) {
+            val frameLocation = location.clone().add(0.0, -1.0, 0.0)
+            val altFrameLocation = location.clone().add(0.0, 1.0, 0.0)
+            if (signType.isSelling()) {
+                if (FrameUtils.isGlowItemFrame(frameLocation)) {
+                    FrameUtils.removeFrame(frameLocation)
+                } else if (FrameUtils.isGlowItemFrame(altFrameLocation)) {
+                    FrameUtils.removeFrame(altFrameLocation)
+                }
+            } else {
+                val baseMerch = Cereal.purchasePoints[location]
+                if (baseMerch == null) {
+                    sender.sendMessage("${RED}Error: No merch found at $location")
+                    continue
+                }
+
+                if (FrameUtils.isGlowItemFrame(frameLocation)) {
+                    // Add/update glow item frame directly underneath the sign
+                    FrameUtils.addOrUpdateFrame(frameLocation, baseMerch)
+                } else if (FrameUtils.isGlowItemFrame(altFrameLocation)) {
+                    // Add/update glow item frame directly above the sign
+                    FrameUtils.addOrUpdateFrame(altFrameLocation, baseMerch)
+                }
+            }
+        }
+        return true
+    }
+
+    override fun onTabComplete(
+            sender: CommandSender,
+            cmd: Command,
+            lbl: String,
+            args: Array<String>
+    ): List<String> {
+        return mutableListOf<String>()
+    }
+}
