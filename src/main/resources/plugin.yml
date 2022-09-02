@@ -1,6 +1,6 @@
 name: FantasyCostco
 main: games.skweekychair.fantasycostco.CostcoPlugin
-version: 1.0.0
+version: 1.1.0
 api-version: 1.18
 
 commands:
@@ -58,6 +58,10 @@ commands:
     description: Pay another player some Blockcoins.
     usage: /<command> [player (name)] [amount (a number)]
     permission: fantasycostco.pay
+  update-frames:
+    description: Update the item frames near signs
+    usage: /<command>
+    permission: fantastycostco.update-frames
 permissions:
   fantasycostco.buy:
     default: op
@@ -81,3 +85,5 @@ permissions:
     default: true
   fantasycostco.pay:
     default: true
+  fantastycostco.update-frames:
+    default: op
