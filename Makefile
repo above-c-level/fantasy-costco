@@ -18,7 +18,7 @@ update:
 	# Build the plugin
 	./gradlew build
 	# Copy the plugin to the server
-	cp build/libs/fantasy-costco-$(VERSION).jar $(SERVER_PATH)/plugins
+	cp build/libs/fantasy-costco-$(VERSION)-all.jar $(SERVER_PATH)/plugins
 
 run:
 	# Run the server
