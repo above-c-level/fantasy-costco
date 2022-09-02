@@ -14,11 +14,13 @@ import org.bukkit.enchantments.Enchantment
 /** Modifies the price of items pseudorandomly without affecting the best-guess price */
 class Perturber : Runnable {
     override fun run() {
-        for (item in Cereal.merch.values) {
+        val merchvals = Cereal.merch.values
+        for (i in 0..CostcoGlobals.itemsToUpdatePerPriceMotion) {
+            // Pick a random item in Cereal.merch.values
+            val item = merchvals.random()
             item.hold()
             SignUtils.updateAllSigns(item)
         }
-        // Bukkit.broadcastMessage("Perturbed prices of ${Cereal.merch.size} items")
     }
 }
 
