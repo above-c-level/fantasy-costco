@@ -168,8 +168,6 @@ object SellUtils {
             val merchandise = MerchUtils.getMerchandise(baseMerch)
             val price = merchandise.itemSellPrice(amount)
             MemberUtils.walletAdd(player, price)
-            val playerFunds = MemberUtils.getWalletRounded(player)
-            player.sendMessage("${playerFunds}")
             player.inventory.setItemInMainHand(null)
             merchandise.sell(amount.toDouble())
             totalPrice += price
@@ -350,8 +348,6 @@ object SellUtils {
     private fun performSale(player: Player, price: Double, amount: Int, merchandise: Merchandise) {
         val itemInHand = player.inventory.itemInMainHand
         MemberUtils.walletAdd(player, price)
-        val playerFunds = MemberUtils.getWalletRounded(player)
-        player.sendMessage("${playerFunds}")
         if (itemInHand.amount <= amount) {
             player.inventory.setItemInMainHand(null)
         } else {
