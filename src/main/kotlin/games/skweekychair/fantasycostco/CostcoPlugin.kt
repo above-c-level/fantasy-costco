@@ -283,7 +283,6 @@ class CostcoListener : Listener {
                 if (membershipCard.useAmount) {
                     // Buy using the player's buy target
                     val amount = membershipCard.buyGoal
-                    player.sendMessage("Just looking")
                     BuyUtils.handleJustLooking(player, merchandise, amount)
                 } else {
                     // Buy using the sign's buy target
@@ -293,7 +292,6 @@ class CostcoListener : Listener {
                 if (membershipCard.useAmount) {
                     // Buy using the player's buy target
                     val amount = membershipCard.buyGoal
-                    player.sendMessage("Buy with useAmount")
                     BuyUtils.handleBuyAmount(player, merchandise, amount)
                 } else {
                     // Buy using the sign's buy target
@@ -306,7 +304,6 @@ class CostcoListener : Listener {
         } else {
             if (sneaking || membershipCard.justLooking) {
                 // If the player is just looking for buying
-                player.sendMessage("Just looking at selling")
                 SellUtils.handleJustLookingAtSign(player, signLocation)
             } else if (rightClick) {
                 // Player selling using sign's sell target
