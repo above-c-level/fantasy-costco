@@ -62,8 +62,8 @@ class CostcoPlugin : JavaPlugin() {
         scheduler.runTaskTimer(
                 this,
                 Perturber(),
-                CostcoGlobals.secondsBetweenPriceMotion,
-                CostcoGlobals.secondsBetweenPriceMotion
+                CostcoGlobals.ticksBetweenPriceMotion,
+                CostcoGlobals.ticksBetweenPriceMotion
         )
         scheduler.runTaskLater(this, StartupSplashArt(), 10)
     }
