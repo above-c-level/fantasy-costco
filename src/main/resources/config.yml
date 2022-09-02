@@ -2,8 +2,10 @@
 default-wallet: 420.69
 # Whether the frames containing items should be shown
 visible-frames: true
-# How frequently prices should automatically update (in seconds)
-seconds-between-price-motion: 60
+# How frequently prices should automatically update (in ticks)
+ticks-between-price-motion: 1
+# The number of items to update per price motion
+items-to-update-per-price-motion: 1
 # The maximum number of stacks of items that can be bought at once
 max-stacks-purchase: 36
 
