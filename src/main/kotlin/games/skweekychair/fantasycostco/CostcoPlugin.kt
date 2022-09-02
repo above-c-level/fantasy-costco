@@ -55,6 +55,7 @@ class CostcoPlugin : JavaPlugin() {
 
         getCommand("pay")?.setExecutor(PayCommand)
         getCommand("use-amount")?.setExecutor(UseAmountCommand)
+        getCommand("update-frames")?.setExecutor(UpdateFramesCommand)
 
         Cereal.loadAll()
 
