@@ -16,6 +16,8 @@ object FrameUtils {
     // to reasonable values so that we can check within a reasonable distance
     val offset = 0.46875
     val distance = 0.5
+    val yDistance = 0.5
+    val yOffset = 0.46875
     /**
      * Checks whether there exists a glow item frame at the current location. Since item frames and
      * glow item frames are entities, we have to use .getNearbyEntities() to check for nearby
@@ -87,7 +89,7 @@ object FrameUtils {
         val world = location.world!!
         // We need to clone so we don't have knock-on effects, for some reason calling .add
         // on the location mutates the location
-        val newLocation = location.clone().add(offset, 0.0, offset)
-        return world.getNearbyEntities(newLocation, distance, 0.5, distance)
+        val newLocation = location.clone().add(offset, yOffset, offset)
+        return world.getNearbyEntities(newLocation, distance, yDistance, distance)
     }
 }
