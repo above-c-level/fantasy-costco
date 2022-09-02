@@ -77,9 +77,11 @@ object CostcoGlobals {
     val startingMass
         get() = spigotConfig.getDouble("starting-mass", 5.0)
 
-    val secondsBetweenPriceMotion
-        // It's important to multiply by 20 because minecraft has 20 ticks per second
-        get() = spigotConfig.getLong("seconds-between-price-motion", 60L) * 20
+    val ticksBetweenPriceMotion
+        get() = spigotConfig.getLong("ticks-between-price-motion", 1L)
+
+    val itemsToUpdatePerPriceMotion
+        get() = spigotConfig.getInt("items-to-update-per-price-motion", 1)
 
     val maxStacksPurchase
         get() = spigotConfig.getInt("max-stacks-purchase", 36)
