@@ -206,7 +206,7 @@ object SetWalletCommand : TabExecutor {
         }
 
         // In case the player tab completes to have the blockcoin symbol
-        var argstring = args[1]
+        var argstring = args[0]
         if (argstring.startsWith("₿")) {
             // Strip out prefix
             argstring = argstring.substring(1)
