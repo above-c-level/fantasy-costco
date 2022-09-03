@@ -30,6 +30,7 @@ commands:
     aliases:
       - buy-possible
       - buy-amap
+      - bamp
   amount:
     description: Set or get the number of items you want to try to buy.
     usage: /<command> [quantity (0..2304) | get]
