@@ -1,4 +1,5 @@
-#Fantasy Costco
+# Fantasy Costco
+
 A Bukkit plugin for minecraft servers that attempts to automatically determine the best prices for various items in the game.
 
 The interface is fairly simple, divided up into dedicated signs for buying and selling items. Left clicking on the signs allows players to change the amount they would like to purchase:
