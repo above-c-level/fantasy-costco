@@ -157,6 +157,13 @@ class CostcoListener : Listener {
                 // as a purchase point, so this'll take care of stragglers
                 SignUtils.removeSignData(signLocation)
             }
+            val frameLocation = signLocation.clone().add(0.0, -1.0, 0.0)
+            val altFrameLocation = signLocation.clone().add(0.0, 1.0, 0.0)
+            if (FrameUtils.isGlowItemFrame(frameLocation)) {
+                FrameUtils.removeFrame(frameLocation)
+            } else if (FrameUtils.isGlowItemFrame(altFrameLocation)) {
+                FrameUtils.removeFrame(altFrameLocation)
+            }
             block.setType(Material.AIR, true)
             return
         }

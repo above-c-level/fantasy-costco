@@ -55,13 +55,13 @@ object CostcoGlobals {
         get() = spigotConfig.getDouble("mass-var-max", 0.00001)
 
     val massPushMinMult
-        get() = spigotConfig.getDouble("mass-push-min-mult", 0.9)
+        get() = spigotConfig.getDouble("mass-push-min-mult", 0.1)
     val massPushMaxMult
         get() = spigotConfig.getDouble("mass-push-max-mult", 0.1)
 
     // 0.05 is a spread of 5% at the most ideal price
     val priceSpread
-        get() = spigotConfig.getDouble("price-spread", 0.2)
+        get() = spigotConfig.getDouble("price-spread", 0.3)
 
     val surchargeCurveEpsilon
         get() = spigotConfig.getDouble("surcharge-curve-epsilon", 0.001)
@@ -74,7 +74,7 @@ object CostcoGlobals {
         get() = spigotConfig.getDouble("clamp-multiplier", 0.5)
 
     val startingMass
-        get() = spigotConfig.getDouble("starting-mass", 1000.0)
+        get() = spigotConfig.getDouble("starting-mass", 640.0)
 
     val ticksBetweenPriceMotion
         get() = spigotConfig.getLong("ticks-between-price-motion", 1L)
