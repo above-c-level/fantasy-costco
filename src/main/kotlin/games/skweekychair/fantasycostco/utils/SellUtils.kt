@@ -104,7 +104,6 @@ object SellUtils {
             itemInHand: ItemStack,
             setItemToNull: Boolean
     ): Int {
-        // TODO: When enchantment support is added, update this to handle them
         val enchantments = MerchUtils.getItemEnchants(itemInHand)
         val inventory = player.inventory
         // Inventory has 36 items excluding armor slots and offhand
@@ -339,11 +338,11 @@ object SellUtils {
     }
 
     /**
-     * Handle the situation where the player wants to sell all of their inventory
+     * Handle the actual sale of some number of items
      * @param player The player who is selling their items
      * @param price The price of the items the player is selling
      * @param amount The amount of items the player is selling
-     * @param merchandise The merchandise the plyer is selling
+     * @param merchandise The merchandise the player is selling
      */
     private fun performSale(player: Player, price: Double, amount: Int, merchandise: Merchandise) {
         val itemInHand = player.inventory.itemInMainHand
@@ -353,7 +352,17 @@ object SellUtils {
         } else {
             itemInHand.amount -= amount
         }
+        // Format start and end prices to 4 decimal places
+        val oldPrice = MemberUtils.roundDoubleLog(merchandise.hiddenPrice)
+        val oldWallet = MemberUtils.roundDoubleString(MemberUtils.getWallet(player))
         merchandise.sell(amount.toDouble())
+        val newPrice = MemberUtils.roundDoubleLog(merchandise.hiddenPrice)
+        val newWallet = MemberUtils.roundDoubleString(MemberUtils.getWallet(player))
+        logToFile(
+                "${player.name} sold $amount ${merchandise.getName()}, with price change " +
+                        "$oldPrice to $newPrice. Sold for $price, with wallet change " +
+                        "$oldWallet to $newWallet"
+        )
         player.sendMessage(
                 "${GREEN}You received ${WHITE}${MemberUtils.roundDoubleString(price)}" +
                         "${GREEN} in the sale"
@@ -429,10 +438,19 @@ object SellUtils {
 
         var totalPrice = 0.0
         for ((merchandise, amount) in sellAmounts) {
+            val oldPrice = MemberUtils.roundDoubleLog(merchandise.hiddenPrice)
+            val oldWallet = MemberUtils.roundDoubleString(MemberUtils.getWallet(player))
             val price = merchandise.itemSellPrice(amount)
             MemberUtils.walletAdd(player, price)
             merchandise.sell(amount.toDouble())
             totalPrice += price
+            val newPrice = MemberUtils.roundDoubleLog(merchandise.hiddenPrice)
+            val newWallet = MemberUtils.roundDoubleString(MemberUtils.getWallet(player))
+            logToFile(
+                    "${player.name} sold $amount ${merchandise.getName()}, with price change " +
+                            "$oldPrice to $newPrice. Sold for $price, with wallet change " +
+                            "$oldWallet to $newWallet, from a shulker box"
+            )
         }
         shulkerMeta.setBlockState(shulkerBox)
         shulkerItem.setItemMeta(shulkerMeta)

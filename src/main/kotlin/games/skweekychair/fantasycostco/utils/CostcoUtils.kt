@@ -1,5 +1,9 @@
 package games.skweekychair.fantasycostco
 
+import java.io.FileWriter
+import java.io.PrintWriter
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import org.bukkit.Bukkit
@@ -72,6 +76,22 @@ fun binarySearchPrice(
     }
     amount = high - 1
     return Pair(amount, merchandise.itemBuyPrice(amount))
+}
+
+fun logToFile(message: String) {
+    // val currentTime = System.currentTimeMillis()
+    val timeString = LocalDateTime.now().format(DateTimeFormatter.ofPattern("MM-dd HH:mm:ss.SSS"))
+    val formattedMessage = "[$timeString] $message"
+    try {
+        val fileWriter = FileWriter(CostcoGlobals.logFile, true)
+        val printWriter = PrintWriter(fileWriter)
+        printWriter.println(formattedMessage)
+        printWriter.flush()
+        printWriter.close()
+    // In case we can't write to the log file for some reason log to console
+    } catch (e: Exception) {
+        LogWarning("Failed to write to log file: $e")
+    }
 }
 
 class StartupSplashArt : Runnable {

@@ -237,7 +237,7 @@ class Merchandise(
         val mult =
                 EconomyUtils.boundedLerp(
                         this.mass,
-                        CostcoGlobals.startingMass,
+                        0.0,
                         CostcoGlobals.massPushMinMult,
                         CostcoGlobals.maximumMass,
                         CostcoGlobals.massPushMaxMult

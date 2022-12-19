@@ -33,6 +33,10 @@ class CostcoPlugin : JavaPlugin() {
         CostcoGlobals.fixedPricesConfig = getResourcesConfig("fixedprices")
         CostcoGlobals.enchantmentPricesConfig = getResourcesConfig("enchantmentprices")
         CostcoGlobals.notAcceptedConfig = getResourcesConfig("notaccepted")
+        CostcoGlobals.logFile = File(getDataFolder(), "log.txt")
+        if (!CostcoGlobals.logFile.exists()) {
+            CostcoGlobals.logFile.createNewFile()
+        }
 
         Cereal.walletPath = File(getDataFolder(), "wallets.json")
         Cereal.merchPath = File(getDataFolder(), "merch.json")
@@ -74,6 +78,7 @@ class CostcoPlugin : JavaPlugin() {
         Cereal.saveAll()
         LogInfo("Shutting down :)")
     }
+
     /**
      * Gets the configuration file for the given resource.
      * @param resourceName The name of the resource without the extension.

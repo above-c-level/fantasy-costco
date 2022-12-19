@@ -53,7 +53,7 @@ object EconomyUtils {
     }
 
     /**
-     * Exactly the same s lerp, but limits output to hte range [y0, y1].
+     * Exactly the same as lerp, but limits output to the range [y0, y1].
      * @param x The x value to interpolate.
      * @param x0 The x value of the first point.
      * @param y0 The y value of the first point.

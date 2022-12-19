@@ -1,5 +1,6 @@
 package games.skweekychair.fantasycostco
 
+import java.io.File
 import org.bukkit.Material
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.YamlConfiguration
@@ -13,6 +14,7 @@ object CostcoGlobals {
     var fixedPricesConfig: FileConfiguration = YamlConfiguration()
     var enchantmentPricesConfig: FileConfiguration = YamlConfiguration()
     var notAcceptedConfig: FileConfiguration = YamlConfiguration()
+    var logFile: File = File("")
 
     // Starting amount in wallet
     val defaultWallet
@@ -48,22 +50,19 @@ object CostcoGlobals {
     // variation is multiplied by `massVarMin`, and when `mass` approaches
     // `maximumMass`, the variation is multiplied by `massVarMax`
     val massVarMin
-        get() = spigotConfig.getDouble("mass-var-min", 1.0)
+        get() = spigotConfig.getDouble("mass-var-min", 0.1)
     val massVarMax
         get() = spigotConfig.getDouble("mass-var-max", 0.00001)
 
     val massPushMinMult
-        get() = spigotConfig.getDouble("mass-push-min-mult", 1.0)
+        get() = spigotConfig.getDouble("mass-push-min-mult", 0.9)
     val massPushMaxMult
         get() = spigotConfig.getDouble("mass-push-max-mult", 0.1)
 
     // 0.05 is a spread of 5% at the most ideal price
     val priceSpread
-        get() = spigotConfig.getDouble("price-spread", 0.05)
+        get() = spigotConfig.getDouble("price-spread", 0.2)
 
-    // 0.001 results in a price difference between 1 item and a stack of 64 of:
-    // 9.37 and 10 for sell prices (10 is the idealized price in this example)
-    // 10.63 and 10 for buy prices (10 is the idealized price in this example)
     val surchargeCurveEpsilon
         get() = spigotConfig.getDouble("surcharge-curve-epsilon", 0.001)
 
@@ -75,7 +74,7 @@ object CostcoGlobals {
         get() = spigotConfig.getDouble("clamp-multiplier", 0.5)
 
     val startingMass
-        get() = spigotConfig.getDouble("starting-mass", 5.0)
+        get() = spigotConfig.getDouble("starting-mass", 1000.0)
 
     val ticksBetweenPriceMotion
         get() = spigotConfig.getLong("ticks-between-price-motion", 1L)

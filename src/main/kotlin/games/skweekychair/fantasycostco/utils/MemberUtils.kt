@@ -18,13 +18,21 @@ object MemberUtils {
     }
 
     /**
-     * Round a double to a specified number of decimal places with trailing zeros.
+     * Round a double to 2 decimal places with trailing zeros.
      * @param value The value to round.
-     * @param places The number of decimal places to round to.
      * @return The rounded value.
      */
     fun roundDoubleString(value: Double): String {
         return "₿${String.format(Locale("en", "US"), "%,.2f", value)}"
+    }
+
+    /**
+     * Round a double to 4 decimal places with trailing zeros.
+     * @param value The value to round.
+     * @return The rounded value.
+     */
+    fun roundDoubleLog(value: Double): String {
+        return "${String.format(Locale("en", "US"), "%,.4f", value)}"
     }
 
     /**

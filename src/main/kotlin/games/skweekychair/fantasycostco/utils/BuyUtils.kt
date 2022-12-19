@@ -50,6 +50,8 @@ object BuyUtils {
                 return
             }
         }
+        val oldPrice = MemberUtils.roundDoubleLog(merchandise.hiddenPrice)
+        val oldWallet = MemberUtils.roundDoubleString(MemberUtils.getWallet(player))
 
         val itemStack = ItemStack(material, amount)
 
@@ -59,6 +61,13 @@ object BuyUtils {
         if (remaining.isNotEmpty()) {
             placeRemainingItems(remaining, player)
         }
+        val newPrice = MemberUtils.roundDoubleLog(merchandise.hiddenPrice)
+        val newWallet = MemberUtils.roundDoubleString(MemberUtils.getWallet(player))
+        logToFile(
+                "${player.name} bought $amount ${merchandise.getName()}, with price change " +
+                        "$oldPrice to $newPrice. Bought for $price, with wallet change " +
+                        "$oldWallet to $newWallet"
+        )
         player.sendMessage(
                 "${GREEN}You bought ${WHITE}${amount} ${merchandise.getName()}${GREEN} " +
                         "for ${WHITE}${MemberUtils.roundDoubleString(price)}"
@@ -232,10 +241,8 @@ object BuyUtils {
         val shulkerMat = Material.getMaterial("SHULKER_BOX")!!
         // Ideal price of shulker box because they're already buying upwards of 1728 items
         val shulkerMerch = MerchUtils.getMerchandise(shulkerMat)
-
-        val filledPrice =
-                merchandise.itemBuyPrice(merchandise.material.maxStackSize * 27) +
-                        shulkerMerch.shownPrice
+        val amount = merchandise.material.maxStackSize * 27
+        val filledPrice = merchandise.itemBuyPrice(amount) + shulkerMerch.shownPrice
         if (MemberUtils.getWalletRounded(player) < filledPrice) {
             player.sendMessage(
                     "${RED}You don't have enough money to buy a shulker box full of ${merchandise.getName()}."
@@ -243,9 +250,20 @@ object BuyUtils {
             return
         }
         logIfDebug("    ${player.name} has enough money")
+
+        val oldPrice = MemberUtils.roundDoubleLog(merchandise.hiddenPrice)
+        val oldWallet = MemberUtils.roundDoubleString(MemberUtils.getWallet(player))
+        val price = MemberUtils.roundDoubleString(filledPrice)
         MemberUtils.walletSubtract(player, filledPrice)
         merchandise.buy(merchandise.material.maxStackSize * 27.0)
         shulkerMerch.buy(1.0)
+        val newPrice = MemberUtils.roundDoubleLog(merchandise.hiddenPrice)
+        val newWallet = MemberUtils.roundDoubleString(MemberUtils.getWallet(player))
+        logToFile(
+                "${player.name} bought a shulker box ($amount) of ${merchandise.getName()}, with " +
+                        "price change $oldPrice to $newPrice. Bought for $price, with wallet " +
+                        "change $oldWallet to $newWallet"
+        )
         // Make the shulker box
         val shulkerItem = ItemStack(shulkerMat)
 
