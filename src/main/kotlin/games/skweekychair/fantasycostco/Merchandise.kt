@@ -15,6 +15,9 @@ import org.bukkit.enchantments.Enchantment
 class Perturber : Runnable {
     override fun run() {
         val merchvals = Cereal.merch.values
+        if (merchvals.isEmpty()) {
+            return
+        }
         for (i in 0..CostcoGlobals.itemsToUpdatePerPriceMotion) {
             // Pick a random item in Cereal.merch.values
             val item = merchvals.random()
