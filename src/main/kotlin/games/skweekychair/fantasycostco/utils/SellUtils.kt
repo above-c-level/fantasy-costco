@@ -354,10 +354,10 @@ object SellUtils {
         }
         // Format start and end prices to 4 decimal places
         val oldPrice = MemberUtils.roundDoubleLog(merchandise.hiddenPrice)
-        val oldWallet = MemberUtils.roundDoubleString(MemberUtils.getWallet(player))
+        val oldWallet = MemberUtils.roundDoubleLog(MemberUtils.getWallet(player))
         merchandise.sell(amount.toDouble())
         val newPrice = MemberUtils.roundDoubleLog(merchandise.hiddenPrice)
-        val newWallet = MemberUtils.roundDoubleString(MemberUtils.getWallet(player))
+        val newWallet = MemberUtils.roundDoubleLog(MemberUtils.getWallet(player))
         logToFile(
                 "${player.name} sold $amount ${merchandise.getName()}, with price change " +
                         "$oldPrice to $newPrice. Sold for $price, with wallet change " +
@@ -439,13 +439,13 @@ object SellUtils {
         var totalPrice = 0.0
         for ((merchandise, amount) in sellAmounts) {
             val oldPrice = MemberUtils.roundDoubleLog(merchandise.hiddenPrice)
-            val oldWallet = MemberUtils.roundDoubleString(MemberUtils.getWallet(player))
+            val oldWallet = MemberUtils.roundDoubleLog(MemberUtils.getWallet(player))
             val price = merchandise.itemSellPrice(amount)
             MemberUtils.walletAdd(player, price)
             merchandise.sell(amount.toDouble())
             totalPrice += price
             val newPrice = MemberUtils.roundDoubleLog(merchandise.hiddenPrice)
-            val newWallet = MemberUtils.roundDoubleString(MemberUtils.getWallet(player))
+            val newWallet = MemberUtils.roundDoubleLog(MemberUtils.getWallet(player))
             logToFile(
                     "${player.name} sold $amount ${merchandise.getName()}, with price change " +
                             "$oldPrice to $newPrice. Sold for $price, with wallet change " +

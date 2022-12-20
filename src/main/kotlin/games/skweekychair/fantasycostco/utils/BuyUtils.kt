@@ -51,7 +51,7 @@ object BuyUtils {
             }
         }
         val oldPrice = MemberUtils.roundDoubleLog(merchandise.hiddenPrice)
-        val oldWallet = MemberUtils.roundDoubleString(MemberUtils.getWallet(player))
+        val oldWallet = MemberUtils.roundDoubleLog(MemberUtils.getWallet(player))
 
         val itemStack = ItemStack(material, amount)
 
@@ -62,7 +62,7 @@ object BuyUtils {
             placeRemainingItems(remaining, player)
         }
         val newPrice = MemberUtils.roundDoubleLog(merchandise.hiddenPrice)
-        val newWallet = MemberUtils.roundDoubleString(MemberUtils.getWallet(player))
+        val newWallet = MemberUtils.roundDoubleLog(MemberUtils.getWallet(player))
         logToFile(
                 "${player.name} bought $amount ${merchandise.getName()}, with price change " +
                         "$oldPrice to $newPrice. Bought for $price, with wallet change " +
@@ -252,13 +252,13 @@ object BuyUtils {
         logIfDebug("    ${player.name} has enough money")
 
         val oldPrice = MemberUtils.roundDoubleLog(merchandise.hiddenPrice)
-        val oldWallet = MemberUtils.roundDoubleString(MemberUtils.getWallet(player))
+        val oldWallet = MemberUtils.roundDoubleLog(MemberUtils.getWallet(player))
         val price = MemberUtils.roundDoubleString(filledPrice)
         MemberUtils.walletSubtract(player, filledPrice)
         merchandise.buy(merchandise.material.maxStackSize * 27.0)
         shulkerMerch.buy(1.0)
         val newPrice = MemberUtils.roundDoubleLog(merchandise.hiddenPrice)
-        val newWallet = MemberUtils.roundDoubleString(MemberUtils.getWallet(player))
+        val newWallet = MemberUtils.roundDoubleLog(MemberUtils.getWallet(player))
         logToFile(
                 "${player.name} bought a shulker box ($amount) of ${merchandise.getName()}, with " +
                         "price change $oldPrice to $newPrice. Bought for $price, with wallet " +
