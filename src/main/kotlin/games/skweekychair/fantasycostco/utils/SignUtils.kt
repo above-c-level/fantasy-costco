@@ -451,6 +451,9 @@ object SignUtils {
      * @return True if there was an association (which was then removed), false otherwise.
      */
     fun removeSignFromMerch(location: Location): Boolean {
+        if (location in Cereal.signs) {
+            Cereal.signs.remove(location)
+        }
         if (location in Cereal.purchasePoints) {
             // logIfDebug("Removing ${location.blockX} ${location.blockY} ${location.blockZ}")
             // Grab the base merch associated with the location.
@@ -461,7 +464,6 @@ object SignUtils {
             Cereal.purchasePoints.remove(location)
             // Lastly, remove the location from the old merch
             oldMerch.listOfSigns.remove(location)
-            Cereal.signs.remove(location)
             return true
         }
         return false

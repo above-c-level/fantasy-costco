@@ -124,6 +124,14 @@ object Cereal {
         }
         try {
             signs = loadSigns()
+            for (sign in signs) {
+                logIfDebug(message = "Sign at ${sign.key} loaded: ${sign.value}")
+                // If no minecraft sign exists at the location, remove it from the list
+                logIfDebug("block ${sign.key.block}, type ${sign.key.block.type}, name ${sign.key.block.type.name}")
+                if (!sign.key.block.type.name.contains("SIGN")) {
+                    signs.remove(sign.key)
+                }
+            }
         } catch (e: Throwable) {
             LogWarning("Failed to load signs: ${e.message}")
             signs = HashMap<Location, SignData>()
