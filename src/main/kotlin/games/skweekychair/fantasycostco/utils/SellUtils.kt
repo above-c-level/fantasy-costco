@@ -346,24 +346,24 @@ object SellUtils {
      */
     private fun performSale(player: Player, price: Double, amount: Int, merchandise: Merchandise) {
         val itemInHand = player.inventory.itemInMainHand
+        // Format start and end prices to 4 decimal places
+        val oldWallet = MemberUtils.roundDoubleLog(MemberUtils.getWallet(player))
         MemberUtils.walletAdd(player, price)
         if (itemInHand.amount <= amount) {
             player.inventory.setItemInMainHand(null)
         } else {
             itemInHand.amount -= amount
         }
-        // Format start and end prices to 4 decimal places
         val oldPrice = MemberUtils.roundDoubleLog(merchandise.hiddenPrice)
-        val oldWallet = MemberUtils.roundDoubleLog(MemberUtils.getWallet(player))
         merchandise.sell(amount.toDouble())
         val newMass = MemberUtils.roundDoubleLog(merchandise.mass)
-            val newPrice = MemberUtils.roundDoubleLog(merchandise.hiddenPrice)
-            val newWallet = MemberUtils.roundDoubleLog(MemberUtils.getWallet(player))
-            logToFile(
-                    "${player.name} sold $amount of ${merchandise.getName()}, hiddenPrice: " +
-                            "$oldPrice to $newPrice, wallet: $oldWallet to " +
-                            "$newWallet, mass now $newMass"
-            )
+        val newPrice = MemberUtils.roundDoubleLog(merchandise.hiddenPrice)
+        val newWallet = MemberUtils.roundDoubleLog(MemberUtils.getWallet(player))
+        logToFile(
+                "${player.name} sold $amount of ${merchandise.getName()}, hiddenPrice: " +
+                        "$oldPrice to $newPrice, wallet: $oldWallet to " +
+                        "$newWallet, mass now $newMass"
+        )
         player.sendMessage(
                 "${GREEN}You received ${WHITE}${MemberUtils.roundDoubleString(price)}" +
                         "${GREEN} in the sale"

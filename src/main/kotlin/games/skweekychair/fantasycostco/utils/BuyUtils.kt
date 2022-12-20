@@ -65,9 +65,9 @@ object BuyUtils {
         val newPrice = MemberUtils.roundDoubleLog(merchandise.hiddenPrice)
         val newWallet = MemberUtils.roundDoubleLog(MemberUtils.getWallet(player))
         logToFile(
-                "${player.name} sold $amount of ${merchandise.getName()}, hiddenPrice: " +
+                "${player.name} bought $amount of ${merchandise.getName()}, hiddenPrice: " +
                         "$oldPrice to $newPrice, wallet: $oldWallet to " +
-                        "$newWallet, mass now $newMass, from a shulker box"
+                        "$newWallet, mass now $newMass"
         )
         player.sendMessage(
                 "${GREEN}You bought ${WHITE}${amount} ${merchandise.getName()}${GREEN} " +
