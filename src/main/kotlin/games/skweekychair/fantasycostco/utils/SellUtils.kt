@@ -356,13 +356,14 @@ object SellUtils {
         val oldPrice = MemberUtils.roundDoubleLog(merchandise.hiddenPrice)
         val oldWallet = MemberUtils.roundDoubleLog(MemberUtils.getWallet(player))
         merchandise.sell(amount.toDouble())
-        val newPrice = MemberUtils.roundDoubleLog(merchandise.hiddenPrice)
-        val newWallet = MemberUtils.roundDoubleLog(MemberUtils.getWallet(player))
-        logToFile(
-                "${player.name} sold $amount ${merchandise.getName()}, with price change " +
-                        "$oldPrice to $newPrice. Sold for $price, with wallet change " +
-                        "$oldWallet to $newWallet"
-        )
+        val newMass = MemberUtils.roundDoubleLog(merchandise.mass)
+            val newPrice = MemberUtils.roundDoubleLog(merchandise.hiddenPrice)
+            val newWallet = MemberUtils.roundDoubleLog(MemberUtils.getWallet(player))
+            logToFile(
+                    "${player.name} sold $amount of ${merchandise.getName()}, hiddenPrice: " +
+                            "$oldPrice to $newPrice, wallet: $oldWallet to " +
+                            "$newWallet, mass now $newMass"
+            )
         player.sendMessage(
                 "${GREEN}You received ${WHITE}${MemberUtils.roundDoubleString(price)}" +
                         "${GREEN} in the sale"
@@ -444,12 +445,13 @@ object SellUtils {
             MemberUtils.walletAdd(player, price)
             merchandise.sell(amount.toDouble())
             totalPrice += price
+            val newMass = MemberUtils.roundDoubleLog(merchandise.mass)
             val newPrice = MemberUtils.roundDoubleLog(merchandise.hiddenPrice)
             val newWallet = MemberUtils.roundDoubleLog(MemberUtils.getWallet(player))
             logToFile(
-                    "${player.name} sold $amount ${merchandise.getName()}, with price change " +
-                            "$oldPrice to $newPrice. Sold for $price, with wallet change " +
-                            "$oldWallet to $newWallet, from a shulker box"
+                    "${player.name} sold $amount of ${merchandise.getName()}, hiddenPrice: " +
+                            "$oldPrice to $newPrice, wallet: $oldWallet to " +
+                            "$newWallet, mass now $newMass, from a shulker box"
             )
         }
         shulkerMeta.setBlockState(shulkerBox)

@@ -61,12 +61,13 @@ object BuyUtils {
         if (remaining.isNotEmpty()) {
             placeRemainingItems(remaining, player)
         }
+        val newMass = MemberUtils.roundDoubleLog(merchandise.mass)
         val newPrice = MemberUtils.roundDoubleLog(merchandise.hiddenPrice)
         val newWallet = MemberUtils.roundDoubleLog(MemberUtils.getWallet(player))
         logToFile(
-                "${player.name} bought $amount ${merchandise.getName()}, with price change " +
-                        "$oldPrice to $newPrice. Bought for $price, with wallet change " +
-                        "$oldWallet to $newWallet"
+                "${player.name} sold $amount of ${merchandise.getName()}, hiddenPrice: " +
+                        "$oldPrice to $newPrice, wallet: $oldWallet to " +
+                        "$newWallet, mass now $newMass, from a shulker box"
         )
         player.sendMessage(
                 "${GREEN}You bought ${WHITE}${amount} ${merchandise.getName()}${GREEN} " +
@@ -253,16 +254,16 @@ object BuyUtils {
 
         val oldPrice = MemberUtils.roundDoubleLog(merchandise.hiddenPrice)
         val oldWallet = MemberUtils.roundDoubleLog(MemberUtils.getWallet(player))
-        val price = MemberUtils.roundDoubleString(filledPrice)
         MemberUtils.walletSubtract(player, filledPrice)
         merchandise.buy(merchandise.material.maxStackSize * 27.0)
         shulkerMerch.buy(1.0)
+        val newMass = MemberUtils.roundDoubleLog(merchandise.mass)
         val newPrice = MemberUtils.roundDoubleLog(merchandise.hiddenPrice)
         val newWallet = MemberUtils.roundDoubleLog(MemberUtils.getWallet(player))
         logToFile(
-                "${player.name} bought a shulker box ($amount) of ${merchandise.getName()}, with " +
-                        "price change $oldPrice to $newPrice. Bought for $price, with wallet " +
-                        "change $oldWallet to $newWallet"
+                "${player.name} bought $amount of ${merchandise.getName()}, hiddenPrice: " +
+                        "$oldPrice to $newPrice, wallet: $oldWallet to " +
+                        "$newWallet, mass now $newMass"
         )
         // Make the shulker box
         val shulkerItem = ItemStack(shulkerMat)
